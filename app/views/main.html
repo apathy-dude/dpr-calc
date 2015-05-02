@@ -1,0 +1,52 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            <!-- Sidebar content -->
+            <form class=form-horizontal role="">
+                <div class="form-group">
+                    <label for="query">Search:</label> <input id="query" ng-model="query">
+                </div>
+
+                <div class="form-group">
+                    <label for="order">Sort by:</label>
+                    <select id="order" ng-model="orderProp">
+                        <option value="name">Name</option>
+                        <option value="-bab">BAB</option>
+                        <option value="-hd">HD</option>
+                        <option value="fort">Fortitude</option>
+                        <option value="ref">Reflex</option>
+                        <option value="will">Will</option>
+                        <option value="-skills">Skills</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-10">
+            <!-- Body content -->
+
+            <table class="table">
+                <tr>
+                    <th>Name</th>
+                    <th>BAB</th>
+                    <th>HD</th>
+                    <th>Reflex</th>
+                    <th>Fortitude</th>
+                    <th>Will</th>
+                    <th>Skills</th>
+                </tr>
+
+                <tr ng-repeat="class in classes | filter:query | orderBy:orderProp">
+                    <td>{{ class.name }}</td>
+                    <td>{{ class.bab }}</td>
+                    <td>{{ class.hd }}</td>
+                    <td>{{ class.fort }}</td>
+                    <td>{{ class.ref }}</td>
+                    <td>{{ class.will }}</td>
+                    <td>{{ class.skills }}</td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</div>
