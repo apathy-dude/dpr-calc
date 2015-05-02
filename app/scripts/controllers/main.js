@@ -14,6 +14,13 @@ angular.module('dprCalcApp')
         $scope.classes = data;
     });
 
+    $scope.options = {
+        'bab': [ '1', '0.75', '0.5' ],
+        'hd': [ '12', '10', '8', '6' ],
+        'skills': ['8', '6', '4', '2' ],
+        'saves': [ 'HIGH', 'LOW' ]
+    };
+
     $scope.orderProp = 'name';
 
   });

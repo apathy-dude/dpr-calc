@@ -2,9 +2,58 @@
     <div class="row">
         <div class="col-md-2">
             <!-- Sidebar content -->
-            <form class=form-horizontal role="">
+            <form class="form-horizontal" role="">
                 <div class="form-group">
-                    <label for="query">Search:</label> <input id="query" ng-model="query">
+                    <label for="search-name">Name:</label> <input id="search-name" ng-model="search.name">
+                </div>
+
+                <div class="form-group">
+                    <label for="search-bab">BAB:</label>
+                    <select id="search-bab" ng-model="search.bab">
+                        <option></option>
+                        <option ng-repeat="value in options.bab" value="{{value}}">{{value}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="search-hd">HD:</label>
+                    <select id="search-hd" ng-model="search.hd">
+                        <option></option>
+                        <option ng-repeat="value in options.hd" value="{{value}}">{{value}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="search-fort">Fortitude:</label>
+                    <select id="search-fort" ng-model="search.fort">
+                        <option></option>
+                        <option ng-repeat="value in options.saves" value="{{value}}">{{value}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="search-ref">Reflex:</label>
+                    <select id="search-ref" ng-model="search.ref">
+                        <option></option>
+                        <option ng-repeat="value in options.saves" value="{{value}}">{{value}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="search-will">Will:</label>
+                    <select id="search-will" ng-model="search.will">
+                        <option></option>
+                        <option ng-repeat="value in options.saves" value="{{value}}">{{value}}</option>
+                    </select>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="search-skills">Skills:</label>
+                    <select id="search-skills">
+                        <option></option>
+                        <option ng-repeat="value in options.skills" ng-model="search.skills" value="{{value}}">{{value}}</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -30,13 +79,13 @@
                     <th>Name</th>
                     <th>BAB</th>
                     <th>HD</th>
-                    <th>Reflex</th>
                     <th>Fortitude</th>
+                    <th>Reflex</th>
                     <th>Will</th>
                     <th>Skills</th>
                 </tr>
 
-                <tr ng-repeat="class in classes | filter:query | orderBy:orderProp">
+                <tr ng-repeat="class in classes | filter:search:strict | orderBy:orderProp">
                     <td>{{ class.name }}</td>
                     <td>{{ class.bab }}</td>
                     <td>{{ class.hd }}</td>
