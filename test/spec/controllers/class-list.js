@@ -1,17 +1,17 @@
 'use strict';
 
-describe('Controller: MainCtrl', function () {
+describe('Controller: ClassListCtrl', function () {
 
   // load the controller's module
   beforeEach(module('dprCalcApp'));
 
-  var MainCtrl,
+  var ClassListCtrl,
     scope;
 
   // Initialize the controller and a mock scope
   beforeEach(inject(function ($controller, $rootScope) {
     scope = $rootScope.$new();
-    MainCtrl = $controller('MainCtrl', {
+    ClassListCtrl = $controller('ClassListCtrl', {
       $scope: scope
     });
   }));

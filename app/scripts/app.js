@@ -17,6 +17,7 @@ angular
     'ngSanitize',
     'ngTouch'
   ])
+  .constant('_', window._)
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
