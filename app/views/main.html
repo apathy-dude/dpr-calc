@@ -85,7 +85,7 @@
                     <th>Skills</th>
                 </tr>
 
-                <tr ng-repeat="class in classes | filter:search:strict | orderBy:orderProp">
+                <tr ng-repeat="class in classes | filter:search:strict | orderBy:orderProp" ng-class-odd="'odd'">
                     <td>{{ class.name }}</td>
                     <td>{{ class.bab }}</td>
                     <td>{{ class.hd }}</td>
