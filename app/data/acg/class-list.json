@@ -1,0 +1,12 @@
+[
+    { "name": "Arcanist", "bab": 0.5, "fort": "LOW", "ref": "LOW", "will": "HIGH", "skills": 2, "hd": 6 },
+    { "name": "Bloodrager", "bab": 1, "fort": "HIGH", "ref": "LOW", "will": "LOW", "skills": 4, "hd": 10 },
+    { "name": "Brawler", "bab": 1, "fort": "HIGH", "ref": "HIGH", "will": "LOW", "skills": 4, "hd": 10 },
+    { "name": "Hunter", "bab": 1, "fort": "HIGH", "ref": "HIGH", "will": "LOW", "skills": 6, "hd": 8 },
+    { "name": "Investigator", "bab": 0.75, "fort": "LOW", "ref": "HIGH", "will": "HIGH", "skills": 6, "hd": 8 },
+    { "name": "Shaman", "bab": 0.75, "fort": "LOW", "ref": "LOW", "will": "HIGH", "skills": 4, "hd": 8 },
+    { "name": "Skald", "bab": 0.75, "fort": "HIGH", "ref": "LOW", "will": "HIGH", "skills": 4, "hd": 8 },
+    { "name": "Slayer", "bab": 1, "fort": "HIGH", "ref": "HIGH", "will": "LOW", "skills": 6, "hd": 10 },
+    { "name": "Swashbuckler", "bab": 1, "fort": "LOW", "ref": "HIGH", "will": "LOW", "skills": 4, "hd": 10 },
+    { "name": "Warpriest", "bab": 0.75, "fort": "HIGH", "ref": "LOW", "will": "HIGH", "skills": 2, "hd": 8 }
+]

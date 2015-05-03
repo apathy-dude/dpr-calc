@@ -23,6 +23,10 @@ angular
         templateUrl: 'views/main.html',
         controller: 'MainCtrl'
       })
+      .when('/class-list/', {
+        templateUrl: 'views/class-list.html',
+        controller: 'ClassListCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });

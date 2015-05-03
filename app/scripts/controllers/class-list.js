@@ -2,13 +2,13 @@
 
 /**
  * @ngdoc function
- * @name dprCalcApp.controller:MainCtrl
+ * @name dprCalcApp.controller:ClassListCtrl
  * @description
- * # MainCtrl
+ * # ClassListCtrl
  * Controller of the dprCalcApp
  */
 angular.module('dprCalcApp')
-  .controller('MainCtrl', function ($scope, $http) {
+  .controller('ClassListCtrl', function ($scope, $http) {
     var books = ['acg', 'crb', 'apg', 'uc', 'um'];
 
     $scope.classes = [];

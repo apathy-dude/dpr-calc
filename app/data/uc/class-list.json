@@ -1,0 +1,6 @@
+[
+    { "name": "Antipaladin", "bab": 1, "fort": "HIGH", "ref": "LOW", "will": "HIGH", "skills": 2, "hd": 10 },
+    { "name": "Gunslinger", "bab": 1, "fort": "HIGH", "ref": "HIGH", "will": "LOW", "skills": 4, "hd": 10 },
+    { "name": "Ninja", "bab": 0.75, "fort": "LOW", "ref": "HIGH", "will": "LOW", "skills": 8, "hd": 8 },
+    { "name": "Samurai", "bab": 1, "fort": "HIGH", "ref": "LOW", "will": "LOW", "skills": 4, "hd": 10 }
+]
