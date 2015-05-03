@@ -8,25 +8,33 @@
  * Controller of the dprCalcApp
  */
 angular.module('dprCalcApp')
-  .controller('MainCtrl', function ($scope, $http) {
-    var books = ['acg', 'crb', 'apg', 'uc', 'um'];
+  .controller('MainCtrl', function ($scope) {
+      $scope.charactersCount = 0;
+      function emptyCharacter() {
+          var id = $scope.charactersCount;
+          $scope.charactersCount++;
+          return {
+              'name': 'character-' + id
+          };
+      }
 
-    $scope.classes = [];
-    function appendClass(data) {
-        $scope.classes = $scope.classes.concat(data);
-    }
+      $scope.characters = [emptyCharacter()];
+      $scope.selectedCharacter = 0;
 
-    for(var b in books) {
-        $http.get('data/' + books[b] + '/class-list.json').success(appendClass);
-    }
-
-    $scope.options = {
-        'bab': [ '1', '0.75', '0.5' ],
-        'hd': [ '12', '10', '8', '6' ],
-        'skills': ['8', '6', '4', '2' ],
-        'saves': [ 'HIGH', 'LOW' ]
-    };
-
-    $scope.orderProp = 'name';
-
+      $scope.emptyCharacter = emptyCharacter;
+      $scope.selectCharacter = function(ind) {
+          $scope.selectedCharacter = ind;
+      };
+      $scope.removeCharacter = function(ind) {
+          $scope.characters.splice(ind, 1);
+          if($scope.selectedCharacter > ind) {
+              $scope.selectedCharacter--;
+          }
+          else if($scope.characters.length === 0) {
+              $scope.selectedCharacter = 0;
+          }
+          else if($scope.selectedCharacter > $scope.characters.length - 1) {
+              $scope.selectedCharacter = $scope.characters.length - 1;
+          }
+      };
   });
