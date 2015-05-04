@@ -18,6 +18,8 @@ angular.module('dprCalcApp')
               'levels': [],
               'race': 'Human',
               'class': '',
+              'selectedLevel': null,
+              'selectedLevelIndex': -1,
               'abilityScores': {
                   'strength': 10,
                   'dexterity': 10,
@@ -33,9 +35,9 @@ angular.module('dprCalcApp')
           var lastLevel = 0;
           if($scope.selectedCharacter.levels.length > 0) {
               lastLevel = _.max($scope.selectedCharacter.levels, function(lvl) {
-                  var level = String.parseInt(lvl.level);
+                  var level = Number.parseInt(lvl.level);
                   return level === Number.NAN ? 0 : level;
-              });
+              }).level;
           }
 
           return {
@@ -105,32 +107,33 @@ angular.module('dprCalcApp')
       };
 
       // Level tab management
-      $scope.selectedLevelIndex = -1;
-      $scope.selectedLevel = null;
       $scope.selectLevel = function(ind) {
+          var character = $scope.selectedCharacter;
           $scope.clearEdit();
-          $scope.selectedLevelIndex = ind;
+          character.selectedLevelIndex = ind;
 
           if(ind === -1) {
-              $scope.selectedLevel = null;
+              character.selectedLevel = null;
           }
           else {
-              $scope.selectedLevel = $scope.selectedCharacter.level[ind];
+              character.selectedLevel = $scope.selectedCharacter.levels[ind];
           }
       };
       $scope.addLevel = function() {
-          $scope.selectedCharacter.push(emptyLevel());
-          $scope.selectedLevel = $scope.selectLevel($scope.selectedCharacter.levels.length - 1);
+          var character = $scope.selectedCharacter;
+          $scope.selectedCharacter.levels.push(emptyLevel());
+          character.selectedLevel = $scope.selectLevel($scope.selectedCharacter.levels.length - 1);
       };
       $scope.removeLevel = function(ind) {
+          var character = $scope.selectedCharacter;
           $scope.selectedCharacter.levels.splice(ind, 1);
-          if($scope.selectedLevelIndex > ind) {
-              $scope.selectLevel($scope.selectedLevelIndex - 1);
+          if(character.selectedLevelIndex > ind) {
+              $scope.selectLevel(character.selectedLevelIndex - 1);
           }
           else if($scope.selectedCharacter.levels.length === 0) {
               $scope.selectLevel(-1);
           }
-          else if($scope.selectedLevelIndex > $scope.selectedCharacter.levels.length -1){
+          else if(character.selectedLevelIndex > $scope.selectedCharacter.levels.length -1){
               $scope.selectLevel($scope.characters.length -1);
           }
       };

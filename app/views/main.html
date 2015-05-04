@@ -98,7 +98,20 @@
 
                 <!-- Level information -->
                 <div class="row col-md-8">
-                    Levels
+
+                    <div class="row col-md-1">
+
+                        <!-- Level tabs -->
+                        <ul class="list-unstyled tab-list">
+                            <li ng-click="selectLevel(ind)" ng-repeat="(ind, level) in selectedCharacter.levels" class="tab bg-default text-center" ng-class="ind === selectedCharacter.selectedLevelIndex ? 'unselected' : 'selected'">
+                                <span>{{ level.level }}</span>
+                            </li>
+                            <li class="text-right"><button type="button" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addLevel()"></button></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-11 bg-unstyle">
+                        Level
+                    </div>
                 </div>
 
             </div>
