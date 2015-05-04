@@ -3,9 +3,13 @@
 }
 
 .tab-header {
-    border-bottom: 1px solid #E7E7E7;
     border-left: 1px solid #E7E7E7;
+
     padding-left: 4px;
+    padding-top: 4px;
+    padding-bottom: 0;
+
+    margin-bottom: 0;
 }
 
 .content {
@@ -26,7 +30,12 @@ li.tab {
     cursor: pointer;
     line-height: 2;
 
+    border-bottom: none;
+
     margin-right: 2px;
+    margin-bottom: -1px;
+
+    height: 100%;
 
     -webkit-border-top-left-radius: 6px;
     -webkit-border-top-right-radius: 6px;
@@ -36,8 +45,24 @@ li.tab {
     border-top-right-radius: 6px;
 }
 
-.bg-default.tab {
+.bg-default {
     border: 1px solid #DDD;
-    background-color: #EEE;
+    background-color: #E7E7E7;
     color: #333;
+}
+
+.tab.unselected {
+    background-color: #FFF;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+h1, .h1 {
+    font-size: 22px;
 }

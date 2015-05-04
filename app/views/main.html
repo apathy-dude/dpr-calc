@@ -1,19 +1,16 @@
 <div class="container-fluid">
 
     <div class="row">
-        <div class="col-md-2">
-            <!-- Sidebar content -->
-        </div>
+        <div class="col-md-12">
 
-        <div class="col-md-10">
-            <!-- Body content -->
+            <!-- Character Tabs -->
 
             <div class="row tab-header">
                 <ul class="list-inline tab-list">
                     <li>
-                        <button type="button" class="btn btn-success btn-xs" ng-click="characters.push(emptyCharacter())">New</button>
+                        <button type="button" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addCharacter()"></button>
                     </li>
-                    <li ng-repeat="(ind, character) in characters" class="tab" ng-class="ind === selectedCharacter ? 'bg-primary' : 'bg-default'">
+                    <li ng-repeat="(ind, character) in characters" class="tab bg-default" ng-class="ind === selectedCharacterIndex ? 'selected' : 'unselected'">
                         <span ng-click="selectCharacter(ind)">{{ character.name }}</span>
                         &nbsp;
                         <button type="button" class="close" aria-label="Close" ng-click="removeCharacter(ind)"><span aria-hidden="true">&times;</span></button>
@@ -21,8 +18,89 @@
                 </ul>
             </div>
 
-            <div class="row content">
-                {{ characters[selectedCharacter].name }}
+            <!-- Body Content -->
+            <div class="row content bg-default">
+                <div class="col-md-10">
+                    <div ng-if="edit !== 'name'">
+                        <h1 ng-click="setEdit('name', 'selectedCharacter.name')" class="inline-block clickable">{{ selectedCharacter.name }}</h1>
+                    </div>
+                    <div ng-if="edit === 'name'">
+                        <input ng-model="selectedCharacter.name" class="h1" />
+                        <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></button>
+                        <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></button>
+                    </div>
+                </div>
+
+                <div class="col-md-2 text-right" style="height: 100%">
+                    <button type="button" class="btn btn-default">Import</button>
+                    <button type="button" class="btn btn-default">Export</button>
+                </div>
+
+                <!-- Static information -->
+                <div class="row col-md-4">
+                    <div class="col-md-12">
+                        <div ng-if="edit !== 'race'">
+                            <p class="clickable" ng-click="setEdit('race', 'selectedCharacter.race')">
+                                <strong>Race: </strong>
+                                <span>{{ selectedCharacter.race }}</span>
+                            </p>
+                        </div>
+                        <div ng-if="edit === 'race'">
+                            <input ng-model="selectedCharacter.race" />
+                            <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                            <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div ng-if="edit !== 'class'">
+                            <p class="clickable" ng-click="setEdit('class', 'selectedCharacter.class')">
+                                <strong>Class: </strong>
+                                <span>{{ selectedCharacter.class }}</span>
+                            </p>
+                        </div>
+                        <div ng-if="edit === 'class'">
+                            <input ng-model="selectedCharacter.class" />
+                            <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                            <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <strong>1st Level Ability Scores</strong>
+                    </div>
+
+                    <div class="col-md-12" ng-repeat="score in abilityScores">
+                        <div ng-click="setEdit('base-' + score, 'selectedCharacter.abilityScores.' + score)" ng-if="edit !== 'base-' + score" class="clickable">
+                            <div class="row">
+                                <div class="col-md-4 text-capitalize">{{ score }}: </div>
+                                <div class="col-md-4">
+                                    {{ selectedCharacter.abilityScores[score] }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ getAbilitymod(selectedCharacter.abilityScores[score]) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div ng-click="setEdit('base-' + score, 'selectedCharacter.abilityScores.' + score)" ng-if="edit === 'base-' + score" class="clickable">
+                            <div class="row">
+                                <div class="col-md-4 text-capitalize">{{ score }}: </div>
+                                <div class="col-md-8">
+                                    <input type="number" ng-model="selectedCharacter.abilityScores[score]" />
+                                    <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                    <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level information -->
+                <div class="row col-md-8">
+                    Levels
+                </div>
+
             </div>
 
         </div>
