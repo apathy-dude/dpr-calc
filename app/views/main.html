@@ -7,14 +7,12 @@
 
             <div class="row tab-header">
                 <ul class="list-inline tab-list">
-                    <li>
-                        <button type="button" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addCharacter()"></button>
-                    </li>
-                    <li ng-repeat="(ind, character) in characters" class="tab bg-default" ng-class="ind === selectedCharacterIndex ? 'selected' : 'unselected'">
-                        <span ng-click="selectCharacter(ind)">{{ character.name }}</span>
+                    <li ng-repeat="(ind, character) in characters" ng-click="selectCharacter(ind)" class="tab bg-default text-center" ng-class="ind === selectedCharacterIndex ? 'selected' : 'unselected'">
+                        <span>{{ character.name }}</span>
                         &nbsp;
-                        <button type="button" class="close" aria-label="Close" ng-click="removeCharacter(ind)"><span aria-hidden="true">&times;</span></button>
+                        <span class="close" ng-click="removeCharacter(ind)">&times;</span>
                     </li>
+                    <li><button type="button" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addCharacter()"></button></li>
                 </ul>
             </div>
 
@@ -67,7 +65,7 @@
                     </div>
 
                     <div class="col-md-12">
-                        <strong>1st Level Ability Scores</strong>
+                        <strong>Base Ability Scores</strong>
                     </div>
 
                     <div class="col-md-12" ng-repeat="score in abilityScores">
@@ -78,7 +76,7 @@
                                     {{ selectedCharacter.abilityScores[score] }}
                                 </div>
                                 <div class="col-md-4">
-                                    {{ getAbilitymod(selectedCharacter.abilityScores[score]) }}
+                                    {{ getAbilityMod(selectedCharacter.abilityScores[score]) }}
                                 </div>
                             </div>
                         </div>
@@ -94,24 +92,98 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-md-12">
+                        <strong>Point Buy: </strong>
+                        {{ getPointBuy(selectedCharacter) }}
+                    </div>
+
                 </div>
 
                 <!-- Level information -->
                 <div class="row col-md-8">
 
+                    <!-- Level tabs -->
                     <div class="row col-md-1">
-
-                        <!-- Level tabs -->
                         <ul class="list-unstyled tab-list">
-                            <li ng-click="selectLevel(ind)" ng-repeat="(ind, level) in selectedCharacter.levels" class="tab bg-default text-center" ng-class="ind === selectedCharacter.selectedLevelIndex ? 'unselected' : 'selected'">
+                            <li ng-click="selectLevel(selectedCharacter, ind)" ng-repeat="(ind, level) in selectedCharacter.levels" class="tab bg-default text-center" ng-class="ind === selectedCharacter.selectedLevelIndex ? 'unselected' : 'selected'">
                                 <span>{{ level.level }}</span>
+                                <span class="close" ng-click="removeLevel(selectedCharacter, ind)">&times;</span>
                             </li>
-                            <li class="text-right"><button type="button" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addLevel()"></button></li>
+                            <li class="text-right">
+                                <button type="button" class="btn btn-success btn-xs glyphicon glyphicon-sort-by-order" ng-click="sortLevel(selectedCharacter)"></button>
+                                <button type="button" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addLevel(selectedCharacter)"></button>
+                            </li>
                         </ul>
                     </div>
+
+                    <!-- Level information -->
                     <div class="col-md-11 bg-unstyle">
-                        Level
+
+                        <div ng-if="selectedCharacter.levels.length > 0" class="row col-md-12">
+
+                            <div class="col-md-12">
+                                <div ng-click="setEdit('level', 'selectedCharacter.selectedLevel.level')" ng-if="edit !== 'level'" class="clickable">
+                                    <h2>Level {{ selectedCharacter.selectedLevel.level }}</h2>
+                                </div>
+
+                                <div ng-if="edit === 'level'">
+                                    <input ng-model="selectedCharacter.selectedLevel.level" class="h2" type="number" />
+                                    <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></button>
+                                    <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 row">
+                                <div class="col-md-12 row">
+                                    <div class="col-md-2">
+                                        <u>Ability Score</u>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <u>Increase</u>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <u>Enhancement Bonus</u>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <u>Value</u>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <u>Modifier</u>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 row" ng-repeat="score in abilityScores">
+                                    <div class="col-md-2 text-capitalize">{{ score }}: </div>
+                                    <div class="col-md-3 clickable text-center" ng-click="setEdit('change-' + score, 'selectedCharacter.selectedLevel.abilityScoreChanges.' + score)" ng-if="edit !== 'change-' + score">
+                                        {{ selectedCharacter.selectedLevel.abilityScoreChanges[score] }}
+                                    </div>
+                                    <div class="col-md-3 text-center" ng-if="edit === 'change-' + score">
+                                        <input type="number" ng-model="selectedCharacter.selectedLevel.abilityScoreChanges[score]" />
+                                        <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                        <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                    </div>
+                                    <div class="col-md-3 clickable text-center" ng-click="setEdit('enhance-' + score, 'selectedCharacter.selectedLevel.abilityScoreChanges.' + score)"ng-if="edit !== 'enhance-' + score">
+                                        {{ selectedCharacter.selectedLevel.abilityScoreEnhancements[score] }}
+                                    </div>
+                                    <div class="col-md-3 text-center" ng-if="edit === 'enhance-' + score">
+                                        <input type="number" ng-model="selectedCharacter.selectedLevel.abilityScoreEnhancements[score]" />
+                                        <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                        <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        {{ getAbilityScore(selectedCharacter, selectedCharacter.selectedLevel, score) }}
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        {{ getAbilityMod(getAbilityScore(selectedCharacter, selectedCharacter.selectedLevel, score)) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
                     </div>
+
                 </div>
 
             </div>
