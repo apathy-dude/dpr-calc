@@ -26,7 +26,7 @@ angular.module('dprCalcApp')
                   var temp = $scope.getAbilityScore(character, level, bonus.value);
                   value = $scope.getAbilityMod(temp);
                   break;
-              case BONUS_TYPE.bab: value = 0; break;
+              case BONUS_TYPE.bab: value = $scope.getBab(character, level); break;
           }
 
           if(typeof value === 'string') {
