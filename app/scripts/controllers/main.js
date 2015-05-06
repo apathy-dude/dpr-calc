@@ -11,22 +11,22 @@ angular.module('dprCalcApp')
   .controller('MainCtrl', function ($scope) {
       var charactersCount = 0;
       var BONUS_TYPE = {
-          static: 0,
-          ability: 1,
-          dynamic: 2,
-          bab: 3
+          STATIC: 0,
+          ABILITY: 1,
+          DYNAMIC: 2,
+          BAB: 3
       };
 
       function getValue(character, level, bonus) {
           var value;
           switch(bonus.type) {
-              case BONUS_TYPE.static: value = bonus.value; break;
-              case BONUS_TYPE.dynamic: value = bonus.value; break;
-              case BONUS_TYPE.ability:
+              case BONUS_TYPE.STATIC: value = bonus.value; break;
+              case BONUS_TYPE.DYNAMIC: value = bonus.value; break;
+              case BONUS_TYPE.ABILITY:
                   var temp = $scope.getAbilityScore(character, level, bonus.value);
                   value = $scope.getAbilityMod(temp);
                   break;
-              case BONUS_TYPE.bab: value = $scope.getBab(character, level); break;
+              case BONUS_TYPE.BAB: value = $scope.getBab(character, level); break;
           }
 
           if(typeof value === 'string') {
@@ -95,45 +95,45 @@ angular.module('dprCalcApp')
               'feats': [],
               'skills': [],
               'ac': {
-                  'base': { 'type': BONUS_TYPE.static, 'value': 10, 'flat-footed': true, 'touch': true },
-                  'dexterity': { 'type': BONUS_TYPE.ability, 'value': 'dexterity', 'flat-footed': false, 'touch': true },
-                  'armor': { 'type': BONUS_TYPE.dynamic, 'value': 0, 'flat-footed': true, 'touch': false },
-                  'shield': { 'type': BONUS_TYPE.dynamic, 'value': 0, 'flat-footed': true, 'touch': false },
-                  'natural': { 'type': BONUS_TYPE.dynamic, 'value': 0, 'flat-footed': true, 'touch': false },
-                  'dodge': { 'type': BONUS_TYPE.dynamic, 'value': 0, 'flat-footed': false, 'touch': true },
-                  'deflection': { 'type': BONUS_TYPE.dynamic, 'value': 0, 'flat-footed': true, 'touch': true },
-                  'size': { 'type': BONUS_TYPE.dynamic, 'value': 0, 'flat-footed': true, 'touch': true },
-                  'touch': { 'type': BONUS_TYPE.dynamic, 'value': 0, 'flat-footed': false, 'touch': true },
-                  'flat-footed': { 'type': BONUS_TYPE.dynamic, 'value': 0, 'flat-footed': true, 'touch': false }
+                  'base': { 'type': BONUS_TYPE.STATIC, 'value': 10, 'flat-footed': true, 'touch': true },
+                  'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity', 'flat-footed': false, 'touch': true },
+                  'armor': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false },
+                  'shield': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false },
+                  'natural': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false },
+                  'dodge': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': false, 'touch': true },
+                  'deflection': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': true },
+                  'size': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': true },
+                  'touch': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': false, 'touch': true },
+                  'flat-footed': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false }
               },
               'saves': {
                   'fortitude': {
-                      'base': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
-                      'constitution': { 'type': BONUS_TYPE.ability, 'value': 'constitution' },
-                      'magic': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
-                      'misc': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
+                      'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                      'constitution': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution' },
+                      'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                      'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
                   },
                   'reflex': {
-                      'base': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
-                      'dexterity': { 'type': BONUS_TYPE.ability, 'value': 'dexterity' },
-                      'magic': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
-                      'misc': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
+                      'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                      'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity' },
+                      'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                      'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
                   },
                   'will': {
-                      'base': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
-                      'wisdom': { 'type': BONUS_TYPE.ability, 'value': 'wisdom' },
-                      'magic': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
-                      'misc': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
+                      'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                      'wisdom': { 'type': BONUS_TYPE.ABILITY, 'value': 'wisdom' },
+                      'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                      'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
                   }
               },
               'dr': 0,
               'sr': 0,
               'hpGain': {
-                  'level': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
-                  'constitution': { 'type': BONUS_TYPE.ability, 'value': 'constitution' },
-                  'favoured': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
-                  'toughness': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
-                  'other': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
+                  'level': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                  'constitution': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution' },
+                  'favoured': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                  'toughness': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                  'other': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
               },
               'babGain': 0,
               'movement': {
@@ -145,8 +145,8 @@ angular.module('dprCalcApp')
                   'burrow': 0
               },
               'initiative': {
-                  'dexterity': { 'type': BONUS_TYPE.ability, 'value': 'dexterity' },
-                  'misc': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
+                  'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity' },
+                  'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
               },
               'spell-casting': [],
               'abilities': [],
@@ -176,11 +176,11 @@ angular.module('dprCalcApp')
               'weapon': '',
               'damage-dice': [],
               'damage-bonus': {
-                  'strength': { 'type': BONUS_TYPE.ability, 'value': 'strength' },
+                  'strength': { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' },
               },
               'hit-chance': {
-                  'strength': { 'type': BONUS_TYPE.ability, 'value': 'strength' },
-                  'bab': { 'type': BONUS_TYPE.bab, 'value': 'bab' },
+                  'strength': { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' },
+                  'bab': { 'type': BONUS_TYPE.BAB, 'value': 'bab' },
               }
           };
       }
@@ -191,8 +191,8 @@ angular.module('dprCalcApp')
               'damage-dice': [],
               'damage-bonus': {},
               'hit-chance': {
-                  'strength': { 'type': BONUS_TYPE.ability, 'value': 'dexterity' },
-                  'bab': { 'type': BONUS_TYPE.bab, 'value': 'bab' },
+                  'strength': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity' },
+                  'bab': { 'type': BONUS_TYPE.BAB, 'value': 'bab' },
               }
           };
       }
