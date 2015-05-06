@@ -29,6 +29,11 @@ angular.module('dprCalcApp')
               case BONUS_TYPE.bab: value = 0; break;
           }
 
+          if(typeof value === 'string') {
+              value = parseFloat(value);
+              value = isNaN(value) ? 0 : value;
+          }
+
           if(bonus.modifier) {
               value *= bonus.modifier;
               value = Math.floor(value);
@@ -62,7 +67,7 @@ angular.module('dprCalcApp')
           var lastLevel = 0;
           if($scope.selectedCharacter.levels.length > 0) {
               lastLevel = _.max($scope.selectedCharacter.levels, function(lvl) {
-                  var level = Number.parseInt(lvl.level);
+                  var level = parseFloat(lvl.level);
                   return isNaN(level) ? 0 : level;
               }).level;
           }
@@ -123,14 +128,14 @@ angular.module('dprCalcApp')
               },
               'dr': 0,
               'sr': 0,
-              'hp-gain': {
+              'hpGain': {
                   'level': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
                   'constitution': { 'type': BONUS_TYPE.ability, 'value': 'constitution' },
                   'favoured': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
                   'toughness': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
                   'other': { 'type': BONUS_TYPE.dynamic, 'value': 0 },
               },
-              'bab-gain': 0,
+              'babGain': 0,
               'movement': {
                   'base': 30,
                   'armor': 30,
@@ -196,7 +201,6 @@ angular.module('dprCalcApp')
       $scope.characters = [];
       $scope.selectedCharacterIndex = -1;
       $scope.selectedCharacter = null;
-
       $scope.selectCharacter = function(ind) {
           $scope.clearEdit();
           $scope.selectedCharacterIndex = ind;
@@ -268,7 +272,7 @@ angular.module('dprCalcApp')
       };
       $scope.sortLevel = function(character) {
           character.levels = _.sortBy(character.levels, function(lvl) {
-              return Number.parseInt(lvl.level);
+              return parseFloat(lvl.level);
           });
           character.selectedLevelIndex = _.indexOf(character.levels, character.selectedLevel);
       };
@@ -311,28 +315,8 @@ angular.module('dprCalcApp')
       };
 
       // Character management
-      $scope.getAbilityScore = function(character, level, score) {
-          var lev = Number.parseInt(level.level);
-          var initialValue = Number.parseInt(character.abilityScores[score]);
-          var enhancement = Number.parseInt(level.abilityScoreEnhancements[score]);
-
-          var val = _.chain(character.levels)
-            .filter(function(lvl) {
-                var l = Number.parseInt(lvl.level);
-                return l <= lev;
-            })
-            .reduce(function(result, value) {
-                var v = Number.parseInt(value.abilityScoreChanges[score]);
-                return result += v ? v : 0;
-            }, initialValue ? initialValue : 0)
-            .value();
-          
-          val += enhancement ? enhancement : 0;
-
-          return val;
-      };
       $scope.getAbilityMod = function(score) {
-          score = Number.parseInt(score);
+          score = parseInt(score);
           return Math.floor((score - 10) / 2);
       };
       $scope.getPointBuy = function(character) {
@@ -341,11 +325,64 @@ angular.module('dprCalcApp')
           }
 
           return _.reduce($scope.abilityScores, function(result, score) {
-              var val = Number.parseInt(character.abilityScores[score]);
+              var val = parseFloat(character.abilityScores[score]);
               val = val < 3 ? 3 : val;
               val = val > 18 ? 18 : val;
               return result += $scope.pointBuy[val ? val : 10];
           }, 0);
+      };
+
+      // Level management
+      function levelFilter(level) {
+          if(typeof level === 'string') {
+              level = parseFloat(level);
+              if(isNaN(level)) {
+                  return function() {
+                      return false;
+                  };
+              }
+          }
+
+          return function(lvl) {
+              var l = parseFloat(lvl.level);
+              return l <= level;
+          };
+      }
+      $scope.getAbilityScore = function(character, level, score) {
+          var initialValue = parseFloat(character.abilityScores[score]);
+          var enhancement = parseFloat(level.abilityScoreEnhancements[score]);
+
+          var val = _.chain(character.levels)
+            .filter(levelFilter(level.level))
+            .reduce(function(result, value) {
+                var v = parseFloat(value.abilityScoreChanges[score]);
+                return result += v ? v : 0;
+            }, initialValue ? initialValue : 0)
+            .value();
+          
+          val += enhancement ? enhancement : 0;
+
+          return val;
+      };
+      $scope.getBab = function(character, level) {
+          return _.chain(character.levels)
+            .filter(levelFilter(level.level))
+            .reduce(function(result, value) {
+                var v = parseFloat(value.babGain);
+                return result += v ? v : 0;
+            }, 0)
+            .value();
+      };
+      $scope.getHp = function(character, level) {
+          return _.chain(character.levels)
+            .filter(levelFilter(level.level))
+            .reduce(function(result, value) {
+                var v = _.reduce(value.hpGain, function(res, val) {
+                    return res + getValue(val);
+                }, 0);
+                return result += v ? v : 0;
+            }, 0)
+            .value();
       };
 
       // Attack management

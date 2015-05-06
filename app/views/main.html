@@ -85,7 +85,7 @@
                             <div class="row">
                                 <div class="col-md-4 text-capitalize">{{ score }}: </div>
                                 <div class="col-md-8">
-                                    <input type="number" ng-model="selectedCharacter.abilityScores[score]" />
+                                    <input type="number" step="any" ng-model="selectedCharacter.abilityScores[score]" />
                                     <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                     <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                 </div>
@@ -128,7 +128,7 @@
                                 </div>
 
                                 <div ng-if="edit === 'level'">
-                                    <input ng-model="selectedCharacter.selectedLevel.level" class="h2" type="number" />
+                                    <input ng-model="selectedCharacter.selectedLevel.level" class="h2" type="number" step="any" />
                                     <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></button>
                                     <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></button>
                                 </div>
@@ -159,7 +159,7 @@
                                         {{ selectedCharacter.selectedLevel.abilityScoreChanges[score] }}
                                     </div>
                                     <div class="col-md-3 text-center" ng-if="edit === 'change-' + score">
-                                        <input type="number" ng-model="selectedCharacter.selectedLevel.abilityScoreChanges[score]" />
+                                        <input type="number" step="any" ng-model="selectedCharacter.selectedLevel.abilityScoreChanges[score]" />
                                         <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                         <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                     </div>
@@ -167,7 +167,7 @@
                                         {{ selectedCharacter.selectedLevel.abilityScoreEnhancements[score] }}
                                     </div>
                                     <div class="col-md-3 text-center" ng-if="edit === 'enhance-' + score">
-                                        <input type="number" ng-model="selectedCharacter.selectedLevel.abilityScoreEnhancements[score]" />
+                                        <input type="number" step="any" ng-model="selectedCharacter.selectedLevel.abilityScoreEnhancements[score]" />
                                         <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                         <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                     </div>
