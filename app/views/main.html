@@ -20,7 +20,7 @@
             <div class="row content bg-default">
                 <div class="col-md-10">
                     <div ng-if="edit !== 'name'">
-                        <h1 ng-click="setEdit('name', 'selectedCharacter.name')" class="inline-block clickable">{{ selectedCharacter.name }}</h1>
+                        <h1 ng-click="setEdit('name', 'selectedCharacter.name')" class="inline-block clickable">[ {{ selectedCharacter.name }} ]</h1>
                     </div>
                     <div ng-if="edit === 'name'">
                         <input ng-model="selectedCharacter.name" class="h1" />
@@ -40,7 +40,7 @@
                         <div ng-if="edit !== 'race'">
                             <p class="clickable" ng-click="setEdit('race', 'selectedCharacter.race')">
                                 <strong>Race: </strong>
-                                <span>{{ selectedCharacter.race }}</span>
+                                <span>[ {{ selectedCharacter.race }} ]</span>
                             </p>
                         </div>
                         <div ng-if="edit === 'race'">
@@ -54,7 +54,7 @@
                         <div ng-if="edit !== 'class'">
                             <p class="clickable" ng-click="setEdit('class', 'selectedCharacter.class')">
                                 <strong>Class: </strong>
-                                <span>{{ selectedCharacter.class }}</span>
+                                <span>[ {{ selectedCharacter.class }} ]</span>
                             </p>
                         </div>
                         <div ng-if="edit === 'class'">
@@ -73,7 +73,7 @@
                             <div class="row">
                                 <div class="col-md-4 text-capitalize">{{ score }}: </div>
                                 <div class="col-md-4">
-                                    {{ selectedCharacter.abilityScores[score] }}
+                                    [ {{ selectedCharacter.abilityScores[score] }} ]
                                 </div>
                                 <div class="col-md-4">
                                     {{ getAbilityMod(selectedCharacter.abilityScores[score]) }}
@@ -124,7 +124,7 @@
 
                             <div class="col-md-12">
                                 <div ng-click="setEdit('level', 'selectedCharacter.selectedLevel.level')" ng-if="edit !== 'level'" class="clickable">
-                                    <h2>Level {{ selectedCharacter.selectedLevel.level }}</h2>
+                                    <h2>[ Level {{ selectedCharacter.selectedLevel.level }} ]</h2>
                                 </div>
 
                                 <div ng-if="edit === 'level'">
@@ -156,7 +156,7 @@
                                 <div class="col-md-12 row" ng-repeat="score in abilityScores">
                                     <div class="col-md-2 text-capitalize">{{ score }}: </div>
                                     <div class="col-md-3 clickable text-center" ng-click="setEdit('change-' + score, 'selectedCharacter.selectedLevel.abilityScoreChanges.' + score)" ng-if="edit !== 'change-' + score">
-                                        {{ selectedCharacter.selectedLevel.abilityScoreChanges[score] }}
+                                        [ {{ selectedCharacter.selectedLevel.abilityScoreChanges[score] }} ]
                                     </div>
                                     <div class="col-md-3 text-center" ng-if="edit === 'change-' + score">
                                         <input type="number" step="any" ng-model="selectedCharacter.selectedLevel.abilityScoreChanges[score]" />
@@ -164,7 +164,7 @@
                                         <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                     </div>
                                     <div class="col-md-3 clickable text-center" ng-click="setEdit('enhance-' + score, 'selectedCharacter.selectedLevel.abilityScoreChanges.' + score)"ng-if="edit !== 'enhance-' + score">
-                                        {{ selectedCharacter.selectedLevel.abilityScoreEnhancements[score] }}
+                                        [ {{ selectedCharacter.selectedLevel.abilityScoreEnhancements[score] }} ]
                                     </div>
                                     <div class="col-md-3 text-center" ng-if="edit === 'enhance-' + score">
                                         <input type="number" step="any" ng-model="selectedCharacter.selectedLevel.abilityScoreEnhancements[score]" />
@@ -178,6 +178,98 @@
                                         {{ getAbilityMod(getAbilityScore(selectedCharacter, selectedCharacter.selectedLevel, score)) }}
                                     </div>
                                 </div>
+
+                                <div class="col-md-12 row" ng-repeat="stat in standardStats">
+                                    <hr />
+                                    <div class="col-md-12 row" ng-if="stat.renderType === RENDER_TYPE.INLINE">
+                                        <div class="col-md-2">
+                                            <u>{{ stat.title }}</u>
+                                            {{ getStat(selectedCharacter, selectedCharacter.selectedLevel, stat.name) }}
+                                        </div>
+                                        <div class="row col-md-2" ng-repeat="(key, mod) in selectedCharacter.selectedLevel[stat.name]">
+                                            <div class="col-md-4 text-capitalize">
+                                                {{ key }}:
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div ng-if="mod.type !== BONUS_TYPE.DYNAMIC">{{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }}</div>
+                                                <div ng-if="mod.type === BONUS_TYPE.DYNAMIC" class="clickable">
+                                                    <div ng-if="edit !== stat.name + '-' + key" ng-click="setEdit(stat.name + '-' + key, 'selectedCharacter.selectedLevel.' + stat.name + '.' + key + '.' + 'value')">
+                                                        <span ng-if="!mod.applyOnce">({{ getStatMod(selectedCharacter, selectedCharacter.selectedLevel, stat.name, key) }})</span>
+                                                         [ {{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }} ]
+                                                    </div>
+                                                    <div ng-if="edit === stat.name + '-' + key">
+                                                        <input type="number" step="any" ng-model="selectedCharacter.selectedLevel[stat.name][key].value" />
+                                                        <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                        <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 row" ng-if="stat.renderType === RENDER_TYPE.HEADER">
+                                        <div class="col-md-12 row">
+                                            <div class="col-md-1">
+                                                <u>{{ stat.title }}</u>
+                                            </div>
+                                            <div class="text-center text-capitalize col-md-1" ng-repeat="(key, mod) in selectedCharacter.selectedLevel[stat.name]">
+                                                <u>{{ key }}</u>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 row">
+                                            <div class="col-md-1">
+                                                {{ getStat(selectedCharacter, selectedCharacter.selectedLevel, stat.name) }} 
+                                            </div>
+                                            <div class="text-center col-md-1" ng-repeat="(key, mod) in selectedCharacter.selectedLevel[stat.name]">
+                                                <div ng-if="mod.type !== BONUS_TYPE.DYNAMIC">{{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }}</div>
+                                                <div ng-if="mod.type === BONUS_TYPE.DYNAMIC" class="clickable">
+                                                    <div ng-if="edit !== stat.name + '-' + key" ng-click="setEdit(stat.name + '-' + key, 'selectedCharacter.selectedLevel.' + stat.name + '.' + key + '.' + 'value')">
+                                                        <span ng-if="!mod.applyOnce">({{ getStatMod(selectedCharacter, selectedCharacter.selectedLevel, stat.name, key) }})</span>
+                                                         [ {{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }} ]
+                                                    </div>
+                                                    <div ng-if="edit === stat.name + '-' + key">
+                                                        <input type="number" step="any" ng-model="selectedCharacter.selectedLevel[stat.name][key].value" />
+                                                        <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                        <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 row" ng-if="stat.renderType === RENDER_TYPE.GROUP">
+                                        <div class="col-md-12 row">
+                                            <div class="col-md-1">
+                                                <u>{{ stat.title }}</u>
+                                            </div>
+                                            <div class="text-center text-capitalize col-md-1" ng-repeat="(key, mod) in selectedCharacter.selectedLevel[stat.items[0].name]">
+                                                <u>{{ key }}</u>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 row" ng-repeat="item in stat.items">
+                                            <div class="col-md-1">
+                                                {{ item.title }} {{ getStat(selectedCharacter, selectedCharacter.selectedLevel, item.name) }}
+                                            </div>
+                                            <div class="text-center col-md-1" ng-repeat="(key, mod) in selectedCharacter.selectedLevel[item.name]">
+                                                <div ng-if="mod.type !== BONUS_TYPE.DYNAMIC">{{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }}</div>
+                                                <div ng-if="mod.type === BONUS_TYPE.DYNAMIC" class="clickable">
+                                                    <div ng-if="edit !== item.name + '-' + key" ng-click="setEdit(item.name + '-' + key, 'selectedCharacter.selectedLevel.' + item.name + '.' + key + '.' + 'value')">
+                                                        <span ng-if="!mod.applyOnce">({{ getStatMod(selectedCharacter, selectedCharacter.selectedLevel, item.name, key) }})</span>
+                                                         [ {{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }} ]
+                                                    </div>
+                                                    <div ng-if="edit === item.name + '-' + key">
+                                                        <input type="number" step="any" ng-model="selectedCharacter.selectedLevel[item.name][key].value" />
+                                                        <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                        <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                         </div>

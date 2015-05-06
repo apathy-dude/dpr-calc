@@ -16,6 +16,11 @@ angular.module('dprCalcApp')
           DYNAMIC: 2,
           BAB: 3
       };
+      var RENDER_TYPE = {
+          INLINE: 0,
+          HEADER: 1,
+          GROUP: 2
+      };
 
       function getValue(character, level, bonus) {
           var value;
@@ -73,7 +78,10 @@ angular.module('dprCalcApp')
           }
 
           return {
+              // Base items
               'level': lastLevel + 1,
+              'attackGroups': [],
+              // Ability information TODO: Move to standard stat
               'abilityScoreChanges': {
                   'strength': 0,
                   'dexterity': 0,
@@ -90,52 +98,58 @@ angular.module('dprCalcApp')
                   'wisdom': 0,
                   'charisma': 0
               },
-              'attackGroups': [],
-              'equipment': [],
-              'feats': [],
-              'skills': [],
+              // Standard stats
               'ac': {
-                  'base': { 'type': BONUS_TYPE.STATIC, 'value': 10, 'flat-footed': true, 'touch': true },
-                  'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity', 'flat-footed': false, 'touch': true },
-                  'armor': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false },
-                  'shield': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false },
-                  'natural': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false },
-                  'dodge': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': false, 'touch': true },
-                  'deflection': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': true },
-                  'size': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': true },
-                  'touch': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': false, 'touch': true },
-                  'flat-footed': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false }
+                  'base': { 'type': BONUS_TYPE.STATIC, 'value': 10, 'flat-footed': true, 'touch': true, 'applyOnce': true  },
+                  'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity', 'flat-footed': false, 'touch': true, 'applyOnce': true  },
+                  'armor': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false, 'applyOnce': true  },
+                  'shield': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false, 'applyOnce': true  },
+                  'natural': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false, 'applyOnce': true  },
+                  'dodge': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': false, 'touch': true, 'applyOnce': true  },
+                  'deflection': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': true, 'applyOnce': true  },
+                  'size': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': true, 'applyOnce': true  },
+                  'touch': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': false, 'touch': true, 'applyOnce': true  },
+                  'flat-footed': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false, 'applyOnce': true  },
               },
-              'saves': {
-                  'fortitude': {
-                      'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
-                      'constitution': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution' },
-                      'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
-                      'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
-                  },
-                  'reflex': {
-                      'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
-                      'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity' },
-                      'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
-                      'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
-                  },
-                  'will': {
-                      'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
-                      'wisdom': { 'type': BONUS_TYPE.ABILITY, 'value': 'wisdom' },
-                      'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
-                      'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
-                  }
+              'fortitude': {
+                  'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                  'ability': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution', 'applyOnce': true },
+                  'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true },
+                  'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true },
               },
-              'dr': 0,
-              'sr': 0,
-              'hpGain': {
+              'reflex': {
+                  'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                  'ability': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity', 'applyOnce': true },
+                  'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true },
+                  'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true },
+              },
+              'will': {
+                  'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+                  'ability': { 'type': BONUS_TYPE.ABILITY, 'value': 'wisdom', 'applyOnce': true },
+                  'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true },
+                  'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true },
+              },
+              'dr': {
+                  'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true },
+              },
+              'sr': {
+                  'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true },
+              },
+              'hp': {
                   'level': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
                   'constitution': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution' },
                   'favoured': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
                   'toughness': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
                   'other': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
               },
-              'babGain': 0,
+              'bab': {
+                  'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
+              },
+              'initiative': {
+                  'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity', 'applyOnce': true },
+                  'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true },
+              },
+              // Non-standard stats
               'movement': {
                   'base': 30,
                   'armor': 30,
@@ -144,10 +158,9 @@ angular.module('dprCalcApp')
                   'climb': 0,
                   'burrow': 0
               },
-              'initiative': {
-                  'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity' },
-                  'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 },
-              },
+              'equipment': [],
+              'feats': [],
+              'skills': [],
               'spell-casting': [],
               'abilities': [],
           };
@@ -196,6 +209,10 @@ angular.module('dprCalcApp')
               }
           };
       }
+
+      $scope.BONUS_TYPE = BONUS_TYPE;
+      $scope.RENDER_TYPE = RENDER_TYPE;
+      $scope.getValue = getValue;
 
       // Character tab management
       $scope.characters = [];
@@ -348,6 +365,17 @@ angular.module('dprCalcApp')
               return l <= level;
           };
       }
+      function getFieldSum(character, level, field) {
+          return function(result, value) {
+              var v = _.reduce(value[field], function(res, val) {
+                  if(!val.applyOnce || value.level === level.level) {
+                      return res + getValue(character, level, val);
+                  }
+                  return res;
+              }, 0);
+              return result += v ? v : 0;
+          };
+      }
       $scope.getAbilityScore = function(character, level, score) {
           var initialValue = parseFloat(character.abilityScores[score]);
           var enhancement = parseFloat(level.abilityScoreEnhancements[score]);
@@ -364,26 +392,34 @@ angular.module('dprCalcApp')
 
           return val;
       };
-      $scope.getBab = function(character, level) {
+      $scope.getStat = function(character, level, stat) {
           return _.chain(character.levels)
             .filter(levelFilter(level.level))
-            .reduce(function(result, value) {
-                var v = parseFloat(value.babGain);
-                return result += v ? v : 0;
-            }, 0)
+            .reduce(getFieldSum(character, level, stat), 0)
             .value();
       };
-      $scope.getHp = function(character, level) {
+      $scope.getStatMod = function(character, level, stat, mod) {
           return _.chain(character.levels)
             .filter(levelFilter(level.level))
-            .reduce(function(result, value) {
-                var v = _.reduce(value.hpGain, function(res, val) {
-                    return res + getValue(val);
-                }, 0);
-                return result += v ? v : 0;
-            }, 0)
+            .map(function(level) {
+                var obj = {};
+                obj[stat] = {};
+                obj[stat][mod] = level[stat][mod];
+                return obj;
+            })
+            .reduce(getFieldSum(character, level, stat), 0)
             .value();
       };
+      $scope.standardStats = [
+        { 'name': 'ac', 'title': 'AC', 'renderType': RENDER_TYPE.HEADER },
+        { 'title': 'Saves', 'renderType': RENDER_TYPE.GROUP, 'items': [
+                { 'name': 'fortitude', 'title': 'Fort' },
+                { 'name': 'reflex', 'title': 'Ref' },
+                { 'name': 'will', 'title': 'Will' }
+            ],
+        },
+        { 'name': 'bab', 'title': 'BAB', 'renderType': RENDER_TYPE.INLINE },
+      ];
 
       // Attack management
       function calculateAttackDPR(character, level, attack, targetAC) {
