@@ -61,7 +61,11 @@ angular.module('dprCalcApp')
           }
 
           if(bonus.modifier) {
-              value *= bonus.modifier;
+              var modifier = bonus.modifier;
+              if(typeof modifier === 'string') {
+                  modifier = level[modifier];
+              }
+              value *= modifier;
               value = Math.floor(value);
           }
 
@@ -176,7 +180,7 @@ angular.module('dprCalcApp')
               },
               'hp': {
                   'level': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 0 },
-                  'constitution': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution', 'title': 'Con', 'order': 1 },
+                  'constitution': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution', 'title': 'Con', 'applyOnce': true, 'modifier': 'level', 'order': 1 }, // TODO: Need to be multiplied by level
                   'favoured': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 2},
                   'toughness': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 3 },
                   'other': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 4 },
