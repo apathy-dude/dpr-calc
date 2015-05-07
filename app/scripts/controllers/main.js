@@ -28,7 +28,7 @@ angular.module('dprCalcApp')
           STATIC: 0,
           ABILITY: 1,
           DYNAMIC: 2,
-          BAB: 3,
+          STAT: 3,
           BASE_ABILITY: 4,
           DICE: 5,
           TEXT: 6 
@@ -48,7 +48,7 @@ angular.module('dprCalcApp')
                   var temp = $scope.getStat(character, level, bonus.value);
                   value = $scope.getAbilityMod(temp);
                   break;
-              case BONUS_TYPE.BAB: value = $scope.getBab(character, level); break;
+              case BONUS_TYPE.STAT: value = $scope.getStat(character, level, bonus.value); break;
               case BONUS_TYPE.BASE_ABILITY: value = character.abilityScores[bonus.value]; break;
               case BONUS_TYPE.DICE:
                 var dice = bonus.value.split('d');
@@ -108,6 +108,8 @@ angular.module('dprCalcApp')
               // Base items
               'level': lastLevel + 1,
               'attackGroups': [],
+              'selectedAttackGroupIndex': -1,
+              'selectedAttackGroup': null,
               // Ability information TODO: Move to standard stat
               // Standard stats
               // -- Ability Scores
@@ -213,16 +215,17 @@ angular.module('dprCalcApp')
 
       function emptyAttackGroup() {
           return {
-              'name': '',
-              'attacks': []
+              'name': 'Name',
+              'selectedAttack': null,
+              'selectedAttackIndex': null,
+              'attacks': [emptyAttack()]
           };
       }
 
       function emptyAttack() {
           return {
-            'weapon': '',
-            'damageDice': [],
-            'damageBonus': {},
+            'weapon': 'weapon',
+            'damage': {},
             'hitChance': {},
             'critThreat': 0.05,
             'critMultiplier': 2
@@ -230,29 +233,19 @@ angular.module('dprCalcApp')
       }
 
       function emptyMeleeAttack() {
-          return {
-              'weapon': '',
-              'damage-dice': [],
-              'damage-bonus': {
-                  'strength': { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' },
-              },
-              'hit-chance': {
-                  'strength': { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' },
-                  'bab': { 'type': BONUS_TYPE.BAB, 'value': 'bab' },
-              }
-          };
+          var atk = emptyAttack();
+          atk.damage.strength = { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' };
+          atk.hitChance.strength = { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' }; 
+          atk.hitChance.bab = { 'type': BONUS_TYPE.STAT, 'value': 'bab' }; 
+
+          return atk;
       }
 
       function emptyRangedAttack() {
-          return {
-              'weapon': '',
-              'damage-dice': [],
-              'damage-bonus': {},
-              'hit-chance': {
-                  'strength': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity' },
-                  'bab': { 'type': BONUS_TYPE.BAB, 'value': 'bab' },
-              }
-          };
+          var atk = emptyAttack();
+          atk.hitChance.dexterity = { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity' }; 
+          atk.hitChance.bab = { 'type': BONUS_TYPE.STAT, 'value': 'bab' }; 
+          return atk;
       }
 
       $scope.BONUS_TYPE = BONUS_TYPE;
@@ -307,7 +300,7 @@ angular.module('dprCalcApp')
               character.selectedLevel = null;
           }
           else {
-              character.selectedLevel = $scope.selectedCharacter.levels[ind];
+              character.selectedLevel = character.levels[ind];
           }
       };
       $scope.addLevel = function(character) {
@@ -328,8 +321,8 @@ angular.module('dprCalcApp')
                   $scope.selectLevel(character, character.selectedLevelIndex - 1);
               }
           }
-          else if(character.selectedLevelIndex > character.levels.length -1){
-              $scope.selectLevel(character, $scope.characters.length -1);
+          else if(character.selectedLevelIndex > character.levels.length - 1) {
+              $scope.selectLevel(character, character.levels.length - 1);
           }
       };
       $scope.sortLevel = function(character) {
@@ -466,6 +459,66 @@ angular.module('dprCalcApp')
         { 'name': 'sr', 'title': 'SR', 'renderType': RENDER_TYPE.INLINE }
       ];
       $scope.statOrder = 'order';
+      //Attack Group management
+      $scope.selectAttackGroup = function(level, ind) {
+          $scope.clearEdit();
+          level.selectedAttackGroupIndex = ind;
+
+          if(ind === -1) {
+              level.selectedAttackGroup = null;
+          }
+          else {
+              level.selectedAttackGroup = level.attackGroups[ind];
+          }
+      };
+      $scope.addAttackGroup = function(level) {
+          level.attackGroups.push(emptyAttackGroup());
+          $scope.selectAttackGroup(level, level.attackGroups.length - 1);
+      };
+      $scope.removeAttackGroup = function(level, ind) {
+          level.attackGroups.splice(ind, 1);
+          if(level.selectedAttackGroupIndex >= ind) {
+              if(ind === 0 || level.selectedAttackGroupIndex === 0) {
+                  $scope.selectAttackGroup(level, 0);
+              }
+              else {
+                  $scope.selectAttackGroup(level, level.selectedAttackGroupIndex - 1);
+              }
+          }
+          else if(level.selectedAttackGroupIndex > level.attackGroups.lenth - 1) {
+              $scope.selectAttackGroup(level, level.attackGroups.length - 1);
+          }
+      };
+
+      $scope.selectAttack = function(atkGroup, ind) {
+          $scope.clearEdit();
+          atkGroup.selectedAttackIndex = ind;
+
+          if(ind === -1) {
+              atkGroup.selectedAttack = null;
+          }
+          else {
+              atkGroup.selectedAttack = atkGroup.attacks[ind];
+          }
+      };
+      $scope.addAttack = function(atkGroup) {
+          atkGroup.attacks.push(emptyAttack());
+          $scope.selectAttack(atkGroup, atkGroup.attacks.length - 1);
+      };
+      $scope.removeAttack = function(atkGroup, ind) {
+          atkGroup.attacks.splice(ind, 1);
+          if(atkGroup.selectedAttacIndex >= ind) {
+              if(ind === 0 || atkGroup.selectedAttackIndex === 0) {
+                  $scope.selectAttack(atkGroup, 0);
+              }
+              else {
+                  $scope.selectAttack(atkGroup, atkGroup.selectedAttackIndex - 1);
+              }
+          }
+          else if(atkGroup.selectedAttackIndex > atkGroup.attacks.lenth - 1) {
+              $scope.selectAttack(atkGroup, atkGroup.attacks.length - 1);
+          }
+      };
 
       // Attack management
       function calculateAttackDPR(character, level, attack, targetAC) {
@@ -537,8 +590,6 @@ angular.module('dprCalcApp')
 
       //Not used functions
       (function() {
-          emptyAttackGroup();
-          emptyAttack();
           emptyMeleeAttack();
           emptyRangedAttack();
       })();

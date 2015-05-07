@@ -101,7 +101,7 @@
                 </div>
 
                 <!-- Level information -->
-                <div class="row col-md-8">
+                <div class="row col-md-12">
 
                     <!-- Level tabs -->
                     <div class="row col-md-1">
@@ -231,6 +231,91 @@
                                 </div>
                             </div>
                             <!-- /Standard Stat -->
+
+                            <div class="col-md-12 row">
+                                <hr />
+                                <div class="col-md-12">
+                                    <u>Attack Groups</u>
+                                    <button type="button" ng-click="addAttackGroup(selectedCharacter.selectedLevel)" class="btn btn-success btn-xs glyphicon glyphicon-plus"></button>
+                                </div>
+                                <div class="col-md-12 row" ng-repeat="(ind, atkGroup) in selectedCharacter.selectedLevel.attackGroups">
+                                    <div class="col-md-1">
+                                        <button type="button" ng-click="removeAttackGroup(selectedCharacter.selectedLevel, ind)" class="btn btn-danger btn-xs glyphicon glyphicon-trash"></button>
+                                        <button type="button" ng-click="selectAttackGroup(selectedCharacter.selectedLevel, ind)" class="btn btn-primary btn-xs glyphicon glyphicon-pencil" ng-if="selectedCharacter.selectedLevel.selectedAttackGroupIndex !== ind"></button>
+                                        <button type="button" ng-click="addAttack(selectedCharacter.selectedLevel.selectedAttackGroup)" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-if="selectedCharacter.selectedLevel.selectedAttackGroupIndex === ind"></button>
+                                    </div>
+                                    <div class="col-md-2" ng-if="selectedCharacter.selectedLevel.selectedAttackGroupIndex !== ind">
+                                        {{ atkGroup.name }}
+                                    </div>
+                                    <div class="col-md-10 row" ng-if="selectedCharacter.selectedLevel.selectedAttackGroupIndex === ind">
+                                        <div class="col-md-4 clickable" ng-click="setEdit('atkGroup-name', 'selectedCharacter.selectedLevel.selectedAttackGroup.name')" ng-if="edit !== 'atkGroup-name'">
+                                            [ {{ atkGroup.name }} ]
+                                        </div>
+                                        <div class="col-md-4" ng-if="edit === 'atkGroup-name'">
+                                            <input type="text" ng-model="selectedCharacter.selectedLevel.selectedAttackGroup.name" />
+                                            <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                            <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                        </div>
+                                        <!-- TODO: DPR GOES HERE -->
+                                        <div class="col-md-12">
+                                            <u>Attacks</u>
+                                        </div>
+                                        <div class="col-md-12 row" ng-if="selectedCharacter.selectedLevel.selectedAttackGroupIndex === ind" ng-repeat="(atkInd, atk) in atkGroup.attacks">
+                                            <div class="col-md-1">
+                                                <button type="button" ng-click="removeAttack(atkGroup, atkInd)" class="btn btn-danger btn-xs glyphicon glyphicon-trash"></button>
+                                                <button type="button" ng-click="selectAttack(atkGroup, atkInd)" class="btn btn-primary btn-xs glyphicon glyphicon-pencil" ng-if="atkGroup.selectedAttackIndex !== atkInd"></button>
+                                            </div>
+                                            <div class="col-md-2" ng-if="atkGroup.selectedAttackIndex !== atkInd">
+                                                {{ atk.weapon }}
+                                            </div>
+                                            <div class="col-md-2" ng-if="atkGroup.selectedAttackIndex === atkInd">
+                                                <div class="col-md-12 row" ng-if="edit !== 'atk-weapon'">
+                                                    [ {{ atk.weapon }} ]
+                                                </div>
+                                                <div class="col-md-12 row" ng-if="edit === 'atk-weapon'">
+                                                    <input type="text" ng-model="selectedCharacter.selectedLevel.selectedWeaponGroup.selectedAttack.weapon" />
+                                                    <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                    <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 row">
+                                                <div class="col-md-6">
+                                                    <u>Attack Bonus:</u>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <!-- TODO: Calculate -->
+                                                </div>
+                                                <div class="col-md-12 row" ng-repeat="(hitInd, hit) in atk.hitChance">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 row">
+                                                <div class="col-md-6">
+                                                    <u>Average Dmg:</u>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <!-- TODO: Calculate -->
+                                                </div>
+                                                <div class="col-md-12 row" ng-repeat="(dmgInd, dmg) in atk.damage">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 row">
+                                                <div class="col-md-6">
+                                                    <u>Crit Threat</u>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <u>Crit Multi</u>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <!-- TODO: Input -->
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <!-- TODO: Input -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
 
