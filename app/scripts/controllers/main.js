@@ -24,13 +24,14 @@ angular.module('dprCalcApp')
   })
   .controller('MainCtrl', function ($scope) {
       var charactersCount = 0;
-      var BONUS_TYPE = {
+      var BONUS_TYPE = { // TODO: Rename BONUS_TYPE?
           STATIC: 0,
           ABILITY: 1,
           DYNAMIC: 2,
           BAB: 3,
           BASE_ABILITY: 4,
-          DICE: 5
+          DICE: 5,
+          TEXT: 6 
       };
       var RENDER_TYPE = {
           INLINE: 0,
@@ -53,6 +54,7 @@ angular.module('dprCalcApp')
                 var dice = bonus.value.split('d');
                 value = (parseInt(dice[1]) / 2 + 0.5) * parseInt(dice[0]);
                 break;
+              case BONUS_TYPE.TEXT: value = 0; break;
           }
 
           if(typeof value === 'string') {
