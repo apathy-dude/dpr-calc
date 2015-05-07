@@ -29,7 +29,8 @@ angular.module('dprCalcApp')
           ABILITY: 1,
           DYNAMIC: 2,
           BAB: 3,
-          BASE_ABILITY: 4
+          BASE_ABILITY: 4,
+          DICE: 5
       };
       var RENDER_TYPE = {
           INLINE: 0,
@@ -48,6 +49,10 @@ angular.module('dprCalcApp')
                   break;
               case BONUS_TYPE.BAB: value = $scope.getBab(character, level); break;
               case BONUS_TYPE.BASE_ABILITY: value = character.abilityScores[bonus.value]; break;
+              case BONUS_TYPE.DICE:
+                var dice = bonus.value.split('d');
+                value = (parseInt(dice[1]) / 2 + 0.5) * parseInt(dice[0]);
+                break;
           }
 
           if(typeof value === 'string') {
