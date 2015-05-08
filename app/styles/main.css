@@ -73,6 +73,8 @@ ul.list-unstyled li.tab {
     border: 1px solid #DDD;
     background-color: #FFF;
     color: #333;
+    margin-bottom: 2em;
+    padding-bottom: 1em;
 }
 
 .tab.unselected {
@@ -93,4 +95,12 @@ h1, .h1 {
 
 h2, .h2 {
     font-size: 18px;
+}
+
+select.input-sm {
+    margin: 0;
+}
+
+.rounded {
+    border-radius: 8px;
 }

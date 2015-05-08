@@ -24,13 +24,16 @@ angular.module('dprCalcApp')
   })
   .controller('MainCtrl', function ($scope) {
       var charactersCount = 0;
-      var BONUS_TYPE = { // TODO: Rename BONUS_TYPE?
+      var BONUS_TYPE = {
           STATIC: 0,
           ABILITY: 1,
           DYNAMIC: 2,
           STAT: 3,
           BASE_ABILITY: 4,
           DICE: 5,
+          POWER_ATTACK_HIT: 6,
+          POWER_ATTACK_DMG: 7,
+          TWO_WEAPON: 8
       };
       var RENDER_TYPE = {
           INLINE: 0,
@@ -44,8 +47,8 @@ angular.module('dprCalcApp')
               case BONUS_TYPE.STATIC: value = bonus.value; break;
               case BONUS_TYPE.DYNAMIC: value = bonus.value; break;
               case BONUS_TYPE.ABILITY:
-                  var temp = $scope.getStat(character, level, bonus.value);
-                  value = $scope.getAbilityMod(temp);
+                  var score = $scope.getStat(character, level, bonus.value);
+                  value = $scope.getAbilityMod(score);
                   break;
               case BONUS_TYPE.STAT: value = $scope.getStat(character, level, bonus.value); break;
               case BONUS_TYPE.BASE_ABILITY: value = character.abilityScores[bonus.value]; break;
@@ -53,7 +56,16 @@ angular.module('dprCalcApp')
                 var dice = bonus.value.split('d');
                 value = (parseInt(dice[1]) / 2 + 0.5) * parseInt(dice[0]);
                 break;
-              case BONUS_TYPE.TEXT: value = 0; break;
+              case BONUS_TYPE.POWER_ATTACK_HIT:
+                var bab = $scope.getStat(character, level, 'bab');
+                value = -1 * (Math.floor(bab / 4) + 1);
+                break;
+              case BONUS_TYPE.POWER_ATTACK_DMG:
+                var bab2 = $scope.getStat(character, level, 'bab');
+                bab2 = Math.floor(bab2 / 4) || 1;
+                value = bonus.value ? bab2 * 3 : bab2 * 2;
+                break;
+              case BONUS_TYPE.TWO_WEAPON: value = -2; break;
           }
 
           if(typeof value === 'string') {
@@ -223,21 +235,42 @@ angular.module('dprCalcApp')
 
       function emptyAttack() {
           return {
-            'weapon': 'weapon',
-            'damage': {
-                'dmg1': { 'type': BONUS_TYPE.STAT, 'value': 'strength', 'percision': false },
-            },
-            'hitChance': {
-                'hit1': { 'type': BONUS_TYPE.STAT, 'value': 'bab' },
-                'hit2': { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' },
-            },
+            'weapon': 'attack',
+            'damage': [
+                { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'percision': false },
+                { 'type': BONUS_TYPE.STAT, 'value': 'strength', 'percision': false }
+            ],
+            'hitChance': [
+                { 'type': BONUS_TYPE.STAT, 'value': 'bab' },
+                { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' }
+            ],
             'critThreat': 0.05,
             'critMultiplier': 2
           };
       }
 
+      function emptyHit() {
+          return { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 };
+      }
+
       $scope.BONUS_TYPE = BONUS_TYPE;
       $scope.RENDER_TYPE = RENDER_TYPE;
+      $scope.bonusTypeText = function(type) {
+          type = parseInt(type);
+          var val;
+          switch(type) {
+              case BONUS_TYPE.STATIC: val = 'Static'; break;
+              case BONUS_TYPE.ABILITY: val = 'Ability'; break;
+              case BONUS_TYPE.DYNAMIC: val = 'Dynamic'; break;
+              case BONUS_TYPE.STAT: val = 'Stat'; break;
+              case BONUS_TYPE.BASE_ABILITY: val = 'Base Ability'; break;
+              case BONUS_TYPE.DICE: val = 'Dice'; break;
+              case BONUS_TYPE.POWER_ATTACK_HIT: val = 'Power Atk'; break;
+              case BONUS_TYPE.POWER_ATTACK_DMG: val = 'Power Atk'; break;
+              case BONUS_TYPE.TWO_WEAPON: val = 'Two Weapon'; break;
+          }
+          return val;
+      };
       $scope.getValue = getValue;
 
       // Character tab management
@@ -323,7 +356,9 @@ angular.module('dprCalcApp')
       // Edit management
       $scope.edit = null;
       $scope.editTemp = null;
-      $scope.setEdit = function(field, temp) {
+      var editObject, editObjectValue;
+      $scope.setEdit = function(field, temp, clearObject, clearObjectValue) {
+          $scope.clearEdit();
           $scope.edit = field;
           if(temp) {
               var target = $scope;
@@ -336,9 +371,28 @@ angular.module('dprCalcApp')
           else {
               $scope.editTemp = null;
           }
+
+          editObject = clearObject;
+          editObjectValue = clearObjectValue;
       };
       $scope.clearEdit = function() {
           $scope.edit = null;
+
+          if(editObject && editObjectValue && $scope.editTemp) {
+              var target = $scope;
+              var fields = $scope.editTemp.field.split('.');
+              while(fields.length > 0) {
+                  target = target[fields.shift()];
+              }
+              
+              var t = parseFloat(target);
+              var et = parseFloat($scope.editTemp.value);
+              if(!(t === et || target === $scope.editTemp.value)) {
+                  editObject[editObjectValue] = '';
+                  editObject = null;
+                  editObjectValue = null;
+              }
+          }
       };
       $scope.cancelEdit = function() {
           if($scope.editTemp === null) {
@@ -506,6 +560,13 @@ angular.module('dprCalcApp')
           else if(atkGroup.selectedAttackIndex > atkGroup.attacks.lenth - 1) {
               $scope.selectAttack(atkGroup, atkGroup.attacks.length - 1);
           }
+      };
+
+      $scope.addHit = function(atk) {
+          atk.hitChance.push(emptyHit());
+      };
+      $scope.removeHit = function(atk, ind) {
+           atk.hitChance.splice(ind, 1);
       };
 
       // Attack management
