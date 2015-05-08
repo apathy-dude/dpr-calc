@@ -31,7 +31,6 @@ angular.module('dprCalcApp')
           STAT: 3,
           BASE_ABILITY: 4,
           DICE: 5,
-          TEXT: 6 
       };
       var RENDER_TYPE = {
           INLINE: 0,
@@ -225,27 +224,16 @@ angular.module('dprCalcApp')
       function emptyAttack() {
           return {
             'weapon': 'weapon',
-            'damage': {},
-            'hitChance': {},
+            'damage': {
+                'dmg1': { 'type': BONUS_TYPE.STAT, 'value': 'strength', 'percision': false },
+            },
+            'hitChance': {
+                'hit1': { 'type': BONUS_TYPE.STAT, 'value': 'bab' },
+                'hit2': { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' },
+            },
             'critThreat': 0.05,
             'critMultiplier': 2
           };
-      }
-
-      function emptyMeleeAttack() {
-          var atk = emptyAttack();
-          atk.damage.strength = { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' };
-          atk.hitChance.strength = { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' }; 
-          atk.hitChance.bab = { 'type': BONUS_TYPE.STAT, 'value': 'bab' }; 
-
-          return atk;
-      }
-
-      function emptyRangedAttack() {
-          var atk = emptyAttack();
-          atk.hitChance.dexterity = { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity' }; 
-          atk.hitChance.bab = { 'type': BONUS_TYPE.STAT, 'value': 'bab' }; 
-          return atk;
       }
 
       $scope.BONUS_TYPE = BONUS_TYPE;
@@ -587,11 +575,5 @@ angular.module('dprCalcApp')
 
       // Initialization
       $scope.addCharacter();
-
-      //Not used functions
-      (function() {
-          emptyMeleeAttack();
-          emptyRangedAttack();
-      })();
   }
 );
