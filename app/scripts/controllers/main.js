@@ -528,6 +528,9 @@ angular.module('dprCalcApp')
       };
       $scope.removeAttackGroup = function(level, ind) {
           level.attackGroups.splice(ind, 1);
+          if(level.selectedAttackGroupIndex === ind) {
+              $scope.selectAttackGroup(level, -1);
+          }
           if(level.selectedAttackGroupIndex >= ind) {
               if(ind === 0 || level.selectedAttackGroupIndex === 0) {
                   $scope.selectAttackGroup(level, 0);
@@ -558,7 +561,10 @@ angular.module('dprCalcApp')
       };
       $scope.removeAttack = function(atkGroup, ind) {
           atkGroup.attacks.splice(ind, 1);
-          if(atkGroup.selectedAttacIndex >= ind) {
+          if(atkGroup.selectedAttackIndex === ind) {
+              $scope.selectAttack(atkGroup, -1);
+          }
+          if(atkGroup.selectedAttackIndex >= ind) {
               if(ind === 0 || atkGroup.selectedAttackIndex === 0) {
                   $scope.selectAttack(atkGroup, 0);
               }
@@ -586,7 +592,9 @@ angular.module('dprCalcApp')
       };
 
       // Attack management
-      function calculateAttackDPR(character, level, attack, targetAC) {
+      function calculateAttackDPR(character, level, attack) {
+          var lev = parseInt(level.level);
+          var targetAC = $scope.targetAc[lev];
           var hitChance;
           var minHitChance = 0.05;
           var maxHitChance = 0.95;
@@ -606,9 +614,9 @@ angular.module('dprCalcApp')
           return hitChance * (damage + percision) + attack.critThreat * (attack.critMultiplier - 1) * hitChance * damage;
       }
       $scope.calculateAttackDPR = calculateAttackDPR;
-      $scope.calculateDPR = function(character, level, attackGroup, targetAC) {
+      $scope.calculateDPR = function(character, level, attackGroup) {
           return _.reduce(attackGroup.attacks, function(total, attack) {
-              return total += calculateAttackDPR(character, level, attack, targetAC);
+              return total += calculateAttackDPR(character, level, attack);
           }, 0);
       };
       $scope.getHit = function(character, level, atk) {
@@ -664,6 +672,28 @@ angular.module('dprCalcApp')
           16: 10,
           17: 13,
           18: 17
+      };
+      $scope.targetAc = {
+          1: 12,
+          2: 14,
+          3: 15,
+          4: 17,
+          5: 18,
+          6: 19,
+          7: 20,
+          8: 21,
+          9: 23,
+          10: 24,
+          11: 25,
+          12: 27,
+          13: 28,
+          14: 29,
+          15: 30,
+          16: 31,
+          17: 32,
+          18: 33,
+          19: 34,
+          20: 36,
       };
 
       // Initialization
