@@ -24,6 +24,9 @@ angular
         templateUrl: 'views/main.html',
         controller: 'MainCtrl'
       })
+      .when('/license/', {
+          templateUrl: 'views/openGameLicense.html'
+      })
       .when('/class-list/', {
         templateUrl: 'views/class-list.html',
         controller: 'ClassListCtrl'
