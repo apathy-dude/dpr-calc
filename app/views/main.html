@@ -20,10 +20,10 @@
             <div class="row content bg-default">
                 <div class="col-md-10">
                     <div ng-if="edit !== 'name'">
-                        <h1 ng-click="setEdit('name', 'selectedCharacter.name')" class="inline-block clickable">[ {{ selectedCharacter.name }} ]</h1>
+                        <h1 ng-click="setEdit('name', 'selectedCharacter.name')" class="inline-block clickable">[&nbsp;{{ selectedCharacter.name }}&nbsp;]</h1>
                     </div>
                     <div ng-if="edit === 'name'">
-                        <input ng-model="selectedCharacter.name" class="h1" />
+                        <input ng-model="selectedCharacter.name" class="h1 form-control input-sm" />
                         <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></button>
                         <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></button>
                     </div>
@@ -40,11 +40,11 @@
                         <div ng-if="edit !== 'race'">
                             <p class="clickable" ng-click="setEdit('race', 'selectedCharacter.race')">
                                 <strong>Race: </strong>
-                                <span>[ {{ selectedCharacter.race }} ]</span>
+                                <span>[&nbsp;{{ selectedCharacter.race }}&nbsp;]</span>
                             </p>
                         </div>
                         <div ng-if="edit === 'race'">
-                            <input ng-model="selectedCharacter.race" />
+                            <input class="form-control input-sm"  ng-model="selectedCharacter.race" />
                             <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                             <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                         </div>
@@ -54,11 +54,11 @@
                         <div ng-if="edit !== 'class'">
                             <p class="clickable" ng-click="setEdit('class', 'selectedCharacter.class')">
                                 <strong>Class: </strong>
-                                <span>[ {{ selectedCharacter.class }} ]</span>
+                                <span>[&nbsp;{{ selectedCharacter.class }}&nbsp;]</span>
                             </p>
                         </div>
                         <div ng-if="edit === 'class'">
-                            <input ng-model="selectedCharacter.class" />
+                            <input class="form-control input-sm" ng-model="selectedCharacter.class" />
                             <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                             <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                         </div>
@@ -73,7 +73,7 @@
                             <div class="row">
                                 <div class="col-md-4 text-capitalize">{{ score }}: </div>
                                 <div class="col-md-4">
-                                    [ {{ selectedCharacter.abilityScores[score] }} ]
+                                    [&nbsp;{{ selectedCharacter.abilityScores[score] }}&nbsp;]
                                 </div>
                                 <div class="col-md-4">
                                     {{ getAbilityMod(selectedCharacter.abilityScores[score]) }}
@@ -85,7 +85,7 @@
                             <div class="row">
                                 <div class="col-md-4 text-capitalize">{{ score }}: </div>
                                 <div class="col-md-8">
-                                    <input type="number" step="any" ng-model="selectedCharacter.abilityScores[score]" />
+                                    <input class="form-control input-sm" type="number" step="any" ng-model="selectedCharacter.abilityScores[score]" />
                                     <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                     <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                 </div>
@@ -123,11 +123,11 @@
                         <div ng-if="selectedCharacter.levels.length > 0" class="row col-md-12">
                             <div class="col-md-12">
                                 <div ng-click="setEdit('level', 'selectedCharacter.selectedLevel.level')" ng-if="edit !== 'level'" class="clickable">
-                                    <h2>[ Level {{ selectedCharacter.selectedLevel.level }} ]</h2>
+                                    <h2>[ Level {{ selectedCharacter.selectedLevel.level }}&nbsp;]</h2>
                                 </div>
 
                                 <div ng-if="edit === 'level'">
-                                    <input ng-model="selectedCharacter.selectedLevel.level" class="h2" type="number" step="any" />
+                                    <input ng-model="selectedCharacter.selectedLevel.level" class="h2 form-control input-sm" type="number" step="any" />
                                     <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></button>
                                     <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></button>
                                 </div>
@@ -150,10 +150,10 @@
                                             <div ng-if="mod.type === BONUS_TYPE.DYNAMIC" class="clickable">
                                                 <div ng-if="edit !== stat.name + '-' + mod._objectKey" ng-click="setEdit(stat.name + '-' + mod._objectKey, 'selectedCharacter.selectedLevel.' + stat.name + '.' + mod._objectKey + '.' + 'value')">
                                                     <span ng-if="!mod.applyOnce">({{ getStatMod(selectedCharacter, selectedCharacter.selectedLevel, stat.name, mod._objectKey) }})</span>
-                                                     [ {{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }} ]
+                                                     [&nbsp;{{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }}&nbsp;]
                                                 </div>
                                                 <div ng-if="edit === stat.name + '-' + mod._objectKey">
-                                                    <input type="number" step="any" ng-model="selectedCharacter.selectedLevel[stat.name][mod._objectKey].value" />
+                                                    <input class="form-control input-sm" type="number" step="any" ng-model="selectedCharacter.selectedLevel[stat.name][mod._objectKey].value" />
                                                     <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                                     <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                                 </div>
@@ -181,10 +181,10 @@
                                             <div ng-if="mod.type === BONUS_TYPE.DYNAMIC" class="clickable">
                                                 <div ng-if="edit !== stat.name + '-' + mod._objectKey" ng-click="setEdit(stat.name + '-' + mod._objectKey, 'selectedCharacter.selectedLevel.' + stat.name + '.' + mod._objectKey + '.' + 'value')">
                                                     <span ng-if="!mod.applyOnce">({{ getStatMod(selectedCharacter, selectedCharacter.selectedLevel, stat.name, mod._objectKey) }})</span>
-                                                     [ {{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }} ]
+                                                     [&nbsp;{{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }}&nbsp;]
                                                 </div>
                                                 <div ng-if="edit === stat.name + '-' + mod._objectKey">
-                                                    <input type="number" step="any" ng-model="selectedCharacter.selectedLevel[stat.name][mod._objectKey].value" />
+                                                    <input class="form-control input-sm" type="number" step="any" ng-model="selectedCharacter.selectedLevel[stat.name][mod._objectKey].value" />
                                                     <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                                     <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                                 </div>
@@ -218,10 +218,10 @@
                                             <div ng-if="mod.type === BONUS_TYPE.DYNAMIC" class="clickable">
                                                 <div ng-if="edit !== item.name + '-' + mod._objectKey" ng-click="setEdit(item.name + '-' + mod._objectKey, 'selectedCharacter.selectedLevel.' + item.name + '.' + mod._objectKey + '.' + 'value')">
                                                     <span ng-if="!mod.applyOnce">({{ getStatMod(selectedCharacter, selectedCharacter.selectedLevel, item.name, mod._objectKey) }})</span>
-                                                     [ {{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }} ]
+                                                     [&nbsp;{{ getValue(selectedCharacter, selectedCharacter.selectedLevel, mod) }}&nbsp;]
                                                 </div>
                                                 <div ng-if="edit === item.name + '-' + mod._objectKey">
-                                                    <input type="number" step="any" ng-model="selectedCharacter.selectedLevel[item.name][mod._objectKey].value" />
+                                                    <input class="form-control input-sm" type="number" step="any" ng-model="selectedCharacter.selectedLevel[item.name][mod._objectKey].value" />
                                                     <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                                     <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                                 </div>
@@ -247,12 +247,12 @@
                                         {{ atkGroup.name }}
                                     </div>
                                     <div class="col-md-11 clickable" ng-click="setEdit('atkGroup-name', 'selectedCharacter.selectedLevel.selectedAttackGroup.name')" ng-if="edit !== 'atkGroup-name'">
-                                        [ {{ atkGroup.name }} ]
+                                        [&nbsp;{{ atkGroup.name }}&nbsp;]
                                     </div>
                                     <!-- TODO: DPR GOES HERE -->
                                     <div class="col-md-12 row bg-default rounded" ng-if="selectedCharacter.selectedLevel.selectedAttackGroupIndex === ind">
                                         <div class="col-md-11" ng-if="edit === 'atkGroup-name'">
-                                            <input type="text" ng-model="selectedCharacter.selectedLevel.selectedAttackGroup.name" />
+                                            <input class="form-control input-sm" type="text" ng-model="selectedCharacter.selectedLevel.selectedAttackGroup.name" />
                                             <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                             <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                         </div>
@@ -267,40 +267,39 @@
                                                 </div>
                                                 <div class="col-md-7" ng-if="atkGroup.selectedAttackIndex !== atkInd">
                                                     {{ atk.weapon }}
+                                                    <p><strong>DPR</strong>:&nbsp;{{ calculateAttackDPR(selectedCharacter, selectedCharacter.selectedLevel, atk, 12) | number: 4 }}
                                                 </div>
                                                 <div class="col-md-7" ng-if="atkGroup.selectedAttackIndex === atkInd">
-                                                    <div class="col-md-12 row" ng-click="setEdit('atk-weapon', 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.weapon')" ng-if="edit !== 'atk-weapon'">
+                                                    <div class="col-md-12 row clickable" ng-click="setEdit('atk-weapon', 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.weapon')" ng-if="edit !== 'atk-weapon'">
                                                         [&nbsp;{{ atk.weapon }}&nbsp;]
+                                                        <p><strong>DPR</strong>:&nbsp;{{ calculateAttackDPR(selectedCharacter, selectedCharacter.selectedLevel, atk, 12) | number: 4 }}
                                                     </div>
                                                     <div class="col-md-12 row" ng-if="edit === 'atk-weapon'">
-                                                        <input type="text" ng-model="selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.weapon" />
+                                                        <input class="form-control input-sm" type="text" ng-model="selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.weapon" />
                                                         <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                                         <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <u>Hit Bonus:</u>
+                                                    {{ getHit(selectedCharacter, selectedCharacter.selectedLevel, atk) }}
                                                     <button type="button" ng-click="addHit(atk)" ng-if="atkGroup.selectedAttackIndex === atkInd" class="btn btn-success btn-xs glyphicon glyphicon-plus"></button>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <!-- TODO: Calculate -->
                                                 </div>
                                                 <div ng-if="atkGroup.selectedAttackIndex === atkInd" class="col-md-12 row">
                                                     <div class="col-md-12 row">
                                                         <div class="col-md-6">
-                                                            <u>Bonus Type</u>
+                                                            <u>Type</u>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <u>Value</u>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-12 row" ng-repeat="(hitInd, hit) in atk.hitChance">
-
-                                                        <div class="col-md-6" ng-click="setEdit('atkHit-' + atkInd + '-' + hitInd, 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.hitChance.' + hitInd + '.type', hit, 'value')" ng-if="edit !== 'atkHit-' + atkInd + '-' + hitInd">
+                                                        <div class="col-md-6 clickable" ng-click="setEdit('atkHit-' + atkInd + '-' + hitInd, 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.hitChance.' + hitInd + '.type', hit, 'value')" ng-if="edit !== 'atkHit-' + atkInd + '-' + hitInd">
                                                             <button type="button" ng-click="removeHit(atk, hitInd)" class="btn btn-danger btn-xs glyphicon glyphicon-trash"></button>
-                                                            [ {{ bonusTypeText(hit.type) }} ]
+                                                            [&nbsp;{{ bonusTypeText(hit.type) }}&nbsp;]
                                                         </div>
                                                         <div class="col-md-6" ng-if="edit === 'atkHit-' + atkInd + '-' + hitInd">
                                                             <select class="form-control input-sm" ng-model="hit.type">
@@ -309,8 +308,8 @@
                                                             <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                                             <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                                         </div>
-                                                        <div class="col-md-6 text-capitalize" ng-click="setEdit('atkHitBonus-' + atkInd + '-' + hitInd, 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.hitChance.' + hitInd + '.value')" ng-if="edit !== 'atkHitBonus-' + atkInd + '-' + hitInd && (hit.type == BONUS_TYPE.ABILITY || hit.type == BONUS_TYPE.STAT || hit.type === BONUS_TYPE.DYNAMIC)">
-                                                            [ {{ hit.value }} ]
+                                                        <div class="col-md-6 text-capitalize clickable" ng-click="setEdit('atkHitBonus-' + atkInd + '-' + hitInd, 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.hitChance.' + hitInd + '.value')" ng-if="edit !== 'atkHitBonus-' + atkInd + '-' + hitInd && (hit.type == BONUS_TYPE.ABILITY || hit.type == BONUS_TYPE.STAT || hit.type === BONUS_TYPE.DYNAMIC)">
+                                                            [&nbsp;{{ hit.value }}&nbsp;]
                                                         </div>
                                                         <div class="col-md-6 text-capitalize" ng-if="hit.type == BONUS_TYPE.TWO_WEAPON">
                                                             {{ getValue(selectedCharacter, selectedCharacter.selectedLevel, { 'type': BONUS_TYPE.TWO_WEAPON }) }}
@@ -333,35 +332,119 @@
                                                             <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                                         </div>
                                                         <div class="col-md-6" ng-if="hit.type == BONUS_TYPE.DYNAMIC && edit === 'atkHitBonus-' + atkInd + '-' + hitInd">
-                                                            <input type="text" ng-model="hit.value" />
+                                                            <input type="number" ng-model="hit.value" />
                                                             <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
                                                             <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                                                         </div>
-
                                                     </div>
                                                 </div>
-
                                             </div>
-                                            <div class="col-md-3 row">
-                                                <div class="col-md-6">
+                                            <div class="col-md-4 row">
+                                                <div class="col-md-12">
                                                     <u>Average Dmg:</u>
+                                                    {{ getDmg(selectedCharacter, selectedCharacter.selectedLevel, atk) }}
+                                                    <button type="button" ng-if="atkGroup.selectedAttackIndex === atkInd" ng-click="addDmg(atk)" class="btn btn-success btn-xs glyphicon glyphicon-plus" />
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <!-- TODO: Calculate -->
+                                                <div ng-if="atkGroup.selectedAttackIndex === atkInd" class="col-md-12 row">
+                                                    <div class="col-md-12 row">
+                                                        <div class="col-md-4">
+                                                            <u>Type</u>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <u>Value</u>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <u>Multiplier</u>
+                                                        </div>
+                                                        <div class="col-md-1">
+                                                            <u>Percision</u>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12 row" ng-repeat="(dmgInd, dmg) in atk.damage">
+                                                        <div class="col-md-4 clickable" ng-click="setEdit('atkDmg-' + atkInd + '-' + dmgInd, 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.damage.' + dmgInd + '.type', dmg, 'value')" ng-if="edit !== 'atkDmg-' + atkInd + '-' + dmgInd">
+                                                            <button type="button" ng-click="removeDmg(atk, dmgInd)" class="btn btn-danger btn-xs glyphicon glyphicon-trash"></button>
+                                                            [&nbsp;{{ bonusTypeText(dmg.type) }}&nbsp;]
+                                                        </div>
+                                                        <div class="col-md-4" ng-if="edit === 'atkDmg-' + atkInd + '-' + dmgInd">
+                                                            <select class="form-control input-sm" ng-model="dmg.type">
+                                                                <option value="{{ BONUS_TYPE[select] }}" ng-selected="BONUS_TYPE[select] == dmg.type" ng-repeat="select in ['DICE', 'ABILITY', 'POWER_ATTACK_DMG', 'DYNAMIC' ]">{{ bonusTypeText(BONUS_TYPE[select]) }}</option>
+                                                            </select>
+                                                            <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                            <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                        </div>
+                                                        <div class="col-md-4 text-capitalize clickable" ng-click="setEdit('atkDmgBonus-' + atkInd + '-' + dmgInd, 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.damage.' + dmgInd + '.value')" ng-if="edit !== 'atkDmgBonus-' + atkInd + '-' + dmgInd && (dmg.type == BONUS_TYPE.ABILITY || dmg.type == BONUS_TYPE.DYNAMIC || dmg.type == BONUS_TYPE.DICE)">
+                                                            [&nbsp;{{ dmg.value }}&nbsp;]
+                                                        </div>
+                                                        <div class="col-md-4 text-capitalize" ng-click="setEdit('atkDmgBonus-' + atkInd + '-' + dmgInd, 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.damage' + damg.ind + '.type', dmag, 'value')" ng-if="dmg.type == BONUS_TYPE.POWER_ATTACK_DMG && edit !== 'atkDmgBonus-' + atkInd + '-' + dmgInd">
+                                                            [&nbsp;{{ getValue(selectedCharacter, selectedCharacter.selectedLevel, dmg) }}&nbsp;]
+                                                        </div>
+                                                        <div class="col-md-4" ng-if="dmg.type == BONUS_TYPE.POWER_ATTACK_DMG && edit === 'atkDmgBonus-' + atkInd + '-' + dmgInd">
+                                                            Two-handed:
+                                                            <input type="checkbox" ng-model="dmg.value" ng-checked="dmg.value" />
+                                                            <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                            <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                        </div>
+                                                        <div class="col-md-4" ng-if="dmg.type == BONUS_TYPE.ABILITY && edit === 'atkDmgBonus-' + atkInd + '-' + dmgInd">
+                                                            <select class="form-control input-sm" ng-model="dmg.value">
+                                                                <option class="text-capitalize" value="{{ select }}" ng-selected="select == dmg.value" ng-repeat="select in abilityScores">{{ select }}</option>
+                                                            </select>
+                                                            <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                            <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                        </div>
+                                                        <div class="col-md-4" ng-if="dmg.type == BONUS_TYPE.DYNAMIC && edit === 'atkDmgBonus-' + atkInd + '-' + dmgInd">
+                                                            <input class="form-control input-sm" type="number" ng-model="dmg.value" />
+                                                            <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                            <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                        </div>
+                                                        <div class="col-md-4" ng-if="dmg.type == BONUS_TYPE.DICE && edit === 'atkDmgBonus-' + atkInd + '-' + dmgInd">
+                                                            <div class="col-md-12 row">
+                                                                <input class="form-control input-sm" type="text" ng-model="dmg.value" />
+                                                                <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                                <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3 clickable" ng-click="setEdit('atkDmgMod-' + atkInd + '-' + dmgInd, 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.damage.' + dmgInd + '.modifier')" ng-if="edit !== 'atkDmgMod-' + atkInd + '-' + dmgInd">
+                                                            [&nbsp;{{ dmg.modifier }}&nbsp;]
+                                                        </div>
+                                                        <div class="col-md-3" ng-if="edit === 'atkDmgMod-' + atkInd + '-' + dmgInd">
+                                                            <input class="form-control input-sm" type="number" ng-model="dmg.modifier" />
+                                                            <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                            <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                        </div>
+                                                        <div class="col-md-1 text-center">
+                                                            <input type="checkbox" ng-model="dmg.percision" ng-checked="dmg.percision" />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 row">
                                                 <div class="col-md-6">
-                                                    <u>Crit Threat</u>
+                                                    <u>Crit Threat</u>:
+                                                    <span ng-if="atkGroup.selectedAttackIndex !== atkInd">
+                                                        {{ atk.critThreat }}
+                                                    </span>
+                                                    <span class="clickable" ng-if="atkGroup.selectedAttackIndex === atkInd && edit !== 'atkCritThreat-' + atkInd" ng-click="setEdit('atkCritThreat-' + atkInd, 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.critThreat')">
+                                                        [&nbsp;{{ atk.critThreat }}&nbsp;]
+                                                    </span>
+                                                    <span ng-if="atkGroup.selectedAttackIndex === atkInd && edit === 'atkCritThreat-' + atkInd">
+                                                        <input class="form-control input-sm" type="number" ng-model="atk.critThreat" />
+                                                        <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                        <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                    </span>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <u>Crit Multi</u>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <!-- TODO: Input -->
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <!-- TODO: Input -->
+                                                    <u>Crit Multi</u>:
+                                                    <span ng-if="atkGroup.selectedAttackIndex !== atkInd">
+                                                        {{ atk.critMultiplier }}
+                                                    </span>
+                                                    <span class="clickable" ng-if="atkGroup.selectedAttackIndex === atkInd && edit !== 'atkCritMulti-' + atkInd" ng-click="setEdit('atkCritMulti-' + atkInd, 'selectedCharacter.selectedLevel.selectedAttackGroup.selectedAttack.critMultiplier')">
+                                                        [&nbsp;{{ atk.critMultiplier }}&nbsp;]
+                                                    </span>
+                                                    <span ng-if="atkGroup.selectedAttackIndex === atkInd && edit === 'atkCritMulti-' + atkInd">
+                                                        <input class="form-control input-sm" type="number" ng-model="atk.critMultiplier" />
+                                                        <button type="button" ng-click="clearEdit()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                                                        <button type="button" ng-click="cancelEdit()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>

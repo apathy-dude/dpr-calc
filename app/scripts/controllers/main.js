@@ -43,6 +43,9 @@ angular.module('dprCalcApp')
 
       function getValue(character, level, bonus) {
           var value;
+          if(typeof bonus.type === 'string') {
+              bonus.type = parseInt(bonus.type);
+          }
           switch(bonus.type) {
               case BONUS_TYPE.STATIC: value = bonus.value; break;
               case BONUS_TYPE.DYNAMIC: value = bonus.value; break;
@@ -79,7 +82,9 @@ angular.module('dprCalcApp')
                   modifier = level[modifier];
               }
               value *= modifier;
-              value = Math.floor(value);
+              if(bonus.type !== BONUS_TYPE.DICE) {
+                  value = Math.floor(value);
+              }
           }
 
           return value;
@@ -237,8 +242,8 @@ angular.module('dprCalcApp')
           return {
             'weapon': 'attack',
             'damage': [
-                { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'percision': false },
-                { 'type': BONUS_TYPE.STAT, 'value': 'strength', 'percision': false }
+                { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false },
+                { 'type': BONUS_TYPE.ABILITY, 'value': 'strength', 'modifier': 1, 'percision': false }
             ],
             'hitChance': [
                 { 'type': BONUS_TYPE.STAT, 'value': 'bab' },
@@ -251,6 +256,10 @@ angular.module('dprCalcApp')
 
       function emptyHit() {
           return { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 };
+      }
+
+      function emptyDmg() {
+          return { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false };
       }
 
       $scope.BONUS_TYPE = BONUS_TYPE;
@@ -569,6 +578,13 @@ angular.module('dprCalcApp')
            atk.hitChance.splice(ind, 1);
       };
 
+      $scope.addDmg = function(atk) {
+          atk.damage.push(emptyDmg());
+      };
+      $scope.removeDmg = function(atk, ind) {
+           atk.damage.splice(ind, 1);
+      };
+
       // Attack management
       function calculateAttackDPR(character, level, attack, targetAC) {
           var hitChance;
@@ -576,41 +592,57 @@ angular.module('dprCalcApp')
           var maxHitChance = 0.95;
           var damage = 0;
           var percision = 0;
-          var hit = _.reduce(attack.hitChance, function(total, chance) {
-              return total += getValue(character, level, chance);
-          }, 0);
+          var hit = $scope.getHit(character, level, attack);
 
-          for(var d in attack.damageDice) {
-              var die = attack.damageDice[d];
-              if(die.percision) {
-                  percision += die.average();
-              }
-              else {
-                  damage += die.average();
-              }
-          }
+          var d = $scope.getDmg(character, level, attack, true);
+          damage = d.damage;
+          percision = d.percision;
 
-          for(var b in attack.damageBonus) {
-              var bonus = attack.damageBonus[b];
-              if(bonus.percision) {
-                  percision += getValue(character, level, bonus);
-              }
-              else {
-                  damage += getValue(character, level, bonus);
-              }
-          }
-
-          hitChance = 1 - (targetAC-hit) / 20;
+          hitChance = 1 - ((targetAC-hit) / 20);
           hitChance = hitChance < minHitChance ? minHitChance : hitChance;
-          hitChance = hitChance < maxHitChance ? maxHitChance : hitChance;
+          hitChance = hitChance > maxHitChance ? maxHitChance : hitChance;
 
           // h(dp)+c(m-1)hd
-          return hitChance * (damage + percision) + attack.critChance * (attack.critMultiplier - 1) * hitChance * damage;
+          return hitChance * (damage + percision) + attack.critThreat * (attack.critMultiplier - 1) * hitChance * damage;
       }
+      $scope.calculateAttackDPR = calculateAttackDPR;
       $scope.calculateDPR = function(character, level, attackGroup, targetAC) {
           return _.reduce(attackGroup.attacks, function(total, attack) {
               return total += calculateAttackDPR(character, level, attack, targetAC);
           }, 0);
+      };
+      $scope.getHit = function(character, level, atk) {
+          return _.reduce(atk.hitChance, function(total, chance) {
+              return total += getValue(character, level, chance);
+          }, 0);
+      };
+      $scope.getDmg = function(character, level, atk, obj) {
+          var damage = 0;
+          var percision = 0;
+
+          for(var d in atk.damage) {
+              var dam = atk.damage[d];
+              var dmg = getValue(character, level, dam);
+              if(dam.percision) {
+                  percision += dmg;
+              }
+              else {
+                  damage += dmg;
+              }
+          }
+
+          damage = damage < 0 ? 0 : damage;
+          percision = percision < 0 ? 0 : percision;
+
+          if(obj) {
+              return { damage: damage, percision: percision };
+          }
+
+          if(percision) {
+              return damage + ' and percision: ' + percision
+          }
+
+          return damage;
       };
 
       // Static data
