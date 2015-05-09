@@ -40,6 +40,8 @@ angular.module('dprCalcApp')
           HEADER: 1,
           GROUP: 2
       };
+      var ctx = angular.element('#chart')[0].getContext('2d');
+      var chart;
 
       function getValue(character, level, bonus) {
           var value;
@@ -262,6 +264,39 @@ angular.module('dprCalcApp')
           return { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false };
       }
 
+      function graphDPR() {
+          var character = $scope.selectedCharacter;
+          if(!character) {
+              return;
+          }
+
+          var data = {
+              labels: _.map(character.levels, function(level) {
+                  return level.level;
+              }),
+              datasets: [
+                {
+                    data: _.map(character.levels, function(level) {
+                        return _.reduce(level.attackGroups, function(max, group) {
+                            var dpr = $scope.calculateDPR(character, level, group);
+                            return max > dpr ? max : dpr;
+                        }, 0);
+                    })
+                }
+              ]
+          };
+
+          var options = {};
+
+          if(!chart) {
+             new Chart(ctx).Line(data, options);
+          }
+          else if(chart.data !== data) {
+            chart.data = data;
+            chart.update();
+          }
+      }
+
       $scope.BONUS_TYPE = BONUS_TYPE;
       $scope.RENDER_TYPE = RENDER_TYPE;
       $scope.bonusTypeText = function(type) {
@@ -402,6 +437,8 @@ angular.module('dprCalcApp')
                   editObjectValue = null;
               }
           }
+
+          graphDPR();
       };
       $scope.cancelEdit = function() {
           if($scope.editTemp === null) {
@@ -567,14 +604,14 @@ angular.module('dprCalcApp')
           var lastLevel = _.reduce(character.levels, function(max, l) {
               var testLevel = parseInt(l.level);
               var maxLevel = parseInt(max.level);
-              if(testLevel < currentLevel && (!max || maxLevel > testLevel)) {
+              if(testLevel < currentLevel && (!max || testLevel > maxLevel)) {
                   return l;
               }
               return max;
           }, false);
 
           if(lastLevel) {
-              level.attackGroups = level.attackGroups.concat(lastLevel.attackGroups);
+              level.attackGroups = level.attackGroups.concat(angular.copy(lastLevel.attackGroups));
           }
       };
 
