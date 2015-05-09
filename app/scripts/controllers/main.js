@@ -554,8 +554,6 @@ angular.module('dprCalcApp')
               return max;
           }, false);
 
-          console.log(lastLevel);
-
           if(lastLevel) {
               level.attackGroups = level.attackGroups.concat(lastLevel.attackGroups);
           }
