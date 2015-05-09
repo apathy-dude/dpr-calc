@@ -18,7 +18,7 @@
 
             <!-- Body Content -->
             <div class="row content bg-default">
-                <div class="col-md-10">
+                <div class="col-md-8">
                     <div ng-if="edit !== 'name'">
                         <h1 ng-click="setEdit('name', 'selectedCharacter.name')" class="inline-block clickable">[&nbsp;{{ selectedCharacter.name }}&nbsp;]</h1>
                     </div>
@@ -34,9 +34,11 @@
                     </div>
                 </div>
 
-                <div class="col-md-2 text-right" style="height: 100%">
-                    <button type="button" class="btn btn-default">Import</button>
-                    <button type="button" class="btn btn-default">Export</button>
+                <div class="col-md-4 row text-right">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-default" ng-click="importStart()">Import</button>
+                        <button type="button" class="btn btn-default" ng-click="export()">Export</button>
+                    </div>
                 </div>
 
                 <!-- Static information -->
@@ -115,6 +117,13 @@
                         {{ getPointBuy(selectedCharacter) }}
                     </div>
 
+                </div>
+
+                <div class="col-md-4" ng-if="edit === 'import' || edit === 'export'">
+                    <textarea class="form-control" rows="6" ng-model="importExport" ng-paste="importPaste($event)"></textarea>
+                    <div class="col-md-12 text-right" ng-if="edit === 'import'">
+                        <button type="button" class="btn btn-primary" ng-click="importEnd()">Submit</button>
+                    </div>
                 </div>
 
                 <!-- Level information -->

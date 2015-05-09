@@ -22,7 +22,7 @@ angular.module('dprCalcApp')
           .value();
       };
   })
-  .controller('MainCtrl', function ($scope) {
+  .controller('MainCtrl', function ($scope, $filter) {
       var charactersCount = 0;
       var BONUS_TYPE = {
           STATIC: 0,
@@ -436,6 +436,25 @@ angular.module('dprCalcApp')
               val = val > 18 ? 18 : val;
               return result += $scope.pointBuy[val ? val : 10];
           }, 0);
+      };
+
+      $scope.importExport = null;
+      $scope.export = function() {
+          $scope.importExport = $filter('json')($scope.selectedCharacter, 4);
+          $scope.edit = 'export';
+      };
+      $scope.importStart = function() {
+          $scope.importExport = '';
+          $scope.addCharacter();
+          $scope.edit = 'import';
+      };
+      $scope.importPaste = function(e) {
+          $scope.importExport = e.target.value;
+      };
+      $scope.importEnd = function() {
+          $scope.selectedCharacter = angular.fromJson($scope.importExport);
+          $scope.characters[$scope.selectedCharacterIndex] = $scope.selectedCharacter;
+          $scope.edit = null;
       };
 
       // Level management
