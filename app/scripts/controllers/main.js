@@ -639,7 +639,7 @@ angular.module('dprCalcApp')
           }
 
           if(percision) {
-              return damage + ' and percision: ' + percision
+              return damage + ' and percision: ' + percision;
           }
 
           return damage;
