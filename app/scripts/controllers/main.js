@@ -543,6 +543,23 @@ angular.module('dprCalcApp')
               $scope.selectAttackGroup(level, level.attackGroups.length - 1);
           }
       };
+      $scope.copyAttackGroupFromPreviousLevel = function(character, level) {
+          var currentLevel = parseInt(level.level);
+          var lastLevel = _.reduce(character.levels, function(max, l) {
+              var testLevel = parseInt(l.level);
+              var maxLevel = parseInt(max.level);
+              if(testLevel < currentLevel && (!max || maxLevel > testLevel)) {
+                  return l;
+              }
+              return max;
+          }, false);
+
+          console.log(lastLevel);
+
+          if(lastLevel) {
+              level.attackGroups = level.attackGroups.concat(lastLevel.attackGroups);
+          }
+      };
 
       $scope.selectAttack = function(atkGroup, ind) {
           $scope.clearEdit();

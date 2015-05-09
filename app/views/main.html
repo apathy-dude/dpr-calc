@@ -270,6 +270,7 @@
                                 <div class="col-md-12">
                                     <u>Attack Groups</u>
                                     <button type="button" ng-click="addAttackGroup(selectedCharacter.selectedLevel)" class="btn btn-success btn-xs glyphicon glyphicon-plus"></button>
+                                    <button type="button" ng-click="copyAttackGroupFromPreviousLevel(selectedCharacter, selectedCharacter.selectedLevel)" class="btn btn-primary btn-xs glyphicon glyphicon-copy"></button>
                                 </div>
                                 <div class="col-md-12" ng-repeat="(ind, atkGroup) in selectedCharacter.selectedLevel.attackGroups">
                                     <div class="col-md-1">
