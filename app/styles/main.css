@@ -104,3 +104,15 @@ select.input-sm {
 .rounded {
     border-radius: 8px;
 }
+
+.full {
+    position: fixed;
+    top: 1em;
+    left: 1em;
+    height: calc(100% - 2em);
+    width: calc(100% - 2em);
+    box-shadow: 10px 10px 5px #888;
+    padding: 2em;
+}
+
+

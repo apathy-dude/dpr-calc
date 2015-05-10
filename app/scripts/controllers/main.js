@@ -264,38 +264,85 @@ angular.module('dprCalcApp')
           return { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false };
       }
 
+      function getGraphColor() {
+          var red = Math.floor(Math.random() * 255);
+          var green = Math.floor(Math.random() * 255);
+          var blue = Math.floor(Math.random() * 255);
+          var fillAlpha = 0.5;
+          var strokeAlpha = 1;
+
+          var fill = 'rgba(' + red + ',' + green + ',' + blue + ',' + fillAlpha + ')';
+          var stroke = 'rgba(' + red + ',' + green + ',' + blue + ',' + strokeAlpha + ')';
+
+          return {
+              fill: fill,
+              stroke: stroke,
+              point: fill
+          };
+      }
+
       function graphDPR() {
-          var character = $scope.selectedCharacter;
-          if(!character) {
-              return;
+          if(chart) {
+              chart.destroy();
           }
+
+          var levels = [];
+          var datasets;
+
+          for(var char in $scope.characters) {
+              var character = $scope.characters[char];
+              for(var l in character.levels) {
+                  var level = character.levels[l];
+                  levels.push(level.level);
+              }
+
+              if(!character.colors) {
+                  character.colors = getGraphColor();
+                  character.style = { 'background-color': character.colors.fill };
+              }
+          }
+
+          levels = _.uniq(levels);
+
+         datasets = _.map($scope.characters, function(character) {
+              return {
+                  label: character.name,
+                  fillColor: character.colors.fill,
+                  strokeColor: character.colors.stroke,
+                  pointColor: character.colors.point,
+                  pointStrokeColor: '#FFF',
+                  pointHighlightFill: '#FFF',
+                  pointHighlighStroke: '#FFF',
+                  data: _.map(levels, function(level) {
+                      var lev = _.find(character.levels, function(l) { return l.level === level; });
+                      if(lev) {
+                          return _.reduce(lev.attackGroups, function(max, group) {
+                              var dpr = $scope.calculateDPR(character, lev, group);
+                              return max > dpr ? max : dpr;
+                            }, 0);
+                      }
+                      else {
+                          return 0;
+                      }
+                  })};
+          });
 
           var data = {
-              labels: _.map(character.levels, function(level) {
-                  return level.level;
-              }),
-              datasets: [
-                {
-                    data: _.map(character.levels, function(level) {
-                        return _.reduce(level.attackGroups, function(max, group) {
-                            var dpr = $scope.calculateDPR(character, level, group);
-                            return max > dpr ? max : dpr;
-                        }, 0);
-                    })
-                }
-              ]
+              labels: levels,
+              datasets: datasets
           };
 
-          var options = {};
+          chart = new Chart(ctx).Line(data);
 
-          if(!chart) {
-             new Chart(ctx).Line(data, options);
-          }
-          else if(chart.data !== data) {
-            chart.data = data;
-            chart.update();
-          }
+          window.setTimeout(function() {
+              chart.resize();
+          }, 1000);
       }
+
+      $scope.graphDPR = function() {
+          $scope.edit = 'graph';
+          window.setTimeout(graphDPR, 100);
+      };
 
       $scope.BONUS_TYPE = BONUS_TYPE;
       $scope.RENDER_TYPE = RENDER_TYPE;
@@ -437,8 +484,6 @@ angular.module('dprCalcApp')
                   editObjectValue = null;
               }
           }
-
-          graphDPR();
       };
       $scope.cancelEdit = function() {
           if($scope.editTemp === null) {

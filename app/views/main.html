@@ -1,3 +1,4 @@
+
 <div class="container-fluid">
 
     <div class="row">
@@ -36,6 +37,7 @@
 
                 <div class="col-md-4 row text-right">
                     <div class="col-md-12">
+                        <button type="button" class="btn btn-primary" ng-click="graphDPR()">Show DPR Graph</button>
                         <button type="button" class="btn btn-default" ng-click="importStart()">Import</button>
                         <button type="button" class="btn btn-default" ng-click="export()">Export</button>
                     </div>
@@ -124,10 +126,6 @@
                     <div class="col-md-12 text-right" ng-if="edit === 'import'">
                         <button type="button" class="btn btn-primary" ng-click="importEnd()">Submit</button>
                     </div>
-                </div>
-
-                <div class="col-md-4 container" ng-show="edit !== 'import' && edit !== 'export'">
-                    <canvas class="panel" id="chart"></canvas>
                 </div>
 
                 <!-- Level information -->
@@ -516,4 +514,15 @@
         </div>
     </div>
 
+</div>
+
+<div class="panel panel-primary full" ng-show="edit === 'graph'">
+    <div class="panel-heading">
+        <button class="btn btn-xs glyphicon glyphicon-remove close" ng-click="clearEdit()"></button>
+        DPR Graph
+    </div>
+    <div class="panel-body">
+        <canvas id="chart"></canvas>
+        <ul><li ng-style="char.style" ng-repeat="char in characters">{{ char.name }}</li></ul>
+    </div>
 </div>
