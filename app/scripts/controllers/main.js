@@ -26,7 +26,6 @@ app.filter('orderObjectBy', function() {
 app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     var charactersCount = 0;
     var BONUS_TYPE = {
-
         STATIC: 0,
         ABILITY: 1,
         DYNAMIC: 2,
