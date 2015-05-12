@@ -26,21 +26,22 @@ app.filter('orderObjectBy', function() {
 app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     var charactersCount = 0;
     var BONUS_TYPE = {
-          STATIC: 0,
-          ABILITY: 1,
-          DYNAMIC: 2,
-          STAT: 3,
-          BASE_ABILITY: 4,
-          DICE: 5,
-          POWER_ATTACK_HIT: 6,
-          POWER_ATTACK_DMG: 7,
-          TWO_WEAPON: 8
-      };
+
+        STATIC: 0,
+        ABILITY: 1,
+        DYNAMIC: 2,
+        STAT: 3,
+        BASE_ABILITY: 4,
+        DICE: 5,
+        POWER_ATTACK_HIT: 6,
+        POWER_ATTACK_DMG: 7,
+        TWO_WEAPON: 8
+    };
     var RENDER_TYPE = {
-          INLINE: 0,
-          HEADER: 1,
-          GROUP: 2
-      };
+        INLINE: 0,
+        HEADER: 1,
+        GROUP: 2
+    };
     var ctx = angular.element('#chart')[0].getContext('2d');
     var chart;
 
