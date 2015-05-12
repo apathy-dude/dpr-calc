@@ -10,19 +10,20 @@
 var app = angular.module('dprCalcApp');
 
 app.filter('orderObjectBy', function() {
-  return function(items, field, reverse) {
-      return _.chain(_.keys(items))
-        .map(function(item) {
-            var i = items[item];
-            i._objectKey = item;
-            return i;
-        })
-        .sortBy(function(v) {
-          return reverse ? -v[field] : v[field];
-      })
-      .value();
-  };
+    return function(items, field, reverse) {
+        return _.chain(_.keys(items))
+            .map(function(item) {
+                var i = items[item];
+                i._objectKey = item;
+                return i;
+            })
+            .sortBy(function(v) {
+                return reverse ? -v[field] : v[field];
+            })
+            .value();
+    };
 });
+
 app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     var charactersCount = 0;
     var BONUS_TYPE = {
@@ -78,7 +79,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
             value = parseFloat(value);
             value = isNaN(value) ? 0 : value;
         }
-          
+
         if(bonus.modifier) {
             var modifier = bonus.modifier;
             if(typeof modifier === 'string') {
@@ -306,7 +307,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
                 var level = character.levels[l];
                 levels.push(level.level);
             }
-            
+
             if(!character.colors) {
                 character.colors = getGraphColor();
                 character.style = { 'background-color': character.colors.fill };
@@ -486,7 +487,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
             while(fields.length > 0) {
                 target = target[fields.shift()];
             }
-              
+
             var t = parseFloat(target);
             var et = parseFloat($scope.editTemp.value);
             if(!(t === et || target === $scope.editTemp.value)) {
