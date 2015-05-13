@@ -1,8 +1,19 @@
 <div class="container-fluid" ng-controller="MainCtrl as main">
 
     <div class="row">
-        <div class="col-md-12" ng-controller="CharacterCtrl as characters">
-            <character-tabs tabs="characters"></character-tabs>
+        <div class="col-md-12">
+
+            <!-- Character Tabs -->
+            <div class="row tab-header">
+                <ul class="list-inline tab-list">
+                    <li ng-repeat="(ind, character) in characters" ng-click="selectCharacter(ind)" class="tab bg-default text-center" ng-class="ind === selectedCharacterIndex ? 'selected' : 'unselected'">
+                        <span>{{ character.name }}</span>
+                        &nbsp;
+                        <span class="close" ng-click="removeCharacter(ind)">&times;</span>
+                    </li>
+                    <li><button type="button" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addCharacter()"></button></li>
+                </ul>
+            </div>
 
             <!-- Body Content -->
             <div class="row content bg-default">

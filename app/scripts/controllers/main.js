@@ -1,5 +1,46 @@
 'use strict';
 
+function TabController(edit, emptyObj) {
+    this.items = [];
+    this.id = null;
+    this.empty = emptyObj;
+    this.selected = null;
+    this.select = function(ind) {
+        edit.clear();
+
+        if(ind === -1) {
+            this.id = null;
+            this.selected = null;
+        }
+        else {
+            this.id = ind;
+            this.selected = this.items[ind];
+        }
+    };
+    this.add = function() {
+        this.items.push(this.empty());
+        this.select(this.items.length - 1);
+    };
+    this.remove = function(ind) {
+        if(this.items.length === 1) {
+            return;
+        }
+
+        this.items.splice(ind, 1);
+        if(this.id >= ind) {
+            if(this.id === 0 || ind === 0) {
+                this.select(0);
+            }
+            else {
+                this.select(this.id - 1);
+            }
+        }
+        else if(this.id > this.items.length - 1) {
+            this.select(this.items.length - 1);
+        }
+    };
+}
+
 /**
  * @ngdoc function
  * @name dprCalcApp.controller:MainCtrl
@@ -8,6 +49,75 @@
  * Controller of the dprCalcApp
  */
 var app = angular.module('dprCalcApp');
+
+app.service('editService', function() {
+    var edit = {
+        id: null,
+        value: null,
+        target: null,
+        source: null,
+        dependentSources: null,
+        dependentTargets: null,
+        dependentValues: []
+    };
+
+    edit.set = function(id, source, target, dependentSources, dependentTargets) {
+        edit.clear();
+
+        edit.id = id;
+        edit.source = source;
+        edit.target = target;
+        edit.value = source[target];
+        edit.dependentSources = dependentSources;
+        edit.dependentTargets = dependentTargets;
+        edit.dependentValue = [];
+        for(var d = 0; d < dependentSources.length && d < dependentTargets.length; d++) {
+            var s = dependentSources[d];
+            var t = dependentTargets[d];
+
+            edit.dependentValues[d] = s[t];
+        }
+    };
+    edit.clear = function() {
+        edit.id = null;
+
+        if(edit.dependentSources && edit.value === edit.target[edit.source]) {
+            for(var d = 0; d < edit.dependentSources.length && d < edit.dependentTargets.length && d < edit.dependentValues.length; d++) {
+                var s = edit.dependentSources[d];
+                var t = edit.dependentTargets[d];
+
+                s[t] = edit.dependentValues[d];
+            }
+        }
+    };
+    edit.cancel = function() {
+        edit.source[edit.tartet] = edit.value;
+        edit.clear();
+    };
+
+    return edit;
+});
+
+app.factory('emptyCharacter', function() {
+    return function() {
+        return {
+            'name': 'New Character',
+            'levels': [],
+            'race': 'Human',
+            'class': '',
+            'selectedLevel': null,
+            'selectedLevelIndex': -1,
+            'abilityScores': {
+                'strength': 10,
+                'dexterity': 10,
+                'constitution': 10,
+                'intelligence': 10,
+                'wisdom': 10,
+                'charisma': 10
+            }
+        };
+    };
+});
 
 app.filter('orderObjectBy', function() {
     return function(items, field, reverse) {
@@ -23,6 +133,18 @@ app.filter('orderObjectBy', function() {
             .value();
     };
 });
+
+app.directive('characterTabs', function() {
+    return {
+        restrict: 'E',
+        templateUrl: '../views/horizontal-tabs.html',
+        scope: {
+            tabs: '=tabs'
+        }
+    };
+});
+
+app.controller('CharacterCtrl', ['editService', 'emptyCharacter', TabController]);
 
 app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     var charactersCount = 0;
@@ -457,6 +579,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     };
 
     // Edit management
+
     $scope.edit = null;
     $scope.editTemp = null;
     var editObject, editObjectValue;
