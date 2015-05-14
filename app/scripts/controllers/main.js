@@ -102,6 +102,13 @@ app.service('editService', function() {
     return edit;
 });
 
+app.service('abilityModService', function() {
+    return function(score) {
+        score = parseInt(score);
+        return Math.floor((score - 10) / 2);
+    };
+});
+
 app.factory('emptyCharacter', function() {
     return function() {
         return {
@@ -163,6 +170,22 @@ app.directive('inputField', ['editService', function(edit) {
         },
         link: function(scope) {
             scope.edit = edit;
+        }
+    };
+}]);
+
+app.directive('inputAbility', ['editService', 'abilityModService', function(edit, abilityMod) {
+    return {
+        restrict: 'E',
+        templateUrl: '../views/input-ability.html',
+        transclude: true,
+        scope: {
+            scores: '=scores',
+            target: '=source'
+        },
+        link: function(scope) {
+            scope.edit = edit;
+            scope.getAbilityMod = abilityMod;
         }
     };
 }]);

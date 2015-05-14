@@ -25,47 +25,17 @@
                         <input-field id="'race'" title="'Race:'" type="text" source="characters.selected" target="'race'"></input-field>
                         <input-field id="'class'" title="'Class:'" type="text" source="characters.selected" target="'class'"></input-field>
                     </div>
-
                     <div class="col-md-12">
                         <strong>Base Ability Scores</strong>
+                        <input-ability scores='abilityScores', source='characters.selected'></input-ability>
                     </div>
-
-                    <div class="col-md-12" ng-repeat="score in abilityScores">
-                        <div ng-click="setEdit('base-' + score, 'characters.selected.abilityScores.' + score)" ng-if="edit.id !== 'base-' + score" class="clickable">
-                            <div class="row">
-                                <div class="col-md-4 text-capitalize">{{ score }}: </div>
-                                <div class="col-md-4">
-                                    [&nbsp;{{ characters.selected.abilityScores[score] }}&nbsp;]
-                                </div>
-                                <div class="col-md-4">
-                                    {{ getAbilityMod(characters.selected.abilityScores[score]) }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div ng-click="setEdit('base-' + score, 'characters.selected.abilityScores.' + score)" ng-if="edit.id === 'base-' + score" class="clickable">
-                            <div class="row">
-                                <div class="col-md-4 text-capitalize">{{ score }}: </div>
-                                <div class="col-md-8 row">
-                                    <div class="col-md-10">
-                                        <input class="form-control input-sm" type="number" step="any" ng-model="characters.selected.abilityScores[score]" />
-                                    </div>
-                                    <div class="col-md-2">
-                                        <button type="button" ng-click="edit.clear()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
-                                        <button type="button" ng-click="edit.cancel()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="col-md-12">
                         <strong>Point Buy: </strong>
                         {{ getPointBuy(characters.selected) }}
                     </div>
-
                 </div>
 
+                <!-- Import/Export Fields TODO -->
                 <div class="col-md-4" ng-if="edit.id === 'import' || edit.id === 'export'">
                     <textarea class="form-control" rows="6" ng-model="importExport" ng-paste="importPaste($event)"></textarea>
                     <div class="col-md-12 text-right" ng-if="edit.id === 'import'">
