@@ -158,13 +158,11 @@ app.factory('emptyCharacter', ['emptyLevel', function(level) {
 }]);
 
 app.factory('emptyLevel', ['bonusService', function(BONUS_TYPE) {
-    var lastLevel = 0;
-
     return function() {
         return {
         // Base items
-        'name': lastLevel + 1,
-        'level': lastLevel +1,//TODO: remove
+        'name': 1,
+        'level': 1,//TODO: remove
         'attackGroups': [],
         'selectedAttackGroupIndex': -1,
         'selectedAttackGroup': null,
