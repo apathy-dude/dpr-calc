@@ -39,6 +39,8 @@ function TabController(edit, emptyObj) {
             this.select(this.items.length - 1);
         }
     };
+
+    this.add();
 }
 
 /**
@@ -71,11 +73,13 @@ app.service('editService', function() {
         edit.dependentSources = dependentSources;
         edit.dependentTargets = dependentTargets;
         edit.dependentValue = [];
-        for(var d = 0; d < dependentSources.length && d < dependentTargets.length; d++) {
-            var s = dependentSources[d];
-            var t = dependentTargets[d];
+        if(dependentSources && dependentTargets) {
+            for(var d = 0; d < dependentSources.length && d < dependentTargets.length; d++) {
+                var s = dependentSources[d];
+                var t = dependentTargets[d];
 
-            edit.dependentValues[d] = s[t];
+                edit.dependentValues[d] = s[t];
+            }
         }
     };
     edit.clear = function() {
@@ -144,10 +148,29 @@ app.directive('characterTabs', function() {
     };
 });
 
+app.directive('inputField', ['editService', function(edit) {
+    return {
+        restrict: 'E',
+        templateUrl: '../views/input-field.html',
+        transclude: true,
+        scope: {
+            cssClass: '=css',
+            type: '=type',
+            editId: '=id',
+            editTarget: '=target',
+            editSource: '=source',
+            title: '=title'
+        },
+        link: function(scope) {
+            scope.edit = edit;
+        }
+    };
+}]);
+
 app.controller('CharacterCtrl', ['editService', 'emptyCharacter', TabController]);
 
-app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
-    var charactersCount = 0;
+app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scope, $filter, edit) {
+    $scope.edit = edit;
     var BONUS_TYPE = {
         STATIC: 0,
         ABILITY: 1,
@@ -214,27 +237,6 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
         }
 
         return value;
-    }
-
-    function emptyCharacter() {
-        var id = charactersCount;
-        charactersCount++;
-        return {
-            'name': 'Character-' + id,
-            'levels': [],
-            'race': 'Human',
-            'class': '',
-            'selectedLevel': null,
-            'selectedLevelIndex': -1,
-            'abilityScores': {
-                'strength': 10,
-                'dexterity': 10,
-                'constitution': 10,
-                'intelligence': 10,
-                'wisdom': 10,
-                'charisma': 10
-            }
-        };
     }
 
     function emptyLevel() {
@@ -474,7 +476,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     }
 
     $scope.graphDPR = function() {
-        $scope.edit = 'graph';
+        edit.id = 'graph';
         window.setTimeout(graphDPR, 100);
     };
 
@@ -498,48 +500,9 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     };
     $scope.getValue = getValue;
 
-    // Character tab management
-    $scope.characters = [];
-    $scope.selectedCharacterIndex = -1;
-    $scope.selectedCharacter = null;
-    $scope.selectCharacter = function(ind) {
-        $scope.clearEdit();
-        $scope.selectedCharacterIndex = ind;
-
-        if(ind === -1) {
-            $scope.selectedCharacter = null;
-        }
-        else {
-            $scope.selectedCharacter = $scope.characters[ind];
-        }
-    };
-    $scope.addCharacter = function() {
-        $scope.characters.push(emptyCharacter());
-        $scope.selectCharacter($scope.characters.length - 1);
-        $scope.addLevel($scope.selectedCharacter);
-    };
-    $scope.removeCharacter = function(ind) {
-        if($scope.characters.length === 1) {
-            return;
-        }
-
-        $scope.characters.splice(ind, 1);
-        if($scope.selectedCharacterIndex >= ind) {
-            if($scope.selectedCharacterIndex === 0 || ind === 0) {
-                $scope.selectCharacter(0);
-            }
-            else {
-                $scope.selectCharacter($scope.selectedCharacterIndex - 1);
-            }
-        }
-        else if($scope.selectedCharacterIndex > $scope.characters.length - 1) {
-            $scope.selectCharacter($scope.characters.length - 1);
-        }
-    };
-
     // Level tab management
     $scope.selectLevel = function(character, ind) {
-        $scope.clearEdit();
+        $scope.edit.clear();
         character.selectedLevelIndex = ind;
 
         if(ind === -1) {
@@ -578,65 +541,6 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
         character.selectedLevelIndex = _.indexOf(character.levels, character.selectedLevel);
     };
 
-    // Edit management
-
-    $scope.edit = null;
-    $scope.editTemp = null;
-    var editObject, editObjectValue;
-    $scope.setEdit = function(field, temp, clearObject, clearObjectValue) {
-        $scope.clearEdit();
-        $scope.edit = field;
-        if(temp) {
-            var target = $scope;
-            var fields = temp.split('.');
-            while(fields.length > 1) {
-                target = target[fields.shift()];
-            }
-            $scope.editTemp = { field: temp, value: target[fields[0]] };
-        }
-        else {
-            $scope.editTemp = null;
-        }
-
-        editObject = clearObject;
-        editObjectValue = clearObjectValue;
-    };
-    $scope.clearEdit = function() {
-        $scope.edit = null;
-
-        if(editObject && editObjectValue && $scope.editTemp) {
-            var target = $scope;
-            var fields = $scope.editTemp.field.split('.');
-            while(fields.length > 0) {
-                target = target[fields.shift()];
-            }
-
-            var t = parseFloat(target);
-            var et = parseFloat($scope.editTemp.value);
-            if(!(t === et || target === $scope.editTemp.value)) {
-                editObject[editObjectValue] = '';
-                editObject = null;
-                editObjectValue = null;
-            }
-        }
-    };
-    $scope.cancelEdit = function() {
-        if($scope.editTemp === null) {
-            return;
-        }
-
-        var target = $scope;
-        var fields = $scope.editTemp.field.split('.');
-        while(fields.length > 1) {
-            target = target[fields.shift()];
-        }
-
-        target[fields[0]] = $scope.editTemp.value;
-        $scope.editTemp = null;
-
-        $scope.clearEdit();
-    };
-
     // Character management
     $scope.getAbilityMod = function(score) {
         score = parseInt(score);
@@ -658,12 +562,12 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     $scope.importExport = null;
     $scope.export = function() {
         $scope.importExport = $filter('json')($scope.selectedCharacter, 4);
-        $scope.edit = 'export';
+        $scope.edit.id = 'export';
     };
     $scope.importStart = function() {
         $scope.importExport = '';
-        $scope.addCharacter();
-        $scope.edit = 'import';
+        //$scope.addCharacter();
+        $scope.edit.id = 'import';
     };
     $scope.importPaste = function(e) {
         $scope.importExport = e.target.value;
@@ -671,7 +575,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     $scope.importEnd = function() {
         $scope.selectedCharacter = angular.fromJson($scope.importExport);
         $scope.characters[$scope.selectedCharacterIndex] = $scope.selectedCharacter;
-        $scope.edit = null;
+        $scope.edit.id = null;
     };
 
     // Level management
@@ -748,7 +652,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     $scope.statOrder = 'order';
     //Attack Group management
     $scope.selectAttackGroup = function(level, ind) {
-        $scope.clearEdit();
+        $scope.edit.clear();
         level.selectedAttackGroupIndex = ind;
 
         if(ind === -1) {
@@ -796,7 +700,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
     };
 
     $scope.selectAttack = function(atkGroup, ind) {
-        $scope.clearEdit();
+        $scope.edit.clear();
         atkGroup.selectedAttackIndex = ind;
 
         if(ind === -1) {
@@ -948,7 +852,4 @@ app.controller('MainCtrl', [ '$scope', '$filter', function ($scope, $filter) {
         19: 34,
         20: 36,
     };
-
-    // Initialization
-    $scope.addCharacter();
 }]);

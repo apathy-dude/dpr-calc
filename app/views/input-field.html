@@ -1,0 +1,16 @@
+<div ng-if="edit.id !== editId">
+    <p ng-click="edit.set(editId, editSource, editTarget)" ng-class="cssClass" class="clickable">
+        <strong ng-if="title">{{title}}</strong>
+        <span>[&nbsp;{{ editSource[editTarget] }}&nbsp;]</span>
+    </p>
+</div>
+<div class="row" ng-if="edit.id === editId">
+    <div class="col-md-11">
+        <input type="{{type}}" ng-model="editSource[editTarget]" ng-class="cssClass" class="form-control input-sm" />
+    </div>
+    <div class="col-md-1">
+        <button type="button" ng-click="edit.clear()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></button>
+        <button type="button" ng-click="edit.cancel()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></button>
+    </div>
+</div>
+
