@@ -2,7 +2,7 @@
 
     <div class="row">
         <div class="col-md-12" ng-controller="CharacterCtrl as characters">
-            <character-tabs tabs="characters"></character-tabs>
+            <tabs tabs="characters" css="'bg-default'" selected="'selected'" unselected="'unselected'"></tabs>
 
             <!-- Body Content -->
             <div class="row content bg-default">
@@ -44,42 +44,13 @@
                 </div>
 
                 <!-- Level information -->
-                <div class="row col-md-12">
-
-                    <!-- Level tabs -->
-                    <div class="row col-md-1">
-                        <ul class="list-unstyled tab-list">
-                            <li ng-click="selectLevel(characters.selected, ind)" ng-repeat="(ind, level) in characters.selected.levels" class="tab bg-default text-center" ng-class="ind === characters.selected.selectedLevelIndex ? 'unselected' : 'selected'">
-                                <span>{{ level.level }}</span>
-                                <span class="close" ng-click="removeLevel(characters.selected, ind)">&times;</span>
-                            </li>
-                            <li class="text-right">
-                                <button type="button" class="btn btn-success btn-xs glyphicon glyphicon-sort-by-order" ng-click="sortLevel(characters.selected)"></button>
-                                <button type="button" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addLevel(characters.selected)"></button>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="row col-md-12" ng-controller="LevelListCtrl as levels">
+                    <tabs tabs="levels" itemname="'max'" class="col-md-12" css="'bg-default'" selected="'unselected'" unselected="'selected'"></tabs>
 
                     <!-- Level information -->
-                    <div class="col-md-11 bg-unstyle">
-
+                    <div class="col-md-12 bg-unstyle">
                         <div ng-if="characters.selected.levels.length > 0" class="row col-md-12">
-                            <div class="col-md-12">
-                                <div ng-click="setEdit('level', 'characters.selected.selectedLevel.level')" ng-if="edit.id !== 'level'" class="clickable">
-                                    <h2>[ Level {{ characters.selected.selectedLevel.level }}&nbsp;]</h2>
-                                </div>
-
-                                <div class="row" ng-if="edit.id === 'level'">
-                                    <div class="col-md-11">
-                                        <input ng-model="characters.selected.selectedLevel.level" class="h2 form-control input-sm" type="number" step="any" />
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="button" ng-click="edit.clear()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></button>
-                                        <br>
-                                        <button type="button" ng-click="edit.cancel()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></button>
-                                    </div>
-                                </div>
-                            </div>
+                            <input-field id="'level'" title="'Level:'" css="'h2'" type="'number'" source="levels.selected" target="'name'" step="'any'"></input-field>
 
                             <!-- Standard Stats -->
                             <div class="col-md-12 row" ng-repeat="stat in standardStats">

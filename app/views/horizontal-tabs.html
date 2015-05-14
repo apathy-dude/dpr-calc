@@ -1,10 +1,10 @@
 <div class="row tab-header">
     <ul class="list-inline tab-list">
-        <li ng-repeat="(ind, item) in tabs.items" ng-click="tabs.select(ind)" class="tab bg-default text-center" ng-class="ind === tabs.id ? 'selected' : 'unselected'">
-            <span>{{ tabs.selected.name }}</span>
+        <li ng-repeat="(ind, item) in tabs.items" ng-click="tabs.select(ind)" class="tab text-center" ng-class="css + ' ' + (ind === tabs.id ? selected : unselected)">
+            <span>{{ item.name }}</span>
             &nbsp;
             <span class="close" ng-click="tabs.remove(ind)">&times;</span>
         </li>
-        <li><button type="button" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="tabs.add()"></button></li>
+        <li><button type="button" class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="tabs.add(name)"></button></li>
     </ul>
 </div>
