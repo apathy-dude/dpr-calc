@@ -119,6 +119,111 @@ app.service('abilityModService', function() {
     };
 });
 
+app.service('statService', ['bonusService', 'abilityModService', function(BONUS_TYPE, getAbilityMod) {
+    function getValue(character, level, bonus) {
+        var value;
+
+        if(typeof bonus.type === 'string') {
+            bonus.type = parseInt(bonus.type);
+        }
+        switch(bonus.type) {
+            case BONUS_TYPE.STATIC: value = bonus.value; break;
+            case BONUS_TYPE.DYNAMIC: value = bonus.value; break;
+            case BONUS_TYPE.ABILITY:
+                var score = getStat(character, level, bonus.value);
+                value = getAbilityMod(score);
+                break;
+            case BONUS_TYPE.STAT: value = getStat(character, level, bonus.value); break;
+            case BONUS_TYPE.BASE_ABILITY: value = character.abilityScores[bonus.value]; break;
+            case BONUS_TYPE.DICE:
+                 var dice = bonus.value.split('d');
+                 value = (parseInt(dice[1]) / 2 + 0.5) * parseInt(dice[0]);
+                 break;
+            case BONUS_TYPE.POWER_ATTACK_HIT:
+                var bab = getStat(character, level, 'bab');
+                value = -1 * (Math.floor(bab / 4) + 1);
+                break;
+              case BONUS_TYPE.POWER_ATTACK_DMG:
+                var bab2 = getStat(character, level, 'bab');
+                bab2 = Math.floor(bab2 / 4) || 1;
+                value = bonus.value ? bab2 * 3 : bab2 * 2;
+                break;
+              case BONUS_TYPE.TWO_WEAPON: value = -2; break;
+          }
+
+        if(typeof value === 'string') {
+            value = parseFloat(value);
+            value = isNaN(value) ? 0 : value;
+        }
+
+        if(bonus.modifier) {
+            var modifier = bonus.modifier;
+            if(typeof modifier === 'string') {
+                modifier = level[modifier];
+            }
+            value *= modifier;
+            if(bonus.type !== BONUS_TYPE.DICE) {
+                value = Math.floor(value);
+            }
+        }
+
+        return value;
+    }
+    function levelFilter(level) {
+        if(typeof level === 'string') {
+            level = parseFloat(level);
+            if(isNaN(level)) {
+                return function() {
+                    return false;
+                };
+            }
+        }
+
+        return function(lvl) {
+            var l = parseFloat(lvl.level);
+            return l <= level;
+        };
+    }
+    function getFieldSum(character, level, field) {
+        return function(result, value) {
+            var v = _.reduce(value[field], function(res, val) {
+                if(!val.applyOnce || value.level === level.name) {
+                    return res + getValue(character, level, val);
+                }
+                return res;
+            }, 0);
+            return result += v ? v : 0;
+        };
+    }
+
+    function getStat(character, level, stat) {
+        var v = _.chain(character.levels)
+            .filter(levelFilter(level.name))
+            .reduce(getFieldSum(character, level, stat), 0)
+            .value();
+        return v;
+    }
+
+    function getStatMod(character, level, stat, mod) {
+        return _.chain(character.levels)
+          .filter(levelFilter(level.name))
+          .map(function(level) {
+              var obj = {};
+              obj[stat] = {};
+              obj[stat][mod] = level[stat][mod];
+              return obj;
+          })
+          .reduce(getFieldSum(character, level, stat), 0)
+          .value();
+    }
+
+    return {
+        get: getStat,
+        getMod: getStatMod,
+        getValue: getValue
+    };
+}]);
+
 app.service('bonusService', function() {
     var BONUS_TYPE = {
         STATIC: 0,
@@ -133,6 +238,16 @@ app.service('bonusService', function() {
     };
 
     return BONUS_TYPE;
+});
+
+app.service('renderService', function() {
+    var RENDER_TYPE = {
+        INLINE: 0,
+        HEADER: 1,
+        GROUP: 2
+    };
+
+    return RENDER_TYPE;
 });
 
 app.factory('emptyCharacter', ['emptyLevel', function(level) {
@@ -341,6 +456,53 @@ app.directive('inputAbility', ['editService', 'abilityModService', function(edit
         link: function(scope) {
             scope.edit = edit;
             scope.getAbilityMod = abilityMod;
+        }
+    };
+}]);
+
+app.directive('standardStats', ['editService', 'abilityModService', 'bonusService', 'renderService', 'statService', function(edit, abilityMod, BONUS_TYPE, RENDER_TYPE, stat) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {},
+        templateUrl: '../views/standard-stats.html',
+        link: function(scope) {
+            scope.edit = edit;
+
+            scope.standardStats = [
+              { 'title': 'Ability', 'renderType': RENDER_TYPE.GROUP, 'items': [
+                      { 'name': 'strength', 'title': 'Str' },
+                      { 'name': 'dexterity', 'title': 'Dex' },
+                      { 'name': 'constitution', 'title': 'Con' },
+                      { 'name': 'intelligence', 'title': 'Int' },
+                      { 'name': 'wisdom', 'title': 'Wis' },
+                      { 'name': 'charisma', 'title': 'Cha' },
+                  ],
+                  'additionalColumns': [
+                      { 'name': 'mod', 'title': 'Modifier', 'value': abilityMod, 'order': 0, 'position': 0 }
+                  ]
+              },
+              { 'name': 'hp', 'title': 'HP', 'renderType': RENDER_TYPE.HEADER },
+              { 'name': 'ac', 'title': 'AC', 'renderType': RENDER_TYPE.HEADER },
+              { 'title': 'Saves', 'renderType': RENDER_TYPE.GROUP, 'items': [
+                      { 'name': 'fortitude', 'title': 'Fort' },
+                      { 'name': 'reflex', 'title': 'Ref' },
+                      { 'name': 'will', 'title': 'Will' }
+                  ],
+              },
+              { 'name': 'initiative', 'title': 'Init', 'renderType': RENDER_TYPE.INLINE },
+              { 'name': 'bab', 'title': 'BAB', 'renderType': RENDER_TYPE.INLINE },
+              { 'name': 'dr', 'title': 'DR', 'renderType': RENDER_TYPE.INLINE },
+              { 'name': 'sr', 'title': 'SR', 'renderType': RENDER_TYPE.INLINE }
+            ];
+
+            scope.RENDER_TYPE = RENDER_TYPE;
+            scope.BONUS_TYPE = BONUS_TYPE;
+            scope.getStat = stat.get;
+            scope.getStatMod = stat.getMod;
+            scope.getValue = stat.getValue;
+            scope.character = {};
+            scope.level = {};
         }
     };
 }]);
@@ -609,7 +771,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
             var character = $scope.characters[char];
             for(var l in character.levels) {
                 var level = character.levels[l];
-                levels.push(level.level);
+                levels.push(level.name);
             }
 
             if(!character.colors) {
@@ -777,7 +939,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
     function getFieldSum(character, level, field) {
         return function(result, value) {
             var v = _.reduce(value[field], function(res, val) {
-                if(!val.applyOnce || value.level === level.level) {
+                if(!val.applyOnce || value.level === level.name) {
                     return res + getValue(character, level, val);
                 }
                 return res;
@@ -785,15 +947,16 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
             return result += v ? v : 0;
         };
     }
+
     $scope.getStat = function(character, level, stat) {
         return _.chain(character.levels)
-          .filter(levelFilter(level.level))
+          .filter(levelFilter(level.name))
           .reduce(getFieldSum(character, level, stat), 0)
           .value();
     };
     $scope.getStatMod = function(character, level, stat, mod) {
         return _.chain(character.levels)
-          .filter(levelFilter(level.level))
+          .filter(levelFilter(level.name))
           .map(function(level) {
               var obj = {};
               obj[stat] = {};
@@ -803,32 +966,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
           .reduce(getFieldSum(character, level, stat), 0)
           .value();
     };
-    $scope.standardStats = [
-      { 'title': 'Ability', 'renderType': RENDER_TYPE.GROUP, 'items': [
-              { 'name': 'strength', 'title': 'Str' },
-              { 'name': 'dexterity', 'title': 'Dex' },
-              { 'name': 'constitution', 'title': 'Con' },
-              { 'name': 'intelligence', 'title': 'Int' },
-              { 'name': 'wisdom', 'title': 'Wis' },
-              { 'name': 'charisma', 'title': 'Cha' },
-          ],
-          'additionalColumns': [
-              { 'name': 'mod', 'title': 'Modifier', 'value': $scope.getAbilityMod, 'order': 0, 'position': 0 }
-          ]
-      },
-      { 'name': 'hp', 'title': 'HP', 'renderType': RENDER_TYPE.HEADER },
-      { 'name': 'ac', 'title': 'AC', 'renderType': RENDER_TYPE.HEADER },
-      { 'title': 'Saves', 'renderType': RENDER_TYPE.GROUP, 'items': [
-              { 'name': 'fortitude', 'title': 'Fort' },
-              { 'name': 'reflex', 'title': 'Ref' },
-              { 'name': 'will', 'title': 'Will' }
-          ],
-      },
-      { 'name': 'initiative', 'title': 'Init', 'renderType': RENDER_TYPE.INLINE },
-      { 'name': 'bab', 'title': 'BAB', 'renderType': RENDER_TYPE.INLINE },
-      { 'name': 'dr', 'title': 'DR', 'renderType': RENDER_TYPE.INLINE },
-      { 'name': 'sr', 'title': 'SR', 'renderType': RENDER_TYPE.INLINE }
-    ];
+
     $scope.statOrder = 'order';
     //Attack Group management
     $scope.selectAttackGroup = function(level, ind) {
@@ -864,7 +1002,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
         }
     };
     $scope.copyAttackGroupFromPreviousLevel = function(character, level) {
-        var currentLevel = parseInt(level.level);
+        var currentLevel = parseInt(level.name);
         var lastLevel = _.reduce(character.levels, function(max, l) {
             var testLevel = parseInt(l.level);
             var maxLevel = parseInt(max.level);
@@ -961,7 +1099,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
         return damage;
     }
     function calculateAttackDPR(character, level, attack) {
-        var lev = parseInt(level.level);
+        var lev = parseInt(level.name);
         var targetAC = $scope.targetAc[lev];
         var hitChance;
         var minHitChance = 0.05;
