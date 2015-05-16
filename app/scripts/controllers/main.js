@@ -1,56 +1,61 @@
 'use strict';
 
-function TabController(edit, emptyObj) {
-    this.items = [];
-    this.id = null;
-    this.empty = emptyObj;
-    this.selected = null;
-    this.select = function(ind) {
-        edit.clear();
+var characters = [];
 
-        if(ind === -1) {
-            this.id = null;
-            this.selected = null;
-        }
-        else {
-            this.id = ind;
-            this.selected = this.items[ind];
-        }
-    };
-    this.add = function(name) {
-        var item = this.empty();
-        if(name === 'max') {
-            item.name = this.maxName() + 1;
-        }
-        this.items.push(item);
-        this.select(this.items.length - 1);
-    };
-    this.remove = function(ind) {
-        if(this.items.length === 1) {
-            return;
-        }
+function TabControllerFactory(items) {
+    items = items || [];
+    return function TabController(edit, emptyObj) {
+        this.items = items;
+        this.id = null;
+        this.empty = emptyObj;
+        this.selected = null;
+        this.select = function(ind) {
+            edit.clear();
 
-        this.items.splice(ind, 1);
-        if(this.id >= ind) {
-            if(this.id === 0 || ind === 0) {
-                this.select(0);
+            if(ind === -1) {
+                this.id = null;
+                this.selected = null;
             }
             else {
-                this.select(this.id - 1);
+                this.id = ind;
+                this.selected = this.items[ind];
             }
-        }
-        else if(this.id > this.items.length - 1) {
+        };
+        this.add = function(name) {
+            var item = this.empty();
+            if(name === 'max') {
+                item.name = this.maxName() + 1;
+            }
+            this.items.push(item);
             this.select(this.items.length - 1);
-        }
-    };
-    this.maxName = function() {
-        return _.reduce(this.items, function(max, item) {
-            var name = parseFloat(item.name);
-            return max > name ? max : name;
-        }, 0);
-    };
+        };
+        this.remove = function(ind) {
+            if(this.items.length === 1) {
+                return;
+            }
 
-    this.add();
+            this.items.splice(ind, 1);
+            if(this.id >= ind) {
+                if(this.id === 0 || ind === 0) {
+                    this.select(0);
+                }
+                else {
+                    this.select(this.id - 1);
+                }
+            }
+            else if(this.id > this.items.length - 1) {
+                this.select(this.items.length - 1);
+            }
+        };
+        this.maxName = function() {
+            return _.reduce(this.items, function(max, item) {
+                var name = parseFloat(item.name);
+                return max > name ? max : name;
+            }, 0);
+        };
+
+        this.add();
+    };
 }
 
 /**
@@ -117,6 +122,10 @@ app.service('abilityModService', function() {
         score = parseInt(score);
         return Math.floor((score - 10) / 2);
     };
+});
+
+app.service('abilityScoreService', function() {
+    return ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
 });
 
 app.service('statService', ['bonusService', 'abilityModService', function(BONUS_TYPE, getAbilityMod) {
@@ -254,7 +263,6 @@ app.factory('emptyCharacter', ['emptyLevel', function(level) {
     return function() {
         var lev = level();
         return {
-            'name': 'New Character',
             'levels': [lev],
             'race': 'Human',
             'class': '',
@@ -464,7 +472,10 @@ app.directive('standardStats', ['editService', 'abilityModService', 'bonusServic
     return {
         restrict: 'E',
         transclude: true,
-        scope: {},
+        scope: {
+            character: '=character',
+            level: '=level'
+        },
         templateUrl: '../views/standard-stats.html',
         link: function(scope) {
             scope.edit = edit;
@@ -501,15 +512,142 @@ app.directive('standardStats', ['editService', 'abilityModService', 'bonusServic
             scope.getStat = stat.get;
             scope.getStatMod = stat.getMod;
             scope.getValue = stat.getValue;
-            scope.character = {};
-            scope.level = {};
         }
     };
 }]);
 
-app.controller('CharacterCtrl', ['editService', 'emptyCharacter', TabController]);
+app.controller('CharacterCtrl', ['editService', 'emptyCharacter', new TabControllerFactory(characters)]);
 
-app.controller('LevelListCtrl', ['editService', 'emptyLevel', TabController]);
+app.controller('LevelListCtrl', ['editService', 'emptyLevel', new TabControllerFactory()]);
+
+app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
+    $scope.edit = edit;
+
+    var id = 0;
+    function setAllInactive() {
+        angular.forEach($scope.characters, function(character) {
+           character.active = false;
+        });
+    }
+
+    function addNewCharacter() {
+        id++;
+        $scope.characters.push({
+            id: id,
+            name: 'character ' + id,
+            active: true,
+            data: empty()
+        });
+    }
+
+    $scope.remove = function remove(ind) {
+        if($scope.characters.length === 1) {
+            return;
+        }
+
+        var active = $scope.characters[ind].active;
+
+        $scope.characters.splice(ind, 1);
+
+        if(active) {
+            if($scope.characters.length > ind) {
+                $scope.characters[ind].active = true;
+            }
+            else {
+                $scope.characters[ind - 1].active = true;
+            }
+        }
+    };
+
+    $scope.characters = [];
+
+    $scope.add = function() {
+        $scope.edit.clear();
+        setAllInactive();
+        addNewCharacter();
+    };
+
+    $scope.add();
+}]);
+
+app.controller('TabsLevelController', ['$scope', 'emptyLevel', 'editService', function($scope, empty, edit) {
+    $scope.edit = edit;
+
+    function setAllInactive() {
+        angular.forEach($scope.levels, function(level) {
+           level.active = false;
+        });
+    }
+
+    function addNewLevel() {
+        var id = _.reduce($scope.levels, function(max, current) {
+            var cVal = parseInt(current.name);
+            return max > cVal ? max : cVal;
+        }, 0);
+        id++;
+        $scope.levels.push({
+            id: id,
+            name: id,
+            active: true,
+            data: empty()
+        });
+    }
+
+    $scope.remove = function remove(ind) {
+        if($scope.levels.length === 1) {
+            return;
+        }
+
+        var active = $scope.levels[ind].active;
+
+        $scope.levels.splice(ind, 1);
+
+        if(active) {
+            if($scope.levels.length > ind) {
+                $scope.levels[ind].active = true;
+            }
+            else {
+                $scope.levels[ind - 1].active = true;
+            }
+        }
+    };
+
+    $scope.levels = [];
+
+    $scope.add = function() {
+        $scope.edit.clear();
+        setAllInactive();
+        addNewLevel();
+    };
+
+    $scope.add();
+}]);
+
+app.directive('character', ['abilityScoreService', function(abilityScores) {
+    return {
+        restrict: 'E',
+        scope: {
+            character: '=character',
+        },
+        templateUrl: '../views/character.html',
+        controller: function($scope) {
+            $scope.abilityScores = abilityScores;
+        }
+    };
+}]);
+
+app.directive('level', [function() {
+    return {
+        restrict: 'E',
+        scope: {
+            level: '=level',
+            character: '=character'
+        },
+        templateUrl: '../views/level.html',
+        controller: function() {
+        }
+    };
+}]);
 
 app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scope, $filter, edit) {
     $scope.edit = edit;
@@ -529,7 +667,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
         HEADER: 1,
         GROUP: 2
     };
-    var ctx = angular.element('#chart')[0].getContext('2d');
+    var ctx = null;//angular.element('#chart')[0].getContext('2d');
     var chart;
 
     function getValue(character, level, bonus) {
