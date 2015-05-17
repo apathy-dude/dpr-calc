@@ -1,63 +1,5 @@
 'use strict';
 
-var characters = [];
-
-function TabControllerFactory(items) {
-    items = items || [];
-    return function TabController(edit, emptyObj) {
-        this.items = items;
-        this.id = null;
-        this.empty = emptyObj;
-        this.selected = null;
-        this.select = function(ind) {
-            edit.clear();
-
-            if(ind === -1) {
-                this.id = null;
-                this.selected = null;
-            }
-            else {
-                this.id = ind;
-                this.selected = this.items[ind];
-            }
-        };
-        this.add = function(name) {
-            var item = this.empty();
-            if(name === 'max') {
-                item.name = this.maxName() + 1;
-            }
-            this.items.push(item);
-            this.select(this.items.length - 1);
-        };
-        this.remove = function(ind) {
-            if(this.items.length === 1) {
-                return;
-            }
-
-            this.items.splice(ind, 1);
-            if(this.id >= ind) {
-                if(this.id === 0 || ind === 0) {
-                    this.select(0);
-                }
-                else {
-                    this.select(this.id - 1);
-                }
-            }
-            else if(this.id > this.items.length - 1) {
-                this.select(this.items.length - 1);
-            }
-        };
-        this.maxName = function() {
-            return _.reduce(this.items, function(max, item) {
-                var name = parseFloat(item.name);
-                return max > name ? max : name;
-            }, 0);
-        };
-
-        this.add();
-    };
-}
-
 /**
  * @ngdoc function
  * @name dprCalcApp.controller:MainCtrl
@@ -516,10 +458,6 @@ app.directive('standardStats', ['editService', 'abilityModService', 'bonusServic
     };
 }]);
 
-app.controller('CharacterCtrl', ['editService', 'emptyCharacter', new TabControllerFactory(characters)]);
-
-app.controller('LevelListCtrl', ['editService', 'emptyLevel', new TabControllerFactory()]);
-
 app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
     $scope.edit = edit;
 
@@ -649,6 +587,69 @@ app.directive('level', [function() {
     };
 }]);
 
+app.directive('standardStatInline', ['editService', 'abilityModService', 'bonusService', 'statService', function(edit, abilityMod, BONUS_TYPE, stat) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            character: '=character',
+            level: '=level',
+            stat: '=stat'
+        },
+        templateUrl: '../views/standard-stat-inline.html',
+        link: function(scope) {
+            scope.edit = edit;
+
+            scope.BONUS_TYPE = BONUS_TYPE;
+            scope.getStat = stat.get;
+            scope.getStatMod = stat.getMod;
+            scope.getValue = stat.getValue;
+        }
+    };
+}]);
+
+app.directive('standardStatHeader', ['editService', 'abilityModService', 'bonusService', 'statService', function(edit, abilityMod, BONUS_TYPE, stat) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            character: '=character',
+            level: '=level',
+            stat: '=stat'
+        },
+        templateUrl: '../views/standard-stat-header.html',
+        link: function(scope) {
+            scope.edit = edit;
+
+            scope.BONUS_TYPE = BONUS_TYPE;
+            scope.getStat = stat.get;
+            scope.getStatMod = stat.getMod;
+            scope.getValue = stat.getValue;
+        }
+    };
+}]);
+
+app.directive('standardStatGroup', ['editService', 'abilityModService', 'bonusService', 'statService', function(edit, abilityMod, BONUS_TYPE, stat) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            character: '=character',
+            level: '=level',
+            stat: '=stat'
+        },
+        templateUrl: '../views/standard-stat-group.html',
+        link: function(scope) {
+            scope.edit = edit;
+
+            scope.BONUS_TYPE = BONUS_TYPE;
+            scope.getStat = stat.get;
+            scope.getStatMod = stat.getMod;
+            scope.getValue = stat.getValue;
+        }
+    };
+}]);
+
 app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scope, $filter, edit) {
     $scope.edit = edit;
     var BONUS_TYPE = {
@@ -661,11 +662,6 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
         POWER_ATTACK_HIT: 6,
         POWER_ATTACK_DMG: 7,
         TWO_WEAPON: 8
-    };
-    var RENDER_TYPE = {
-        INLINE: 0,
-        HEADER: 1,
-        GROUP: 2
     };
     var ctx = null;//angular.element('#chart')[0].getContext('2d');
     var chart;
@@ -717,134 +713,6 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
         }
 
         return value;
-    }
-
-    function emptyLevel() {
-        var lastLevel = 0;
-        if($scope.selectedCharacter.levels.length > 0) {
-            lastLevel = _.max($scope.selectedCharacter.levels, function(lvl) {
-                var level = parseFloat(lvl.level);
-                return isNaN(level) ? 0 : level;
-            }).level;
-        }
-
-        return {
-            // Base items
-            'level': lastLevel + 1,
-            'attackGroups': [],
-            'selectedAttackGroupIndex': -1,
-            'selectedAttackGroup': null,
-            // Ability information TODO: Move to standard stat
-            // Standard stats
-            // -- Ability Scores
-            'strength': {
-                'increase': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 1 },
-                'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 2 },
-                'enhance': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 3 },
-                'base': { 'type': BONUS_TYPE.BASE_ABILITY, 'value': 'strength', 'applyOnce': true, 'order': 0 }
-            },
-            'dexterity': {
-                'increase': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 1 },
-                'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 2 },
-                'enhance': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 3 },
-                'base': { 'type': BONUS_TYPE.BASE_ABILITY, 'value': 'dexterity', 'applyOnce': true, 'order': 0 }
-            },
-            'constitution': {
-                'increase': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 1 },
-                'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 2 },
-                'enhance': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 3 },
-                'base': { 'type': BONUS_TYPE.BASE_ABILITY, 'value': 'constitution', 'applyOnce': true, 'order': 0 }
-            },
-            'intelligence': {
-                'increase': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 1 },
-                'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 2 },
-                'enhance': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 3 },
-                'base': { 'type': BONUS_TYPE.BASE_ABILITY, 'value': 'intelligence', 'applyOnce': true, 'order': 0 }
-            },
-            'wisdom': {
-                'increase': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 1 },
-                'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 2 },
-                'enhance': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 3 },
-                'base': { 'type': BONUS_TYPE.BASE_ABILITY, 'value': 'wisdom', 'applyOnce': true, 'order': 0 }
-            },
-            'charisma': {
-                'increase': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 1 },
-                'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 2 },
-                'enhance': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 3 },
-                'base': { 'type': BONUS_TYPE.BASE_ABILITY, 'value': 'charisma', 'applyOnce': true, 'order': 0 }
-            },
-            // -- End Ability Scores
-            'ac': {
-                'base': { 'type': BONUS_TYPE.STATIC, 'value': 10, 'flat-footed': true, 'touch': true, 'applyOnce': true, 'order': 0 },
-                'armor': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false, 'applyOnce': true, 'order': 1 },
-                'shield': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false, 'applyOnce': true, 'order': 2 },
-                'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity', 'flat-footed': false, 'touch': true, 'title': 'Dex', 'applyOnce': true, 'order': 3 },
-                'size': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': true, 'applyOnce': true, 'order': 4 },
-                'natural': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false, 'applyOnce': true, 'order': 5 },
-                'deflection': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': true, 'applyOnce': true, 'order': 6 },
-                'dodge': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': false, 'touch': true, 'applyOnce': true, 'order': 7 },
-                'touch': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': false, 'touch': true, 'applyOnce': true, 'order': 8 },
-                'flat-footed': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'flat-footed': true, 'touch': false, 'applyOnce': true, 'order': 9 },
-            },
-            // -- Saves
-            'fortitude': {
-                'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 0 },
-                'constitution': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution', 'applyOnce': true, 'title': 'Ability', 'order': 1 },
-                'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 2 },
-                'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 3 },
-            },
-            'reflex': {
-                'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 0 },
-                'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity', 'applyOnce': true, 'title': 'Ability', 'order': 1 },
-                'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 2 },
-                'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 3 },
-            },
-            'will': {
-                'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 0 },
-                'wisdom': { 'type': BONUS_TYPE.ABILITY, 'value': 'wisdom', 'applyOnce': true, 'title': 'Abililty', 'order': 1 },
-                'magic': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 2 },
-                'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 3 },
-            },
-            // -- End Saves
-            'dr': {
-                'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 0 },
-                'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 1 },
-            },
-            'sr': {
-                'base': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 0 },
-                'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 1 },
-                'enhance': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 2 },
-            },
-            'hp': {
-               'level': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 0 },
-               'constitution': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution', 'title': 'Con', 'applyOnce': true, 'modifier': 'level', 'order': 1 }, // TODO: Need to be multiplied by level
-               'favoured': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 2},
-               'toughness': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 3 },
-               'other': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 4 },
-            },
-            'bab': {
-                'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 0 },
-            },
-            'initiative': {
-                'dexterity': { 'type': BONUS_TYPE.ABILITY, 'value': 'dexterity', 'applyOnce': true, 'order': 0, 'title': 'Dex' },
-                'class': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 2 },
-                'misc': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'applyOnce': true, 'order': 1 },
-            },
-            // Non-standard stats
-            'movement': {
-                'base': 30,
-                'armor': 30,
-                'fly': 0,
-                'swim': 0,
-                'climb': 0,
-                'burrow': 0
-            },
-            'equipment': [],
-            'feats': [],
-            'skills': [],
-            'spell-casting': [],
-            'abilities': [],
-        };
     }
 
     function emptyAttackGroup() {
@@ -960,85 +828,6 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
         window.setTimeout(graphDPR, 100);
     };
 
-    $scope.BONUS_TYPE = BONUS_TYPE;
-    $scope.RENDER_TYPE = RENDER_TYPE;
-    $scope.bonusTypeText = function(type) {
-        type = parseInt(type);
-        var val;
-        switch(type) {
-            case BONUS_TYPE.STATIC: val = 'Static'; break;
-            case BONUS_TYPE.ABILITY: val = 'Ability'; break;
-            case BONUS_TYPE.DYNAMIC: val = 'Dynamic'; break;
-            case BONUS_TYPE.STAT: val = 'Stat'; break;
-            case BONUS_TYPE.BASE_ABILITY: val = 'Base Ability'; break;
-            case BONUS_TYPE.DICE: val = 'Dice'; break;
-            case BONUS_TYPE.POWER_ATTACK_HIT: val = 'Power Atk'; break;
-            case BONUS_TYPE.POWER_ATTACK_DMG: val = 'Power Atk'; break;
-            case BONUS_TYPE.TWO_WEAPON: val = 'Two Weapon'; break;
-        }
-        return val;
-    };
-    $scope.getValue = getValue;
-
-    // Level tab management
-    $scope.selectLevel = function(character, ind) {
-        $scope.edit.clear();
-        character.selectedLevelIndex = ind;
-
-        if(ind === -1) {
-            character.selectedLevel = null;
-        }
-        else {
-            character.selectedLevel = character.levels[ind];
-        }
-    };
-    $scope.addLevel = function(character) {
-        character.levels.push(emptyLevel());
-        $scope.selectLevel(character, character.levels.length - 1);
-    };
-    $scope.removeLevel = function(character, ind) {
-        if(character.levels.length === 1) {
-            return;
-        }
-
-        character.levels.splice(ind, 1);
-        if(character.selectedLevelIndex >= ind) {
-            if(ind === 0 || character.selectedLevelIndex === 0) {
-                $scope.selectLevel(character, 0);
-            }
-            else {
-                $scope.selectLevel(character, character.selectedLevelIndex - 1);
-            }
-        }
-        else if(character.selectedLevelIndex > character.levels.length - 1) {
-            $scope.selectLevel(character, character.levels.length - 1);
-        }
-    };
-    $scope.sortLevel = function(character) {
-        character.levels = _.sortBy(character.levels, function(lvl) {
-            return parseFloat(lvl.level);
-        });
-        character.selectedLevelIndex = _.indexOf(character.levels, character.selectedLevel);
-    };
-
-    // Character management
-    $scope.getAbilityMod = function(score) {
-        score = parseInt(score);
-        return Math.floor((score - 10) / 2);
-    };
-    $scope.getPointBuy = function(character) {
-        if(!character) {
-            return;
-        }
-
-        return _.reduce($scope.abilityScores, function(result, score) {
-            var val = parseFloat(character.abilityScores[score]);
-            val = val < 3 ? 3 : val;
-            val = val > 18 ? 18 : val;
-            return result += $scope.pointBuy[val ? val : 10];
-        }, 0);
-    };
-
     $scope.importExport = null;
     $scope.export = function() {
         $scope.importExport = $filter('json')($scope.selectedCharacter, 4);
@@ -1058,54 +847,6 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
         $scope.edit.id = null;
     };
 
-    // Level management
-    function levelFilter(level) {
-        if(typeof level === 'string') {
-            level = parseFloat(level);
-            if(isNaN(level)) {
-                return function() {
-                    return false;
-                };
-            }
-        }
-
-        return function(lvl) {
-            var l = parseFloat(lvl.level);
-            return l <= level;
-        };
-    }
-    function getFieldSum(character, level, field) {
-        return function(result, value) {
-            var v = _.reduce(value[field], function(res, val) {
-                if(!val.applyOnce || value.level === level.name) {
-                    return res + getValue(character, level, val);
-                }
-                return res;
-            }, 0);
-            return result += v ? v : 0;
-        };
-    }
-
-    $scope.getStat = function(character, level, stat) {
-        return _.chain(character.levels)
-          .filter(levelFilter(level.name))
-          .reduce(getFieldSum(character, level, stat), 0)
-          .value();
-    };
-    $scope.getStatMod = function(character, level, stat, mod) {
-        return _.chain(character.levels)
-          .filter(levelFilter(level.name))
-          .map(function(level) {
-              var obj = {};
-              obj[stat] = {};
-              obj[stat][mod] = level[stat][mod];
-              return obj;
-          })
-          .reduce(getFieldSum(character, level, stat), 0)
-          .value();
-    };
-
-    $scope.statOrder = 'order';
     //Attack Group management
     $scope.selectAttackGroup = function(level, ind) {
         $scope.edit.clear();
@@ -1309,3 +1050,4 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
         20: 36,
     };
 }]);
+
