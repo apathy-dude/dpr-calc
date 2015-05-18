@@ -9,6 +9,35 @@
  */
 var app = angular.module('dprCalcApp');
 
+app.service('pointBuyService', function() {
+    var pointBuy = {
+        3: -4,
+        4: -4,
+        5: -4,
+        6: -4,
+        7: -4,
+        8: -2,
+        9: -1,
+        10: 0,
+        11: 1,
+        12: 2,
+        13: 3,
+        14: 5,
+        15: 7,
+        16: 10,
+        17: 13,
+        18: 17
+    };
+
+    return function calculate(stats) {
+        return _.reduce(stats, function(total, value) {
+            value = value > 18 ? 18 : value;
+            value = value < 7 ? 7 : value;
+            return total + pointBuy[value];
+        }, 0);
+    };
+});
+
 app.service('editService', function() {
     var edit = {
         id: null,
@@ -561,7 +590,7 @@ app.controller('TabsLevelController', ['$scope', 'emptyLevel', 'editService', fu
     $scope.add();
 }]);
 
-app.directive('character', ['abilityScoreService', function(abilityScores) {
+app.directive('character', ['abilityScoreService', 'pointBuyService', function(abilityScores, pointBuy) {
     return {
         restrict: 'E',
         scope: {
@@ -570,6 +599,7 @@ app.directive('character', ['abilityScoreService', function(abilityScores) {
         templateUrl: '../views/character.html',
         controller: function($scope) {
             $scope.abilityScores = abilityScores;
+            $scope.pointBuy = pointBuy;
         }
     };
 }]);
