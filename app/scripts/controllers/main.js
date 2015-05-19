@@ -114,7 +114,7 @@ app.service('statService', ['bonusService', 'abilityModService', function(BONUS_
                 value = getAbilityMod(score);
                 break;
             case BONUS_TYPE.STAT: value = getStat(character, level, bonus.value); break;
-            case BONUS_TYPE.BASE_ABILITY: value = character.abilityScores[bonus.value]; break;
+            case BONUS_TYPE.BASE_ABILITY: value = character.data.abilityScores[bonus.value]; break;
             case BONUS_TYPE.DICE:
                  var dice = bonus.value.split('d');
                  value = (parseInt(dice[1]) / 2 + 0.5) * parseInt(dice[0]);
@@ -139,7 +139,7 @@ app.service('statService', ['bonusService', 'abilityModService', function(BONUS_
         if(bonus.modifier) {
             var modifier = bonus.modifier;
             if(typeof modifier === 'string') {
-                modifier = level[modifier];
+                modifier = level[modifier] || level.data[modifier];
             }
             value *= modifier;
             if(bonus.type !== BONUS_TYPE.DICE) {
@@ -160,12 +160,13 @@ app.service('statService', ['bonusService', 'abilityModService', function(BONUS_
         }
 
         return function(lvl) {
-            var l = parseFloat(lvl.level);
+            var l = parseFloat(lvl.name);
             return l <= level;
         };
     }
     function getFieldSum(character, level, field) {
         return function(result, value) {
+            value = value.data ? value.data : value;
             var v = _.reduce(value[field], function(res, val) {
                 if(!val.applyOnce || value.level === level.name) {
                     return res + getValue(character, level, val);
@@ -177,7 +178,7 @@ app.service('statService', ['bonusService', 'abilityModService', function(BONUS_
     }
 
     function getStat(character, level, stat) {
-        var v = _.chain(character.levels)
+        var v = _.chain(character.data.levels)
             .filter(levelFilter(level.name))
             .reduce(getFieldSum(character, level, stat), 0)
             .value();
@@ -185,12 +186,12 @@ app.service('statService', ['bonusService', 'abilityModService', function(BONUS_
     }
 
     function getStatMod(character, level, stat, mod) {
-        return _.chain(character.levels)
+        return _.chain(character.data.levels)
           .filter(levelFilter(level.name))
           .map(function(level) {
               var obj = {};
               obj[stat] = {};
-              obj[stat][mod] = level[stat][mod];
+              obj[stat][mod] = level.data[stat][mod];
               return obj;
           })
           .reduce(getFieldSum(character, level, stat), 0)
@@ -230,15 +231,12 @@ app.service('renderService', function() {
     return RENDER_TYPE;
 });
 
-app.factory('emptyCharacter', ['emptyLevel', function(level) {
+app.factory('emptyCharacter', [function() {
     return function() {
-        var lev = level();
         return {
-            'levels': [lev],
+            'levels': [],
             'race': 'Human',
             'class': '',
-            'selectedLevel': lev,
-            'selectedLevelIndex': 0,
             'abilityScores': {
                 'strength': 10,
                 'dexterity': 10,
@@ -537,60 +535,7 @@ app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editServ
     $scope.add();
 }]);
 
-app.controller('TabsLevelController', ['$scope', 'emptyLevel', 'editService', function($scope, empty, edit) {
-    $scope.edit = edit;
-
-    function setAllInactive() {
-        angular.forEach($scope.levels, function(level) {
-           level.active = false;
-        });
-    }
-
-    function addNewLevel() {
-        var id = _.reduce($scope.levels, function(max, current) {
-            var cVal = parseInt(current.name);
-            return max > cVal ? max : cVal;
-        }, 0);
-        id++;
-        $scope.levels.push({
-            id: id,
-            name: id,
-            active: true,
-            data: empty()
-        });
-    }
-
-    $scope.remove = function remove(ind) {
-        if($scope.levels.length === 1) {
-            return;
-        }
-
-        var active = $scope.levels[ind].active;
-
-        $scope.levels.splice(ind, 1);
-
-        if(active) {
-            if($scope.levels.length > ind) {
-                $scope.levels[ind].active = true;
-            }
-            else {
-                $scope.levels[ind - 1].active = true;
-            }
-        }
-    };
-
-    $scope.levels = [];
-
-    $scope.add = function() {
-        $scope.edit.clear();
-        setAllInactive();
-        addNewLevel();
-    };
-
-    $scope.add();
-}]);
-
-app.directive('character', ['abilityScoreService', 'pointBuyService', function(abilityScores, pointBuy) {
+app.directive('character', ['abilityScoreService', 'pointBuyService', 'emptyLevel', 'editService', function(abilityScores, pointBuy, empty, edit) {
     return {
         restrict: 'E',
         scope: {
@@ -598,8 +543,57 @@ app.directive('character', ['abilityScoreService', 'pointBuyService', function(a
         },
         templateUrl: '../views/character.html',
         controller: function($scope) {
+            $scope.edit = edit;
             $scope.abilityScores = abilityScores;
             $scope.pointBuy = pointBuy;
+
+            function setAllInactive() {
+                angular.forEach($scope.character.data.levels, function(level) {
+                   level.active = false;
+                });
+            }
+            function addNewLevel() {
+                var id = _.reduce($scope.character.data.levels, function(max, current) {
+                    var cVal = parseInt(current.name);
+                    return max > cVal ? max : cVal;
+                }, 0);
+                id++;
+                $scope.character.data.levels.push({
+                    id: id,
+                    name: id,
+                    active: true,
+                    data: empty()
+                });
+            }
+
+            $scope.remove = function remove(ind) {
+                if($scope.character.data.levels.length === 1) {
+                    return;
+                }
+
+                var active = $scope.character.data.levels[ind].active;
+
+                if(active) {
+                    setAllInactive();
+                }
+
+                $scope.character.data.levels.splice(ind, 1);
+
+                if(active) {
+                    if($scope.character.data.levels.length > ind) {
+                        $scope.character.data.levels[ind].active = true;
+                    }
+                    else {
+                        $scope.character.data.levels[ind - 1].active = true;
+                    }
+                }
+            };
+
+            $scope.add = function() {
+                $scope.edit.clear();
+                setAllInactive();
+                addNewLevel();
+            };
         }
     };
 }]);

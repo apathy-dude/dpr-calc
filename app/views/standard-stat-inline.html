@@ -2,20 +2,20 @@
     <u>{{ stat.title }}</u>
     {{ getStat(character, level, stat.name) }}
 </div>
-<div class="row col-md-2" ng-repeat="mod in level[stat.name] | orderObjectBy:stat.order">
+<div class="row col-md-2" ng-repeat="mod in level.data[stat.name] | orderObjectBy:stat.order">
     <div class="col-md-4 text-capitalize">
         {{ mod.title || mod._objectKey }}:
     </div>
     <div class="col-md-8">
         <div ng-if="mod.type !== BONUS_TYPE.DYNAMIC">{{ getValue(character, level, mod) }}</div>
         <div ng-if="mod.type === BONUS_TYPE.DYNAMIC" class="clickable">
-            <div ng-if="edit.id !== stat.name + '-' + mod._objectKey" ng-click="edit.set(stat.name + '-' + mod._objectKey, level[stat.name][mod._objectKey], 'value')">
+            <div ng-if="edit.id !== stat.name + '-' + mod._objectKey" ng-click="edit.set(stat.name + '-' + mod._objectKey, level.data[stat.name][mod._objectKey], 'value')">
                 <span ng-if="!mod.applyOnce">({{ getStatMod(character, level, stat.name, mod._objectKey) }})</span>
                  [&nbsp;{{ getValue(character, level, mod) }}&nbsp;]
             </div>
             <div class="row" ng-if="edit.id === stat.name + '-' + mod._objectKey">
                 <div class="col-md-6">
-                    <input class="form-control input-sm" type="number" step="any" ng-model="level[stat.name][mod._objectKey].value" />
+                    <input class="form-control input-sm" type="number" step="any" ng-model="level.data[stat.name][mod._objectKey].value" />
                 </div>
                 <div class="col-md-6">
                     <button type="button" ng-click="edit.clear()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>

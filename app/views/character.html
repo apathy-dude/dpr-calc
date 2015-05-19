@@ -12,14 +12,14 @@
     {{ pointBuy(character.data.abilityScores) }}
 </div>
 
-<div ng-controller="TabsLevelController">
+<div class="col-md-12 row">
     <tabset>
-        <tab ng-repeat="(ind, level) in levels" active="level.active" select="edit.clear()">
+        <tab ng-repeat="(ind, level) in character.data.levels" active="level.active" select="edit.clear()">
             <tab-heading>
                 {{ level.name }}
                 <span class="close" ng-click="remove(ind)">&times;</span>
             </tab-heading>
-            <level class="row col-md-12" level="level" character="character.data"></level>
+            <level class="row col-md-12" level="level" character="character"></level>
         </tab>
         <tab select="add()">
             <tab-heading>
