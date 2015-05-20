@@ -166,9 +166,11 @@ app.service('statService', ['bonusService', 'abilityModService', function(BONUS_
     }
     function getFieldSum(character, level, field) {
         return function(result, value) {
+            var name = value.name;
             value = value.data ? value.data : value;
+            value.name = name;
             var v = _.reduce(value[field], function(res, val) {
-                if(!val.applyOnce || value.level === level.name) {
+                if(!val.applyOnce || value.name === level.name) {
                     return res + getValue(character, level, val);
                 }
                 return res;
