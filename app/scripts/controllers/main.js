@@ -256,7 +256,6 @@ app.factory('emptyLevel', ['bonusService', function(BONUS_TYPE) {
         return {
         // Base items
         'name': 1,
-        'level': 1,//TODO: remove
         'attackGroups': [],
         'selectedAttackGroupIndex': -1,
         'selectedAttackGroup': null,
@@ -343,7 +342,7 @@ app.factory('emptyLevel', ['bonusService', function(BONUS_TYPE) {
         },
         'hp': {
            'level': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 0 },
-           'constitution': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution', 'title': 'Con', 'applyOnce': true, 'modifier': 'level', 'order': 1 }, // TODO: Need to be multiplied by level
+           'constitution': { 'type': BONUS_TYPE.ABILITY, 'value': 'constitution', 'title': 'Con', 'applyOnce': true, 'modifier': 'name', 'order': 1 },
            'favoured': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 2},
            'toughness': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 3 },
            'other': { 'type': BONUS_TYPE.DYNAMIC, 'value': 0, 'order': 4 },
