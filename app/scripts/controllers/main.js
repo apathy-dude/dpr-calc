@@ -9,6 +9,21 @@
  */
 var app = angular.module('dprCalcApp');
 
+app.filter('orderObjectBy', function() {
+    return function(items, field, reverse) {
+        return _.chain(_.keys(items))
+            .map(function(item) {
+                var i = items[item];
+                i._objectKey = item;
+                return i;
+            })
+            .sortBy(function(v) {
+                return reverse ? -v[field] : v[field];
+            })
+            .value();
+    };
+});
+
 app.service('pointBuyService', function() {
     var pointBuy = {
         3: -4,
@@ -373,35 +388,6 @@ app.factory('emptyLevel', ['bonusService', function(BONUS_TYPE) {
     };
 }]);
 
-app.filter('orderObjectBy', function() {
-    return function(items, field, reverse) {
-        return _.chain(_.keys(items))
-            .map(function(item) {
-                var i = items[item];
-                i._objectKey = item;
-                return i;
-            })
-            .sortBy(function(v) {
-                return reverse ? -v[field] : v[field];
-            })
-            .value();
-    };
-});
-
-app.directive('tabs', function() {
-    return {
-        restrict: 'E',
-        templateUrl: '../views/horizontal-tabs.html',
-        scope: {
-            tabs: '=tabs',
-            css: '=css',
-            selected: '=selected',
-            unselected: '=unselected',
-            name: '=itemname'
-        }
-    };
-});
-
 app.directive('inputField', ['editService', function(edit) {
     return {
         restrict: 'E',
@@ -437,91 +423,6 @@ app.directive('inputAbility', ['editService', 'abilityModService', function(edit
             scope.getAbilityMod = abilityMod;
         }
     };
-}]);
-
-app.directive('standardStats', ['editService', 'abilityModService', 'bonusService', 'renderService', 'statService', function(edit, abilityMod, BONUS_TYPE, RENDER_TYPE, stat) {
-    return {
-        restrict: 'E',
-        transclude: true,
-        scope: {
-            character: '=character',
-            level: '=level'
-        },
-        templateUrl: '../views/standard-stats.html',
-        link: function(scope) {
-            scope.edit = edit;
-
-            scope.standardStats = [
-              { 'title': 'Ability', 'renderType': RENDER_TYPE.GROUP, 'items': [
-                      { 'name': 'strength', 'title': 'Str' },
-                      { 'name': 'dexterity', 'title': 'Dex' },
-                      { 'name': 'constitution', 'title': 'Con' },
-                      { 'name': 'intelligence', 'title': 'Int' },
-                      { 'name': 'wisdom', 'title': 'Wis' },
-                      { 'name': 'charisma', 'title': 'Cha' },
-                  ],
-                  'additionalColumns': [
-                      { 'name': 'mod', 'title': 'Modifier', 'value': abilityMod, 'order': 0, 'position': 0 }
-                  ]
-              },
-              { 'name': 'hp', 'title': 'HP', 'renderType': RENDER_TYPE.HEADER },
-              { 'name': 'ac', 'title': 'AC', 'renderType': RENDER_TYPE.HEADER },
-              { 'title': 'Saves', 'renderType': RENDER_TYPE.GROUP, 'items': [
-                      { 'name': 'fortitude', 'title': 'Fort' },
-                      { 'name': 'reflex', 'title': 'Ref' },
-                      { 'name': 'will', 'title': 'Will' }
-                  ],
-              },
-              { 'name': 'initiative', 'title': 'Init', 'renderType': RENDER_TYPE.INLINE },
-              { 'name': 'bab', 'title': 'BAB', 'renderType': RENDER_TYPE.INLINE },
-              { 'name': 'dr', 'title': 'DR', 'renderType': RENDER_TYPE.INLINE },
-              { 'name': 'sr', 'title': 'SR', 'renderType': RENDER_TYPE.INLINE }
-            ];
-
-            scope.RENDER_TYPE = RENDER_TYPE;
-            scope.BONUS_TYPE = BONUS_TYPE;
-            scope.getStat = stat.get;
-            scope.getStatMod = stat.getMod;
-            scope.getValue = stat.getValue;
-        }
-    };
-}]);
-
-app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
-    $scope.edit = edit;
-
-    var id = 0;
-    function setAllInactive() {
-        angular.forEach($scope.characters, function(character) {
-           character.active = false;
-        });
-    }
-
-    function addNewCharacter() {
-        id++;
-        $scope.characters.push({
-            id: id,
-            name: 'character ' + id,
-            active: true,
-            data: empty()
-        });
-    }
-
-    $scope.remove = function remove(ind) {
-        if($scope.characters.length > 1) {
-            $scope.characters.splice(ind, 1);
-        }
-    };
-
-    $scope.characters = [];
-
-    $scope.add = function() {
-        $scope.edit.clear();
-        setAllInactive();
-        addNewCharacter();
-    };
-
-    $scope.add();
 }]);
 
 app.directive('character', ['abilityScoreService', 'pointBuyService', 'emptyLevel', 'editService', function(abilityScores, pointBuy, empty, edit) {
@@ -608,6 +509,54 @@ app.directive('level', [function() {
     };
 }]);
 
+app.directive('standardStats', ['editService', 'abilityModService', 'bonusService', 'renderService', 'statService', function(edit, abilityMod, BONUS_TYPE, RENDER_TYPE, stat) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            character: '=character',
+            level: '=level'
+        },
+        templateUrl: '../views/standard-stats.html',
+        link: function(scope) {
+            scope.edit = edit;
+
+            scope.standardStats = [
+              { 'title': 'Ability', 'renderType': RENDER_TYPE.GROUP, 'items': [
+                      { 'name': 'strength', 'title': 'Str' },
+                      { 'name': 'dexterity', 'title': 'Dex' },
+                      { 'name': 'constitution', 'title': 'Con' },
+                      { 'name': 'intelligence', 'title': 'Int' },
+                      { 'name': 'wisdom', 'title': 'Wis' },
+                      { 'name': 'charisma', 'title': 'Cha' },
+                  ],
+                  'additionalColumns': [
+                      { 'name': 'mod', 'title': 'Modifier', 'value': abilityMod, 'order': 0, 'position': 0 }
+                  ]
+              },
+              { 'name': 'hp', 'title': 'HP', 'renderType': RENDER_TYPE.HEADER },
+              { 'name': 'ac', 'title': 'AC', 'renderType': RENDER_TYPE.HEADER },
+              { 'title': 'Saves', 'renderType': RENDER_TYPE.GROUP, 'items': [
+                      { 'name': 'fortitude', 'title': 'Fort' },
+                      { 'name': 'reflex', 'title': 'Ref' },
+                      { 'name': 'will', 'title': 'Will' }
+                  ],
+              },
+              { 'name': 'initiative', 'title': 'Init', 'renderType': RENDER_TYPE.INLINE },
+              { 'name': 'bab', 'title': 'BAB', 'renderType': RENDER_TYPE.INLINE },
+              { 'name': 'dr', 'title': 'DR', 'renderType': RENDER_TYPE.INLINE },
+              { 'name': 'sr', 'title': 'SR', 'renderType': RENDER_TYPE.INLINE }
+            ];
+
+            scope.RENDER_TYPE = RENDER_TYPE;
+            scope.BONUS_TYPE = BONUS_TYPE;
+            scope.getStat = stat.get;
+            scope.getStatMod = stat.getMod;
+            scope.getValue = stat.getValue;
+        }
+    };
+}]);
+
 app.directive('standardStatInline', ['editService', 'abilityModService', 'bonusService', 'statService', function(edit, abilityMod, BONUS_TYPE, stat) {
     return {
         restrict: 'E',
@@ -617,7 +566,7 @@ app.directive('standardStatInline', ['editService', 'abilityModService', 'bonusS
             level: '=level',
             stat: '=stat'
         },
-        templateUrl: '../views/standard-stat-inline.html',
+        templateUrl: '../views/standard-stats/inline.html',
         link: function(scope) {
             scope.edit = edit;
 
@@ -638,7 +587,7 @@ app.directive('standardStatHeader', ['editService', 'abilityModService', 'bonusS
             level: '=level',
             stat: '=stat'
         },
-        templateUrl: '../views/standard-stat-header.html',
+        templateUrl: '../views/standard-stats/header.html',
         link: function(scope) {
             scope.edit = edit;
 
@@ -659,7 +608,7 @@ app.directive('standardStatGroup', ['editService', 'abilityModService', 'bonusSe
             level: '=level',
             stat: '=stat'
         },
-        templateUrl: '../views/standard-stat-group.html',
+        templateUrl: '../views/standard-stats/group.html',
         link: function(scope) {
             scope.edit = edit;
 
@@ -669,6 +618,43 @@ app.directive('standardStatGroup', ['editService', 'abilityModService', 'bonusSe
             scope.getValue = stat.getValue;
         }
     };
+}]);
+
+app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
+    $scope.edit = edit;
+
+    var id = 0;
+    function setAllInactive() {
+        angular.forEach($scope.characters, function(character) {
+           character.active = false;
+        });
+    }
+
+    function addNewCharacter() {
+        id++;
+        $scope.characters.push({
+            id: id,
+            name: 'character ' + id,
+            active: true,
+            data: empty()
+        });
+    }
+
+    $scope.remove = function remove(ind) {
+        if($scope.characters.length > 1) {
+            $scope.characters.splice(ind, 1);
+        }
+    };
+
+    $scope.characters = [];
+
+    $scope.add = function() {
+        $scope.edit.clear();
+        setAllInactive();
+        addNewCharacter();
+    };
+
+    $scope.add();
 }]);
 
 app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scope, $filter, edit) {
