@@ -1,11 +1,11 @@
 <div ng-controller="TabsCharacterController">
     <tabset>
-        <tab ng-repeat="(ind, character) in characters" active="character.active" select="edit.clear()">
+        <tab ng-repeat="character in characters" active="character.active" select="edit.clear()">
             <tab-heading>
                 {{ character.name }}
-                <span class="close" ng-click="remove(ind)">&times;</span>
+                <a ng-click="remove($index)" href=""><i class="glyphicon glyphicon-remove close"></i></a>
             </tab-heading>
-            <character character="character"></character>
+            <character ng-if="character.active" character="character"></character>
         </tab>
         <tab select="add()">
             <tab-heading>

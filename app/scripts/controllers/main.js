@@ -414,7 +414,8 @@ app.directive('inputField', ['editService', function(edit) {
             editTarget: '=target',
             editSource: '=source',
             title: '=title',
-            step: '=step'
+            step: '=step',
+            onChange: '=oncng'
         },
         link: function(scope) {
             scope.edit = edit;
@@ -507,21 +508,8 @@ app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editServ
     }
 
     $scope.remove = function remove(ind) {
-        if($scope.characters.length === 1) {
-            return;
-        }
-
-        var active = $scope.characters[ind].active;
-
-        $scope.characters.splice(ind, 1);
-
-        if(active) {
-            if($scope.characters.length > ind) {
-                $scope.characters[ind].active = true;
-            }
-            else {
-                $scope.characters[ind - 1].active = true;
-            }
+        if($scope.characters.length > 1) {
+            $scope.characters.splice(ind, 1);
         }
     };
 
@@ -595,6 +583,13 @@ app.directive('character', ['abilityScoreService', 'pointBuyService', 'emptyLeve
                 setAllInactive();
                 addNewLevel();
             };
+
+            $scope.sort = function() {
+                var levels = $scope.character.data.levels;
+                $scope.character.data.levels = _.sortBy(levels, function(level) {
+                    return parseInt(level.name);
+                });
+            };
         }
     };
 }]);
@@ -604,7 +599,8 @@ app.directive('level', [function() {
         restrict: 'E',
         scope: {
             level: '=level',
-            character: '=character'
+            character: '=character',
+            sort: '=sort'
         },
         templateUrl: '../views/level.html',
         controller: function() {

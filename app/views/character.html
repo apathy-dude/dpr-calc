@@ -14,12 +14,12 @@
 
 <div class="col-md-12 row">
     <tabset>
-        <tab ng-repeat="(ind, level) in character.data.levels" active="level.active" select="edit.clear()">
+        <tab ng-repeat="level in character.data.levels" active="level.active" select="edit.clear()">
             <tab-heading>
                 {{ level.name }}
-                <span class="close" ng-click="remove(ind)">&times;</span>
+                <a ng-click="remove($index)" href=""><i class="glyphicon glyphicon-remove close"></i></a>
             </tab-heading>
-            <level ng-if="level.active" class="row col-md-12" level="level" character="character"></level>
+            <level ng-if="level.active" class="row col-md-12" sort="sort" level="level" character="character"></level>
         </tab>
         <tab select="add()">
             <tab-heading>
