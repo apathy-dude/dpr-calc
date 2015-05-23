@@ -1,19 +1,19 @@
-<div class="row col-md-12" ng-repeat="stat in standardStats">
+<div class="row" ng-repeat="stat in standardStats">
     <hr>
 
-    <div class="col-md-12 row" ng-if="stat.renderType === RENDER_TYPE.INLINE">
+    <div class="col-md-12" ng-if="stat.renderType === RENDER_TYPE.INLINE">
         <standard-stat-inline character="character" level="level" stat="stat"></standard-stat-inline>
     </div>
 
-    <div class="col-md-12 row" ng-if="stat.renderType === RENDER_TYPE.HEADER">
+    <div class="col-md-12" ng-if="stat.renderType === RENDER_TYPE.HEADER">
         <standard-stat-header character="character" level="level" stat="stat"></standard-stat-header>
     </div>
 
-    <div class="col-md-12 row" ng-if="stat.renderType === RENDER_TYPE.GROUP">
+    <div class="col-md-12" ng-if="stat.renderType === RENDER_TYPE.GROUP">
         <standard-stat-group character="character" level="level" stat="stat"></standard-stat-group>
     </div>
 </div>
 
-<div class="col-md-12">
-    <hr>
+<div class="row">
+    <hr class="col-md-12">
 </div>

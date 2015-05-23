@@ -1,4 +1,4 @@
-<div class="col-md-12 row">
+<div class="row">
     <div class="col-md-1">
         <u>{{ stat.title }}</u>
     </div>
@@ -9,7 +9,7 @@
         <u>{{ mod.title || mod._objectKey }}</u>
     </div>
 </div>
-<div class="col-md-12 row" ng-repeat="item in stat.items">
+<div class="row" ng-repeat="item in stat.items">
     <div class="col-md-1">
         {{ item.title }} {{ getStat(character, level, item.name) }}
     </div>

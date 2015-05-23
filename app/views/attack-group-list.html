@@ -1,12 +1,12 @@
-<div class="container-fluid" ng-controller="TabsCharacterController">
+<div class="row">
     <div class="row">
         <tabset class="col-md-12">
-            <tab ng-repeat="character in characters" active="character.active" select="edit.clear()">
+            <tab ng-repeat="group in level.data.attackGroups" active="group.active" select="edit.clear()">
                 <tab-heading>
-                    {{ character.name }}
+                    {{ group.name }}
                     <a ng-click="remove($index)" href=""><i class="glyphicon glyphicon-remove close"></i></a>
                 </tab-heading>
-                <character class="col-md-12" ng-if="character.active" character="character"></character>
+                <attack-group class="col-md-12" ng-if="group.active" sort="sort" group="group" level="level" character="character"></attack-group>
             </tab>
             <tab select="add()">
                 <tab-heading>

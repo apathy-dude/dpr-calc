@@ -248,6 +248,102 @@ app.service('renderService', function() {
     return RENDER_TYPE;
 });
 
+app.service('dprService', ['statService', 'targetAcService', function(stats, targetAc) {
+    var getValue = stats.getValue;
+
+    function getHit(character, level, atk) {
+        return _.reduce(atk.hitChance, function(total, chance) {
+            return total += getValue(character, level, chance);
+        }, 0);
+    }
+    function getDmg(character, level, atk, obj) {
+        var damage = 0;
+        var percision = 0;
+
+        for(var d in atk.damage) {
+            var dam = atk.damage[d];
+            var dmg = getValue(character, level, dam);
+            if(dam.percision) {
+                percision += dmg;
+            }
+            else {
+                damage += dmg;
+            }
+        }
+
+        damage = damage < 0 ? 0 : damage;
+        percision = percision < 0 ? 0 : percision;
+
+        if(obj) {
+            return { damage: damage, percision: percision };
+        }
+
+        if(percision) {
+            return damage + ' and percision: ' + percision;
+        }
+
+        return damage;
+    }
+    function calculateAttackDPR(character, level, attack) {
+        var lev = parseInt(level.name);
+        var targetAC = targetAc[lev];
+        var hitChance;
+        var minHitChance = 0.05;
+        var maxHitChance = 0.95;
+        var damage = 0;
+        var percision = 0;
+        var hit = getHit(character, level, attack);
+
+        var d = getDmg(character, level, attack, true);
+        damage = d.damage;
+        percision = d.percision;
+
+        hitChance = 1 - ((targetAC-hit) / 20);
+        hitChance = hitChance < minHitChance ? minHitChance : hitChance;
+        hitChance = hitChance > maxHitChance ? maxHitChance : hitChance;
+
+        // h(dp)+c(m-1)hd
+        return hitChance * (damage + percision) + attack.critThreat * (attack.critMultiplier - 1) * hitChance * damage;
+    }
+    function calculateDPR(character, level, attackGroup) {
+        return _.reduce(attackGroup.attacks, function(total, attack) {
+            return total += calculateAttackDPR(character, level, attack);
+        }, 0);
+    }
+
+    return {
+        calculateAttackDPR: calculateAttackDPR,
+        calculateDPR: calculateDPR,
+        getHit: getHit,
+        getDmg: getDmg
+    };
+}]);
+
+app.service('targetAcService', function() {
+    return {
+        1: 12,
+        2: 14,
+        3: 15,
+        4: 17,
+        5: 18,
+        6: 19,
+        7: 20,
+        8: 21,
+        9: 23,
+        10: 24,
+        11: 25,
+        12: 27,
+        13: 28,
+        14: 29,
+        15: 30,
+        16: 31,
+        17: 32,
+        18: 33,
+        19: 34,
+        20: 36,
+    };
+});
+
 app.factory('emptyCharacter', [function() {
     return function() {
         return {
@@ -272,8 +368,6 @@ app.factory('emptyLevel', ['bonusService', function(BONUS_TYPE) {
         // Base items
         'name': 1,
         'attackGroups': [],
-        'selectedAttackGroupIndex': -1,
-        'selectedAttackGroup': null,
         // Ability information TODO: Move to standard stat
         // Standard stats
         // -- Ability Scores
@@ -385,6 +479,44 @@ app.factory('emptyLevel', ['bonusService', function(BONUS_TYPE) {
         'spell-casting': [],
         'abilities': [],
     };
+    };
+}]);
+
+app.factory('emptyAttackGroup', [function() {
+    return function emptyAttackGroup() {
+        return {
+            'attacks': []
+        };
+    };
+}]);
+
+app.factory('emptyAttack', ['bonusService', function(BONUS_TYPE) {
+    return function emptyAttack() {
+        return {
+          'weapon': 'attack',
+          'damage': [
+              { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false },
+              { 'type': BONUS_TYPE.ABILITY, 'value': 'strength', 'modifier': 1, 'percision': false }
+          ],
+          'hitChance': [
+              { 'type': BONUS_TYPE.STAT, 'value': 'bab' },
+              { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' }
+          ],
+          'critThreat': 0.05,
+          'critMultiplier': 2
+        };
+    };
+}]);
+
+app.factory('emptyHit', ['bonusService', function(BONUS_TYPE) {
+    return function emptyHit() {
+        return { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 };
+    };
+}]);
+
+app.factory('emptyDamage', ['bonusService', function(BONUS_TYPE) {
+    return function emptyDmg() {
+        return { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false };
     };
 }]);
 
@@ -620,6 +752,115 @@ app.directive('standardStatGroup', ['editService', 'abilityModService', 'bonusSe
     };
 }]);
 
+app.directive('attackGroups', ['editService', 'emptyAttackGroup', function(edit, empty) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            character: '=character',
+            level: '=level'
+        },
+        templateUrl: '../views/attack-group-list.html',
+        controller: function($scope) {
+            var id = 0;
+            $scope.edit = edit;
+
+            //TODO: Copy from previous level
+
+            function setAllInactive() {
+                angular.forEach($scope.level.data.attackGroups, function(group) {
+                   group.active = false;
+                });
+            }
+            function addNewAttackGroup() {
+                id++;
+                $scope.level.data.attackGroups.push({
+                    id: id,
+                    name: 'attack group ' + id,
+                    active: true,
+                    data: empty()
+                });
+            }
+
+            $scope.remove = function remove(ind) {
+                if($scope.level.data.attackGroups.length > 1) {
+                    $scope.level.data.attackGroups.splice(ind, 1);
+                }
+            };
+
+            $scope.add = function() {
+                $scope.edit.clear();
+                setAllInactive();
+                addNewAttackGroup();
+            };
+        }
+    };
+}]);
+
+app.directive('attackGroup', ['editService', 'dprService', 'emptyAttack', function(edit, dpr, empty) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            character: '=character',
+            level: '=level',
+            group: '=group'
+        },
+        templateUrl: '../views/attack-group.html',
+        controller: function($scope) {
+            var id = 0;
+            $scope.edit = edit;
+            $scope.dpr = dpr.calculateDPR;
+
+            function setAllInactive() {
+                angular.forEach($scope.group.data.attacks, function(attack) {
+                   attack.active = false;
+                });
+            }
+            function addNewAttack() {
+                id++;
+                $scope.group.data.attacks.push({
+                    id: id,
+                    name: 'attack ' + id,
+                    active: true,
+                    data: empty()
+                });
+            }
+
+            $scope.remove = function remove(ind) {
+                if($scope.group.data.attacks.length > 1) {
+                    $scope.group.data.attacks.splice(ind, 1);
+                }
+            };
+
+            $scope.add = function() {
+                $scope.edit.clear();
+                setAllInactive();
+                addNewAttack();
+            };
+        }
+    };
+}]);
+
+app.directive('attack', ['editService', 'emptyHit', 'emptyDamage', function(edit, emptyHit, emptyDamage) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            character: '=character',
+            level: '=level',
+            group: '=group',
+            attack: '=attack'
+        },
+        templateUrl: '../views/attack.html',
+        controller: function($scope) {
+            $scope.edit = edit;
+            $scope.hit = emptyHit;
+            $scope.damage = emptyDamage;
+        }
+    };
+}]);
+
 app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
     $scope.edit = edit;
 
@@ -657,19 +898,8 @@ app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editServ
     $scope.add();
 }]);
 
-app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scope, $filter, edit) {
+app.controller('MainCtrl', ['$scope', '$filter', 'editService', 'bonusService', function ($scope, $filter, edit, BONUS_TYPE) {
     $scope.edit = edit;
-    var BONUS_TYPE = {
-        STATIC: 0,
-        ABILITY: 1,
-        DYNAMIC: 2,
-        STAT: 3,
-        BASE_ABILITY: 4,
-        DICE: 5,
-        POWER_ATTACK_HIT: 6,
-        POWER_ATTACK_DMG: 7,
-        TWO_WEAPON: 8
-    };
     var ctx = null;//angular.element('#chart')[0].getContext('2d');
     var chart;
 
@@ -720,15 +950,6 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
         }
 
         return value;
-    }
-
-    function emptyAttackGroup() {
-        return {
-            'name': 'Name',
-            'selectedAttack': null,
-            'selectedAttackIndex': null,
-            'attacks': [emptyAttack()]
-        };
     }
 
     function emptyAttack() {
@@ -855,38 +1076,6 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
     };
 
     //Attack Group management
-    $scope.selectAttackGroup = function(level, ind) {
-        $scope.edit.clear();
-        level.selectedAttackGroupIndex = ind;
-
-        if(ind === -1) {
-            level.selectedAttackGroup = null;
-        }
-        else {
-            level.selectedAttackGroup = level.attackGroups[ind];
-        }
-    };
-    $scope.addAttackGroup = function(level) {
-        level.attackGroups.push(emptyAttackGroup());
-        $scope.selectAttackGroup(level, level.attackGroups.length - 1);
-    };
-    $scope.removeAttackGroup = function(level, ind) {
-        level.attackGroups.splice(ind, 1);
-        if(level.selectedAttackGroupIndex === ind) {
-            $scope.selectAttackGroup(level, -1);
-        }
-        if(level.selectedAttackGroupIndex >= ind) {
-            if(ind === 0 || level.selectedAttackGroupIndex === 0) {
-                $scope.selectAttackGroup(level, 0);
-            }
-            else {
-                $scope.selectAttackGroup(level, level.selectedAttackGroupIndex - 1);
-            }
-        }
-        else if(level.selectedAttackGroupIndex > level.attackGroups.lenth - 1) {
-            $scope.selectAttackGroup(level, level.attackGroups.length - 1);
-        }
-    };
     $scope.copyAttackGroupFromPreviousLevel = function(character, level) {
         var currentLevel = parseInt(level.name);
         var lastLevel = _.reduce(character.levels, function(max, l) {
@@ -951,6 +1140,7 @@ app.controller('MainCtrl', [ '$scope', '$filter', 'editService', function ($scop
     };
 
     // Attack management
+
     function getHit(character, level, atk) {
         return _.reduce(atk.hitChance, function(total, chance) {
             return total += getValue(character, level, chance);
