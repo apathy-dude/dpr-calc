@@ -232,8 +232,41 @@ app.service('bonusService', function() {
         DICE: 5,
         POWER_ATTACK_HIT: 6,
         POWER_ATTACK_DMG: 7,
-        TWO_WEAPON: 8
+        TWO_WEAPON: 8,
     };
+    function text(id) {
+        var value;
+        switch(id) {
+            case BONUS_TYPE.STATIC: value = 'Static'; break;
+            case BONUS_TYPE.ABILITY: value = 'Ability'; break;
+            case BONUS_TYPE.DYNAMIC: value = 'Dynamic'; break;
+            case BONUS_TYPE.STAT: value = 'Stat'; break;
+            case BONUS_TYPE.BASE_ABILITY: value = 'Base Ability'; break;
+            case BONUS_TYPE.DICE: value = 'Dice'; break;
+            case BONUS_TYPE.POWER_ATTACK_HIT: value = 'Power Attack'; break;
+            case BONUS_TYPE.POWER_ATTACK_DMG: value = 'Power Attack'; break;
+            case BONUS_TYPE.TWO_WEAPON: value = 'Two-weapon'; break;
+        }
+        return value;
+    }
+    function type(id) {
+        var value;
+        switch(id) {
+            case BONUS_TYPE.STATIC: value = 'number'; break;
+            case BONUS_TYPE.ABILITY: value = 'list'; break;
+            case BONUS_TYPE.DYNAMIC: value = 'number'; break;
+            case BONUS_TYPE.STAT: value = 'list'; break;
+            case BONUS_TYPE.BASE_ABILITY: value = 'list'; break;
+            case BONUS_TYPE.DICE: value = 'text'; break;
+            case BONUS_TYPE.POWER_ATTACK_HIT: value = 'calc'; break;
+            case BONUS_TYPE.POWER_ATTACK_DMG: value = 'checkbox'; break;
+            case BONUS_TYPE.TWO_WEAPON: value = 'calc'; break;
+        }
+        return value;
+    }
+
+    BONUS_TYPE.text = text;
+    BONUS_TYPE.type = type;
 
     return BONUS_TYPE;
 });
@@ -252,7 +285,7 @@ app.service('dprService', ['statService', 'targetAcService', function(stats, tar
     var getValue = stats.getValue;
 
     function getHit(character, level, atk) {
-        return _.reduce(atk.hitChance, function(total, chance) {
+        return _.reduce(atk.data.hitChance, function(total, chance) {
             return total += getValue(character, level, chance);
         }, 0);
     }
@@ -260,8 +293,8 @@ app.service('dprService', ['statService', 'targetAcService', function(stats, tar
         var damage = 0;
         var percision = 0;
 
-        for(var d in atk.damage) {
-            var dam = atk.damage[d];
+        for(var d in atk.data.damage) {
+            var dam = atk.data.damage[d];
             var dmg = getValue(character, level, dam);
             if(dam.percision) {
                 percision += dmg;
@@ -495,12 +528,12 @@ app.factory('emptyAttack', ['bonusService', function(BONUS_TYPE) {
         return {
           'weapon': 'attack',
           'damage': [
-              { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false },
-              { 'type': BONUS_TYPE.ABILITY, 'value': 'strength', 'modifier': 1, 'percision': false }
+              { 'name': 'Weapon', 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false },
+              { 'name': '', 'type': BONUS_TYPE.ABILITY, 'value': 'strength', 'modifier': 1, 'percision': false }
           ],
           'hitChance': [
-              { 'type': BONUS_TYPE.STAT, 'value': 'bab' },
-              { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' }
+              { 'name': '', 'type': BONUS_TYPE.STAT, 'value': 'bab' },
+              { 'name': '', 'type': BONUS_TYPE.ABILITY, 'value': 'strength' }
           ],
           'critThreat': 0.05,
           'critMultiplier': 2
@@ -510,13 +543,13 @@ app.factory('emptyAttack', ['bonusService', function(BONUS_TYPE) {
 
 app.factory('emptyHit', ['bonusService', function(BONUS_TYPE) {
     return function emptyHit() {
-        return { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 };
+        return { 'name': 'hit', 'type': BONUS_TYPE.DYNAMIC, 'value': 0 };
     };
 }]);
 
 app.factory('emptyDamage', ['bonusService', function(BONUS_TYPE) {
     return function emptyDmg() {
-        return { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false };
+        return { 'name': 'damage', 'type': BONUS_TYPE.DYNAMIC, 'value': '0', 'modifier': 1, 'percision': false };
     };
 }]);
 
@@ -842,7 +875,7 @@ app.directive('attackGroup', ['editService', 'dprService', 'emptyAttack', functi
     };
 }]);
 
-app.directive('attack', ['editService', 'emptyHit', 'emptyDamage', function(edit, emptyHit, emptyDamage) {
+app.directive('attack', ['editService', 'emptyHit', 'emptyDamage', 'bonusService', 'dprService', function(edit, emptyHit, emptyDamage, BONUS_TYPE, dpr) {
     return {
         restrict: 'E',
         transclude: true,
@@ -855,8 +888,79 @@ app.directive('attack', ['editService', 'emptyHit', 'emptyDamage', function(edit
         templateUrl: '../views/attack.html',
         controller: function($scope) {
             $scope.edit = edit;
-            $scope.hit = emptyHit;
-            $scope.damage = emptyDamage;
+            $scope.dpr = dpr;
+            $scope.hitChance = {
+                add: function() {
+                    $scope.attack.data.hitChance.push(emptyHit());
+                },
+                remove: function(ind) {
+                    $scope.attack.data.hitChance.splice(ind, 1);
+                },
+                types: [
+                    'ABILITY',
+                    'DYNAMIC',
+                    'POWER_ATTACK_HIT',
+                    'STAT',
+                    'TWO_WEAPON'
+                ]
+            };
+            $scope.damage = {
+                add: function() {
+                    $scope.attack.data.damage.push(emptyDamage());
+                },
+                remove: function(ind) {
+                    ind = parseInt(ind);
+                    $scope.attack.data.damage.splice(ind, 1);
+                },
+                types: [
+                    'ABILITY',
+                    'DICE',
+                    'DYNAMIC',
+                    'POWER_ATTACK_DMG',
+                    'STAT',
+                ]
+            };
+
+            $scope.BONUS_TYPE = BONUS_TYPE;
+            $scope.bonusText = BONUS_TYPE.text;
+            $scope.bonusType = BONUS_TYPE.type;
+        }
+    };
+}]);
+
+app.directive('attackInput', ['bonusService', 'statService', 'abilityScoreService', function(BONUS_TYPE, stat, abilities) {
+    return {
+        restrict: 'E',
+        transclude: false,
+        scope: {
+            character: '=character',
+            level: '=level',
+            group: '=group',
+            attack: '=attack',
+            source: '=source',
+            index: '=index',
+            name: '=name'
+        },
+        templateUrl: '../views/attack-input.html',
+        controller: function($scope) {
+            $scope.BONUS_TYPE = BONUS_TYPE;
+            $scope.bonusText = BONUS_TYPE.text;
+            $scope.bonusType = BONUS_TYPE.type;
+
+            $scope.calcType = function(type) {
+                return BONUS_TYPE.type(type) === 'calc';
+            };
+            $scope.calcValue = stat.getValue;
+
+            $scope.abilityOptions = abilities;
+            $scope.statOptions = ['bab'];
+
+            $scope.textType = function(type) {
+                return BONUS_TYPE.type(type) === 'text';
+            };
+            $scope.numberType = function(type) {
+                return BONUS_TYPE.type(type) === 'number';
+            };
         }
     };
 }]);
