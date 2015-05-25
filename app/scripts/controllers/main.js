@@ -336,10 +336,8 @@ app.service('dprService', ['statService', 'targetAcService', function(stats, tar
         hitChance = hitChance > maxHitChance ? maxHitChance : hitChance;
 
         // h(dp)+c(m-1)hd
-        return hitChance * (damage + percision) + attack.critThreat * (attack.critMultiplier - 1) * hitChance * damage;
-    }
-    function calculateDPR(character, level, attackGroup) {
-        return _.reduce(attackGroup.attacks, function(total, attack) {
+        return hitChance * (damage + percision) + attack.data.critThreat * (attack.data.critMultiplier - 1) * hitChance * damage; } function calculateDPR(character, level, attackGroup) {
+        return _.reduce(attackGroup.data.attacks, function(total, attack) {
             return total += calculateAttackDPR(character, level, attack);
         }, 0);
     }
