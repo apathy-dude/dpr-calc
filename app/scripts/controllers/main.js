@@ -562,6 +562,7 @@ app.directive('inputField', ['editService', function(edit) {
             editId: '=id',
             editTarget: '=target',
             editSource: '=source',
+            editName: '=namefunc',
             title: '=title',
             step: '=step',
             onChange: '=oncng',
@@ -890,35 +891,44 @@ app.directive('attack', ['editService', 'emptyHit', 'emptyDamage', 'bonusService
             $scope.dpr = dpr;
             $scope.hitChance = {
                 add: function() {
+                    $scope.edit.clear();
                     $scope.attack.data.hitChance.push(emptyHit());
                 },
                 remove: function(ind) {
+                    $scope.edit.clear();
                     $scope.attack.data.hitChance.splice(ind, 1);
                 },
                 types: [
-                    'ABILITY',
-                    'DYNAMIC',
-                    'POWER_ATTACK_HIT',
-                    'STAT',
-                    'TWO_WEAPON'
+                    BONUS_TYPE.ABILITY,
+                    BONUS_TYPE.DYNAMIC,
+                    BONUS_TYPE.POWER_ATTACK_HIT,
+                    BONUS_TYPE.STAT,
+                    BONUS_TYPE.TWO_WEAPON
                 ]
             };
             $scope.damage = {
                 add: function() {
+                    $scope.edit.clear();
                     $scope.attack.data.damage.push(emptyDamage());
                 },
                 remove: function(ind) {
-                    ind = parseInt(ind);
+                    $scope.edit.clear();
                     $scope.attack.data.damage.splice(ind, 1);
                 },
                 types: [
-                    'ABILITY',
-                    'DICE',
-                    'DYNAMIC',
-                    'POWER_ATTACK_DMG',
-                    'STAT',
+                    BONUS_TYPE.ABILITY,
+                    BONUS_TYPE.DICE,
+                    BONUS_TYPE.DYNAMIC,
+                    BONUS_TYPE.POWER_ATTACK_DMG,
                 ]
             };
+
+            function buildType(type) {
+                return { value: type, name: BONUS_TYPE.text(type) };
+            }
+
+            $scope.hitChance.types = _.map($scope.hitChance.types, buildType);
+            $scope.damage.types = _.map($scope.damage.types, buildType);
 
             var abilityOptions = abilities;
             var statOptions = ['bab'];

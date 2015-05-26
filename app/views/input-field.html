@@ -1,7 +1,8 @@
 <div ng-if="edit.id !== editId">
     <p ng-click="edit.set(editId, editSource, editTarget)" ng-class="cssClass" class="clickable">
         <strong ng-if="title">{{title}}</strong>
-        <span>[&nbsp;{{ editSource[editTarget] }}&nbsp;]</span>
+        <span ng-if="editName">[&nbsp;{{ editName(editSource[editTarget]) }}&nbsp;]</span>
+        <span ng-if="!editName">[&nbsp;{{ editSource[editTarget] }}&nbsp;]</span>
     </p>
 </div>
 <div class="row" ng-if="edit.id === editId">

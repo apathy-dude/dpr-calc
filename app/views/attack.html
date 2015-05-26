@@ -7,7 +7,7 @@
 
     <div class="row">
 
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="col-md-4">
                 <strong>Hit chance</strong>:
                 {{dpr.getHit(character, level, attack)}}
@@ -22,11 +22,7 @@
                             <div class="col-md-2">
                                 <button type="button" ng-click="hitChance.remove($index)" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></button>
                             </div>
-                            <div class="col-md-10">
-                                <select class="form-control input-sm" ng-model="hit.type">
-                                    <option value="{{ BONUS_TYPE[select] }}"  ng-selected="BONUS_TYPE[select] == hit.type" ng-repeat="select in hitChance.types">{{ bonusText(BONUS_TYPE[select]) }}</option>
-                                </select>
-                            </div>
+                            <input-field class="col-md-10" id="'hit-type-' + $index" type="'select'" source="hit" target="'type'" namefunc="bonusText" options="hitChance.types"></input-field>
                         </div>
                     </div>
                     <div class="col-md-8">
@@ -47,7 +43,7 @@
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div class="col-md-4">
                 <strong>Damage</strong>:
                 {{dpr.getDmg(character, level, attack)}}
@@ -68,11 +64,7 @@
                             <div class="col-md-2">
                                 <button type="button" ng-click="damage.remove($index)" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></button>
                             </div>
-                            <div class="col-md-10">
-                                <select class="form-control input-sm" ng-model="dmg.type">
-                                    <option value="{{ BONUS_TYPE[select] }}"  ng-selected="BONUS_TYPE[select] == dmg.type" ng-repeat="select in damage.types">{{ bonusText(BONUS_TYPE[select]) }}</option>
-                                </select>
-                            </div>
+                            <input-field class="col-md-10" id="'dmg-type-' + $index" type="'select'" source="dmg" target="'type'" namefunc="bonusText" options="damage.types"></input-field>
                         </div>
                     </div>
                     <div class="col-md-4">
