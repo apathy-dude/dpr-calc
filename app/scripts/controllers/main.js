@@ -798,21 +798,35 @@ app.directive('attackGroups', ['editService', 'emptyAttackGroup', function(edit,
             var id = 0;
             $scope.edit = edit;
 
-            //TODO: Copy from previous level
-
+            function getActive() {
+                return _.find($scope.level.data.attackGroups, function(group) {
+                    return group.active;
+                });
+            }
             function setAllInactive() {
                 angular.forEach($scope.level.data.attackGroups, function(group) {
                    group.active = false;
                 });
             }
+            function addAttackGroup(group) {
+                $scope.level.data.attackGroups.push(group);
+            }
             function addNewAttackGroup() {
                 id++;
-                $scope.level.data.attackGroups.push({
+                addAttackGroup({
                     id: id,
                     name: 'attack group ' + id,
                     active: true,
                     data: empty()
                 });
+            }
+            function addCopyAttackGroup(group) {
+                id++;
+                group = angular.copy(group);
+                group.name = group.name + ' copy';
+                group.id = id;
+                group.active = true;
+                addAttackGroup(group);
             }
 
             $scope.remove = function remove(ind) {
@@ -820,11 +834,17 @@ app.directive('attackGroups', ['editService', 'emptyAttackGroup', function(edit,
                     $scope.level.data.attackGroups.splice(ind, 1);
                 }
             };
-
             $scope.add = function() {
                 $scope.edit.clear();
                 setAllInactive();
                 addNewAttackGroup();
+            };
+            $scope.copy = function() {
+                $scope.edit.clear();
+                var active = getActive();
+                console.log(active);
+                setAllInactive();
+                addCopyAttackGroup(active);
             };
         }
     };
@@ -845,19 +865,35 @@ app.directive('attackGroup', ['editService', 'dprService', 'emptyAttack', functi
             $scope.edit = edit;
             $scope.dpr = dpr.calculateDPR;
 
+            function getActive() {
+                return _.find($scope.group.data.attacks, function(attack) {
+                    return attack.active;
+                });
+            }
             function setAllInactive() {
                 angular.forEach($scope.group.data.attacks, function(attack) {
                    attack.active = false;
                 });
             }
+            function addAttack(atk) {
+                $scope.group.data.attacks.push(atk);
+            }
             function addNewAttack() {
                 id++;
-                $scope.group.data.attacks.push({
+                addAttack({
                     id: id,
                     name: 'attack ' + id,
                     active: true,
                     data: empty()
                 });
+            }
+            function addCopyAttack(atk) {
+                id++;
+                atk = angular.copy(atk);
+                atk.name = atk.name + ' copy';
+                atk.id = id;
+                atk.active = true;
+                addAttack(atk);
             }
 
             $scope.remove = function remove(ind) {
@@ -865,11 +901,16 @@ app.directive('attackGroup', ['editService', 'dprService', 'emptyAttack', functi
                     $scope.group.data.attacks.splice(ind, 1);
                 }
             };
-
             $scope.add = function() {
                 $scope.edit.clear();
                 setAllInactive();
                 addNewAttack();
+            };
+            $scope.copy = function() {
+                $scope.edit.clear();
+                var active = getActive();
+                setAllInactive();
+                addCopyAttack(active);
             };
         }
     };
@@ -1143,23 +1184,6 @@ app.controller('MainCtrl', ['$scope', '$filter', function ($scope, $filter) {
         $scope.selectedCharacter = angular.fromJson($scope.importExport);
         $scope.characters[$scope.selectedCharacterIndex] = $scope.selectedCharacter;
         $scope.edit.id = null;
-    };
-
-    //Attack Group management
-    $scope.copyAttackGroupFromPreviousLevel = function(character, level) {
-        var currentLevel = parseInt(level.name);
-        var lastLevel = _.reduce(character.levels, function(max, l) {
-            var testLevel = parseInt(l.level);
-            var maxLevel = parseInt(max.level);
-            if(testLevel < currentLevel && (!max || testLevel > maxLevel)) {
-                return l;
-            }
-            return max;
-        }, false);
-
-        if(lastLevel) {
-            level.attackGroups = level.attackGroups.concat(angular.copy(lastLevel.attackGroups));
-        }
     };
 }]);
 
