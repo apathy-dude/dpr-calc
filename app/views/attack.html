@@ -24,13 +24,13 @@
                             </div>
                             <div class="col-md-10">
                                 <select class="form-control input-sm" ng-model="hit.type">
-                                    <option value="{{ BONUS_TYPE[select] }}" ng-selected="BONUS_TYPE[select] == hit.type" ng-repeat="select in hitChance.types">{{ bonusText(BONUS_TYPE[select]) }}</option>
+                                    <option value="{{ BONUS_TYPE[select] }}"  ng-selected="BONUS_TYPE[select] == hit.type" ng-repeat="select in hitChance.types">{{ bonusText(BONUS_TYPE[select]) }}</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-8">
-                        <attack-input character="character" level="level" group="group" attack="attack" source="hit" index="$index" name="'hit'"></attack-input>
+                        <attack-input character="character" level="level" group="group" attack="attack" options="getOptions(hit.type)" title="getTitle(hit.type)" source="hit" index="$index" name="'hit'"></attack-input>
                     </div>
                 </div>
             </div>
@@ -55,7 +55,10 @@
             <div class="col-md-4">
                 <strong>Value</strong>
             </div>
-            <div class="col-md-4 text-center">
+            <div class="col-md-2 text-center">
+                <strong>Multiplier</strong>
+            </div>
+            <div class="col-md-2 text-center">
                 <strong>Percision</strong>
             </div>
             <div class="col-md-12" ng-repeat="dmg in attack.data.damage">
@@ -67,15 +70,18 @@
                             </div>
                             <div class="col-md-10">
                                 <select class="form-control input-sm" ng-model="dmg.type">
-                                    <option value="{{ BONUS_TYPE[select] }}" ng-selected="BONUS_TYPE[select] == dmg.type" ng-repeat="select in damage.types">{{ bonusText(BONUS_TYPE[select]) }}</option>
+                                    <option value="{{ BONUS_TYPE[select] }}"  ng-selected="BONUS_TYPE[select] == dmg.type" ng-repeat="select in damage.types">{{ bonusText(BONUS_TYPE[select]) }}</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <attack-input character="character" level="level" group="group" attack="attack" source="dmg" index="$index" name="'dmg'"></attack-input>
+                        <attack-input character="character" level="level" group="group" attack="attack" options="getOptions(dmg.type)" title="getTitle(dmg.type)" source="dmg" index="$index" name="'dmg'"></attack-input>
                     </div>
-                    <div class="col-md-4 text-center">
+                    <div class="col-md-2 text-center">
+                        <input-field character="character" level="level" id="'dmg-modifier-' + $index" type="'number'" source="dmg" target="'modifier'"></input-field>
+                    </div>
+                    <div class="col-md-2 text-center">
                         <input type="checkbox" ng-model="dmg.percision" />
                     </div>
                 </div>

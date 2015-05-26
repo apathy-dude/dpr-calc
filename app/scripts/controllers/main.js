@@ -140,7 +140,7 @@ app.service('statService', ['bonusService', 'abilityModService', function(BONUS_
                 break;
               case BONUS_TYPE.POWER_ATTACK_DMG:
                 var bab2 = getStat(character, level, 'bab');
-                bab2 = Math.floor(bab2 / 4) || 1;
+                bab2 = Math.floor(bab2 / 4) + 1;
                 value = bonus.value ? bab2 * 3 : bab2 * 2;
                 break;
               case BONUS_TYPE.TWO_WEAPON: value = -2; break;
@@ -253,10 +253,10 @@ app.service('bonusService', function() {
         var value;
         switch(id) {
             case BONUS_TYPE.STATIC: value = 'number'; break;
-            case BONUS_TYPE.ABILITY: value = 'list'; break;
+            case BONUS_TYPE.ABILITY: value = 'select'; break;
             case BONUS_TYPE.DYNAMIC: value = 'number'; break;
-            case BONUS_TYPE.STAT: value = 'list'; break;
-            case BONUS_TYPE.BASE_ABILITY: value = 'list'; break;
+            case BONUS_TYPE.STAT: value = 'select'; break;
+            case BONUS_TYPE.BASE_ABILITY: value = 'select'; break;
             case BONUS_TYPE.DICE: value = 'text'; break;
             case BONUS_TYPE.POWER_ATTACK_HIT: value = 'calc'; break;
             case BONUS_TYPE.POWER_ATTACK_DMG: value = 'checkbox'; break;
@@ -564,7 +564,8 @@ app.directive('inputField', ['editService', function(edit) {
             editSource: '=source',
             title: '=title',
             step: '=step',
-            onChange: '=oncng'
+            onChange: '=oncng',
+            options: '=options'
         },
         link: function(scope) {
             scope.edit = edit;
@@ -873,7 +874,7 @@ app.directive('attackGroup', ['editService', 'dprService', 'emptyAttack', functi
     };
 }]);
 
-app.directive('attack', ['editService', 'emptyHit', 'emptyDamage', 'bonusService', 'dprService', function(edit, emptyHit, emptyDamage, BONUS_TYPE, dpr) {
+app.directive('attack', ['editService', 'emptyHit', 'emptyDamage', 'bonusService', 'dprService', 'abilityScoreService', function(edit, emptyHit, emptyDamage, BONUS_TYPE, dpr, abilities) {
     return {
         restrict: 'E',
         transclude: true,
@@ -919,6 +920,31 @@ app.directive('attack', ['editService', 'emptyHit', 'emptyDamage', 'bonusService
                 ]
             };
 
+            var abilityOptions = abilities;
+            var statOptions = ['bab'];
+
+            $scope.getOptions = function(type) {
+                type = parseInt(type);
+                var options;
+                switch(type) {
+                    case BONUS_TYPE.ABILITY: options = abilityOptions; break;
+                    case BONUS_TYPE.STAT: options = statOptions; break;
+                    default: options = null; break;
+                }
+
+                return options;
+            };
+            $scope.getTitle = function(type) {
+                type = parseInt(type);
+                var title;
+                switch(type) {
+                    case BONUS_TYPE.POWER_ATTACK_DMG: title = 'Two-handed:'; break;
+                    default: title = ''; break;
+                }
+
+                return title;
+            };
+
             $scope.BONUS_TYPE = BONUS_TYPE;
             $scope.bonusText = BONUS_TYPE.text;
             $scope.bonusType = BONUS_TYPE.type;
@@ -926,7 +952,7 @@ app.directive('attack', ['editService', 'emptyHit', 'emptyDamage', 'bonusService
     };
 }]);
 
-app.directive('attackInput', ['bonusService', 'statService', 'abilityScoreService', function(BONUS_TYPE, stat, abilities) {
+app.directive('attackInput', ['bonusService', 'statService', function(BONUS_TYPE, stat) {
     return {
         restrict: 'E',
         transclude: false,
@@ -937,7 +963,9 @@ app.directive('attackInput', ['bonusService', 'statService', 'abilityScoreServic
             attack: '=attack',
             source: '=source',
             index: '=index',
-            name: '=name'
+            name: '=name',
+            options: '=options',
+            title: '=title'
         },
         templateUrl: '../views/attack-input.html',
         controller: function($scope) {
@@ -950,14 +978,17 @@ app.directive('attackInput', ['bonusService', 'statService', 'abilityScoreServic
             };
             $scope.calcValue = stat.getValue;
 
-            $scope.abilityOptions = abilities;
-            $scope.statOptions = ['bab'];
-
+            $scope.selectType = function(type) {
+                return BONUS_TYPE.type(type) === 'select';
+            };
             $scope.textType = function(type) {
                 return BONUS_TYPE.type(type) === 'text';
             };
             $scope.numberType = function(type) {
                 return BONUS_TYPE.type(type) === 'number';
+            };
+            $scope.checkboxType = function(type) {
+                return BONUS_TYPE.type(type) === 'checkbox';
             };
         }
     };
