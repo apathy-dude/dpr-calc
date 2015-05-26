@@ -1031,83 +1031,10 @@ app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editServ
     $scope.add();
 }]);
 
-app.controller('MainCtrl', ['$scope', '$filter', 'editService', 'bonusService', function ($scope, $filter, edit, BONUS_TYPE) {
-    $scope.edit = edit;
+app.controller('MainCtrl', ['$scope', '$filter', function ($scope, $filter) {
+    $scope.edit = null;
     var ctx = null;//angular.element('#chart')[0].getContext('2d');
     var chart;
-
-    function getValue(character, level, bonus) {
-        var value;
-        if(typeof bonus.type === 'string') {
-            bonus.type = parseInt(bonus.type);
-        }
-        switch(bonus.type) {
-            case BONUS_TYPE.STATIC: value = bonus.value; break;
-            case BONUS_TYPE.DYNAMIC: value = bonus.value; break;
-            case BONUS_TYPE.ABILITY:
-                var score = $scope.getStat(character, level, bonus.value);
-                value = $scope.getAbilityMod(score);
-                break;
-            case BONUS_TYPE.STAT: value = $scope.getStat(character, level, bonus.value); break;
-            case BONUS_TYPE.BASE_ABILITY: value = character.abilityScores[bonus.value]; break;
-            case BONUS_TYPE.DICE:
-                 var dice = bonus.value.split('d');
-                 value = (parseInt(dice[1]) / 2 + 0.5) * parseInt(dice[0]);
-                 break;
-            case BONUS_TYPE.POWER_ATTACK_HIT:
-                var bab = $scope.getStat(character, level, 'bab');
-                value = -1 * (Math.floor(bab / 4) + 1);
-                break;
-              case BONUS_TYPE.POWER_ATTACK_DMG:
-                var bab2 = $scope.getStat(character, level, 'bab');
-                bab2 = Math.floor(bab2 / 4) || 1;
-                value = bonus.value ? bab2 * 3 : bab2 * 2;
-                break;
-              case BONUS_TYPE.TWO_WEAPON: value = -2; break;
-          }
-
-        if(typeof value === 'string') {
-            value = parseFloat(value);
-            value = isNaN(value) ? 0 : value;
-        }
-
-        if(bonus.modifier) {
-            var modifier = bonus.modifier;
-            if(typeof modifier === 'string') {
-                modifier = level[modifier];
-            }
-            value *= modifier;
-            if(bonus.type !== BONUS_TYPE.DICE) {
-                value = Math.floor(value);
-            }
-        }
-
-        return value;
-    }
-
-    function emptyAttack() {
-        return {
-          'weapon': 'attack',
-          'damage': [
-              { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false },
-              { 'type': BONUS_TYPE.ABILITY, 'value': 'strength', 'modifier': 1, 'percision': false }
-          ],
-          'hitChance': [
-              { 'type': BONUS_TYPE.STAT, 'value': 'bab' },
-              { 'type': BONUS_TYPE.ABILITY, 'value': 'strength' }
-          ],
-          'critThreat': 0.05,
-          'critMultiplier': 2
-        };
-    }
-
-    function emptyHit() {
-        return { 'type': BONUS_TYPE.DYNAMIC, 'value': 0 };
-    }
-
-    function emptyDmg() {
-        return { 'type': BONUS_TYPE.DICE, 'value': '1d8', 'modifier': 1, 'percision': false };
-    }
 
     function getGraphColor() {
         var red = Math.floor(Math.random() * 255);
@@ -1185,7 +1112,7 @@ app.controller('MainCtrl', ['$scope', '$filter', 'editService', 'bonusService', 
     }
 
     $scope.graphDPR = function() {
-        edit.id = 'graph';
+        $scope.edit.id = 'graph';
         window.setTimeout(graphDPR, 100);
     };
 
@@ -1223,161 +1150,6 @@ app.controller('MainCtrl', ['$scope', '$filter', 'editService', 'bonusService', 
         if(lastLevel) {
             level.attackGroups = level.attackGroups.concat(angular.copy(lastLevel.attackGroups));
         }
-    };
-
-    $scope.selectAttack = function(atkGroup, ind) {
-        $scope.edit.clear();
-        atkGroup.selectedAttackIndex = ind;
-
-        if(ind === -1) {
-            atkGroup.selectedAttack = null;
-        }
-        else {
-            atkGroup.selectedAttack = atkGroup.attacks[ind];
-        }
-    };
-    $scope.addAttack = function(atkGroup) {
-        atkGroup.attacks.push(emptyAttack());
-        $scope.selectAttack(atkGroup, atkGroup.attacks.length - 1);
-    };
-    $scope.removeAttack = function(atkGroup, ind) {
-        atkGroup.attacks.splice(ind, 1);
-        if(atkGroup.selectedAttackIndex === ind) {
-            $scope.selectAttack(atkGroup, -1);
-        }
-        if(atkGroup.selectedAttackIndex >= ind) {
-            if(ind === 0 || atkGroup.selectedAttackIndex === 0) {
-                $scope.selectAttack(atkGroup, 0);
-            }
-            else {
-                $scope.selectAttack(atkGroup, atkGroup.selectedAttackIndex - 1);
-            }
-        }
-        else if(atkGroup.selectedAttackIndex > atkGroup.attacks.lenth - 1) {
-            $scope.selectAttack(atkGroup, atkGroup.attacks.length - 1);
-        }
-    };
-
-    $scope.addHit = function(atk) {
-        atk.hitChance.push(emptyHit());
-    };
-    $scope.removeHit = function(atk, ind) {
-         atk.hitChance.splice(ind, 1);
-    };
-
-    $scope.addDmg = function(atk) {
-        atk.damage.push(emptyDmg());
-    };
-    $scope.removeDmg = function(atk, ind) {
-         atk.damage.splice(ind, 1);
-    };
-
-    // Attack management
-
-    function getHit(character, level, atk) {
-        return _.reduce(atk.hitChance, function(total, chance) {
-            return total += getValue(character, level, chance);
-        }, 0);
-    }
-    function getDmg(character, level, atk, obj) {
-        var damage = 0;
-        var percision = 0;
-
-        for(var d in atk.damage) {
-            var dam = atk.damage[d];
-            var dmg = getValue(character, level, dam);
-            if(dam.percision) {
-                percision += dmg;
-            }
-            else {
-                damage += dmg;
-            }
-        }
-
-        damage = damage < 0 ? 0 : damage;
-        percision = percision < 0 ? 0 : percision;
-
-        if(obj) {
-            return { damage: damage, percision: percision };
-        }
-
-        if(percision) {
-            return damage + ' and percision: ' + percision;
-        }
-
-        return damage;
-    }
-    function calculateAttackDPR(character, level, attack) {
-        var lev = parseInt(level.name);
-        var targetAC = $scope.targetAc[lev];
-        var hitChance;
-        var minHitChance = 0.05;
-        var maxHitChance = 0.95;
-        var damage = 0;
-        var percision = 0;
-        var hit = getHit(character, level, attack);
-
-        var d = getDmg(character, level, attack, true);
-        damage = d.damage;
-        percision = d.percision;
-
-        hitChance = 1 - ((targetAC-hit) / 20);
-        hitChance = hitChance < minHitChance ? minHitChance : hitChance;
-        hitChance = hitChance > maxHitChance ? maxHitChance : hitChance;
-
-        // h(dp)+c(m-1)hd
-        return hitChance * (damage + percision) + attack.critThreat * (attack.critMultiplier - 1) * hitChance * damage;
-    }
-    $scope.calculateAttackDPR = calculateAttackDPR;
-    $scope.calculateDPR = function(character, level, attackGroup) {
-        return _.reduce(attackGroup.attacks, function(total, attack) {
-            return total += calculateAttackDPR(character, level, attack);
-        }, 0);
-    };
-    $scope.getHit = getHit;
-    $scope.getDmg = getDmg;
-
-    // Static data
-    $scope.abilityScores = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
-    $scope.pointBuy = {
-        3: -4,
-        4: -4,
-        5: -4,
-        6: -4,
-        7: -4,
-        8: -2,
-        9: -1,
-        10: 0,
-        11: 1,
-        12: 2,
-        13: 3,
-        14: 5,
-        15: 7,
-        16: 10,
-        17: 13,
-        18: 17
-    };
-    $scope.targetAc = {
-        1: 12,
-        2: 14,
-        3: 15,
-        4: 17,
-        5: 18,
-        6: 19,
-        7: 20,
-        8: 21,
-        9: 23,
-        10: 24,
-        11: 25,
-        12: 27,
-        13: 28,
-        14: 29,
-        15: 30,
-        16: 31,
-        17: 32,
-        18: 33,
-        19: 34,
-        20: 36,
     };
 }]);
 
