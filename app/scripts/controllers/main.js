@@ -842,7 +842,6 @@ app.directive('attackGroups', ['editService', 'emptyAttackGroup', function(edit,
             $scope.copy = function() {
                 $scope.edit.clear();
                 var active = getActive();
-                console.log(active);
                 setAllInactive();
                 addCopyAttackGroup(active);
             };
@@ -1045,6 +1044,95 @@ app.directive('attackInput', ['bonusService', 'statService', function(BONUS_TYPE
     };
 }]);
 
+app.directive('graph', ['dprService', function(dprService) {
+    return {
+        restrict: 'E',
+        transclude: false,
+        scope: {
+            characters: '=characters',
+        },
+        templateUrl: '../views/graph.html',
+        controller: function($scope) {
+            $scope.dprData = {};
+            $scope.options = {
+                responsive: true
+            };
+        },
+        link: function(scope) {
+            function getGraphColor() {
+                var red = Math.floor(Math.random() * 255);
+                var green = Math.floor(Math.random() * 255);
+                var blue = Math.floor(Math.random() * 255);
+                var fillAlpha = 0.5;
+                var strokeAlpha = 1;
+
+                var fill = 'rgba(' + red + ',' + green + ',' + blue + ',' + fillAlpha + ')';
+                var stroke = 'rgba(' + red + ',' + green + ',' + blue + ',' + strokeAlpha + ')';
+
+                return {
+                    fill: fill,
+                    stroke: stroke,
+                    point: fill
+                };
+            }
+            function data() {
+                var levels = [];
+                var datasets;
+
+                function mapChar(character) {
+                    return {
+                        label: character.name,
+                        fillColor: character.colors.fill,
+                        strokeColor: character.colors.stroke,
+                        pointColor: character.colors.point,
+                        pointStrokeColor: '#FFF',
+                        pointHighlightFill: '#FFF',
+                        pointHighlighStroke: '#FFF',
+                        data: _.map(levels, function(level) {
+                            var lev = _.find(character.data.levels, function(l) { return l.level === level; });
+                            if(lev) {
+                                return _.reduce(lev.data.attackGroups, function(max, group) {
+                                    var dpr = dprService.calculateDPR(character, lev, group);
+                                    return max > dpr ? max : dpr;
+                                  }, 0);
+                            }
+                            else {
+                                return 0;
+                            }
+                        })
+                    };
+                }
+
+                for(var char in scope.characters) {
+                    var character = scope.characters[char];
+                    for(var l in character.data.levels) {
+                        var level = character.data.levels[l];
+                        levels.push(level.name);
+                    }
+
+                    if(!character.colors) {
+                        character.colors = getGraphColor();
+                        character.style = { 'background-color': character.colors.fill };
+                    }
+                }
+
+                levels = _.uniq(levels);
+
+                datasets = _.map(scope.characters, mapChar);
+
+                var dat = {
+                    labels: levels,
+                    datasets: datasets
+                };
+
+                return dat;
+            }
+
+            scope.dprData = data();
+        }
+    };
+}]);
+
 app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
     $scope.edit = edit;
 
@@ -1080,92 +1168,17 @@ app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editServ
     };
 
     $scope.add();
+
+    $scope.graph = true;
+
+    $scope.toggleGraph = function() {
+        edit.clear();
+        $scope.graph = !$scope.graph;
+    };
 }]);
 
 app.controller('MainCtrl', ['$scope', '$filter', function ($scope, $filter) {
     $scope.edit = null;
-    var ctx = null;//angular.element('#chart')[0].getContext('2d');
-    var chart;
-
-    function getGraphColor() {
-        var red = Math.floor(Math.random() * 255);
-        var green = Math.floor(Math.random() * 255);
-        var blue = Math.floor(Math.random() * 255);
-        var fillAlpha = 0.5;
-        var strokeAlpha = 1;
-
-        var fill = 'rgba(' + red + ',' + green + ',' + blue + ',' + fillAlpha + ')';
-        var stroke = 'rgba(' + red + ',' + green + ',' + blue + ',' + strokeAlpha + ')';
-
-        return {
-            fill: fill,
-            stroke: stroke,
-            point: fill
-        };
-    }
-
-    function graphDPR() {
-        if(chart) {
-            chart.destroy();
-        }
-
-        var levels = [];
-        var datasets;
-
-        for(var char in $scope.characters) {
-            var character = $scope.characters[char];
-            for(var l in character.levels) {
-                var level = character.levels[l];
-                levels.push(level.name);
-            }
-
-            if(!character.colors) {
-                character.colors = getGraphColor();
-                character.style = { 'background-color': character.colors.fill };
-            }
-        }
-
-        levels = _.uniq(levels);
-
-        datasets = _.map($scope.characters, function(character) {
-            return {
-                label: character.name,
-                fillColor: character.colors.fill,
-                strokeColor: character.colors.stroke,
-                pointColor: character.colors.point,
-                pointStrokeColor: '#FFF',
-                pointHighlightFill: '#FFF',
-                pointHighlighStroke: '#FFF',
-                data: _.map(levels, function(level) {
-                    var lev = _.find(character.levels, function(l) { return l.level === level; });
-                    if(lev) {
-                        return _.reduce(lev.attackGroups, function(max, group) {
-                            var dpr = $scope.calculateDPR(character, lev, group);
-                            return max > dpr ? max : dpr;
-                          }, 0);
-                    }
-                    else {
-                        return 0;
-                    }
-                })};
-        });
-
-        var data = {
-            labels: levels,
-            datasets: datasets
-        };
-
-        chart = new Chart(ctx).Line(data);
-
-        window.setTimeout(function() {
-            chart.resize();
-        }, 1000);
-    }
-
-    $scope.graphDPR = function() {
-        $scope.edit.id = 'graph';
-        window.setTimeout(graphDPR, 100);
-    };
 
     $scope.importExport = null;
     $scope.export = function() {

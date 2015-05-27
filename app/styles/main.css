@@ -127,3 +127,9 @@ h4, .h4 {
     font-size: 14px;
 }
 
+canvas {
+    min-width: 100px;
+    min-height: 100px;
+    width: 100%;
+    height: 100%;
+}

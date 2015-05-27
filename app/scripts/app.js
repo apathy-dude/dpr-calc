@@ -16,7 +16,8 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'chartjs'
   ])
   .constant('_', window._)
   .config(function ($routeProvider) {
