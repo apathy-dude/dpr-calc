@@ -336,7 +336,9 @@ app.service('dprService', ['statService', 'targetAcService', function(stats, tar
         hitChance = hitChance > maxHitChance ? maxHitChance : hitChance;
 
         // h(dp)+c(m-1)hd
-        return hitChance * (damage + percision) + attack.data.critThreat * (attack.data.critMultiplier - 1) * hitChance * damage; } function calculateDPR(character, level, attackGroup) {
+        return hitChance * (damage + percision) + attack.data.critThreat * (attack.data.critMultiplier - 1) * hitChance * damage;
+    }
+    function calculateDPR(character, level, attackGroup) {
         return _.reduce(attackGroup.data.attacks, function(total, attack) {
             return total += calculateAttackDPR(character, level, attack);
         }, 0);
@@ -1044,7 +1046,17 @@ app.directive('attackInput', ['bonusService', 'statService', function(BONUS_TYPE
     };
 }]);
 
-app.directive('graph', ['dprService', function(dprService) {
+app.config(['ChartJsProvider', function(ChartJsProvider) {
+    ChartJsProvider.setOptions({
+        responsive: true
+    });
+
+    ChartJsProvider.setOptions('Line', {
+        datasetFill: false
+    });
+}]);
+
+app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout) {
     return {
         restrict: 'E',
         transclude: false,
@@ -1053,82 +1065,41 @@ app.directive('graph', ['dprService', function(dprService) {
         },
         templateUrl: '../views/graph.html',
         controller: function($scope) {
-            $scope.dprData = {};
-            $scope.options = {
-                responsive: true
-            };
+            $scope.levels = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
+            $scope.data = [];
+            $scope.series = [];
         },
         link: function(scope) {
-            function getGraphColor() {
-                var red = Math.floor(Math.random() * 255);
-                var green = Math.floor(Math.random() * 255);
-                var blue = Math.floor(Math.random() * 255);
-                var fillAlpha = 0.5;
-                var strokeAlpha = 1;
-
-                var fill = 'rgba(' + red + ',' + green + ',' + blue + ',' + fillAlpha + ')';
-                var stroke = 'rgba(' + red + ',' + green + ',' + blue + ',' + strokeAlpha + ')';
-
-                return {
-                    fill: fill,
-                    stroke: stroke,
-                    point: fill
-                };
-            }
             function data() {
-                var levels = [];
-                var datasets;
-
                 function mapChar(character) {
-                    return {
-                        label: character.name,
-                        fillColor: character.colors.fill,
-                        strokeColor: character.colors.stroke,
-                        pointColor: character.colors.point,
-                        pointStrokeColor: '#FFF',
-                        pointHighlightFill: '#FFF',
-                        pointHighlighStroke: '#FFF',
-                        data: _.map(levels, function(level) {
-                            var lev = _.find(character.data.levels, function(l) { return l.level === level; });
-                            if(lev) {
-                                return _.reduce(lev.data.attackGroups, function(max, group) {
-                                    var dpr = dprService.calculateDPR(character, lev, group);
-                                    return max > dpr ? max : dpr;
-                                  }, 0);
-                            }
-                            else {
-                                return 0;
-                            }
-                        })
-                    };
+                    return _.map(scope.levels, function(level) {
+                        var lev = _.find(character.data.levels, function(l) { return parseInt(l.name) === parseInt(level); });
+                        if(lev) {
+                            return _.reduce(lev.data.attackGroups, function(max, group) {
+                                var dpr = dprService.calculateDPR(character, lev, group);
+                                return max > dpr ? max : dpr;
+                              }, 0);
+                        }
+                        else {
+                            return 0;
+                        }
+                    });
                 }
 
-                for(var char in scope.characters) {
-                    var character = scope.characters[char];
-                    for(var l in character.data.levels) {
-                        var level = character.data.levels[l];
-                        levels.push(level.name);
-                    }
-
-                    if(!character.colors) {
-                        character.colors = getGraphColor();
-                        character.style = { 'background-color': character.colors.fill };
-                    }
-                }
-
-                levels = _.uniq(levels);
-
-                datasets = _.map(scope.characters, mapChar);
-
-                var dat = {
-                    labels: levels,
-                    datasets: datasets
-                };
-
-                return dat;
+                return _.map(scope.characters, mapChar);
+            }
+            function series() {
+                return _.map(scope.characters, function(character) {
+                    return character.name;
+                });
             }
 
-            scope.dprData = data();
+            scope.$on('show-graph', function() {
+                $timeout(function() {
+                    scope.data = data();
+                    scope.series = series();
+                }, 100);
+            });
         }
     };
 }]);
@@ -1174,6 +1145,9 @@ app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editServ
     $scope.toggleGraph = function() {
         edit.clear();
         $scope.graph = !$scope.graph;
+        if($scope.graph) {
+            $scope.$broadcast('show-graph');
+        }
     };
 }]);
 
