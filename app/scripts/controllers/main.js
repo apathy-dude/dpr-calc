@@ -9,6 +9,16 @@
  */
 var app = angular.module('dprCalcApp');
 
+app.config(['ChartJsProvider', function(ChartJsProvider) {
+    ChartJsProvider.setOptions({
+        responsive: true
+    });
+
+    ChartJsProvider.setOptions('Line', {
+        datasetFill: false
+    });
+}]);
+
 app.filter('orderObjectBy', function() {
     return function(items, field, reverse) {
         return _.chain(_.keys(items))
@@ -658,6 +668,14 @@ app.directive('character', ['abilityScoreService', 'pointBuyService', 'emptyLeve
                     return parseInt(level.name);
                 });
             };
+
+            $scope.download = function() {
+                var data = btoa(angular.toJson($scope.character), false);
+                window.open('data:application/json;base64,' + data);
+            };
+
+            $scope.uploadStart = function() {
+            };
         }
     };
 }]);
@@ -1067,16 +1085,6 @@ app.directive('attackInput', ['bonusService', 'statService', function(BONUS_TYPE
             };
         }
     };
-}]);
-
-app.config(['ChartJsProvider', function(ChartJsProvider) {
-    ChartJsProvider.setOptions({
-        responsive: true
-    });
-
-    ChartJsProvider.setOptions('Line', {
-        datasetFill: false
-    });
 }]);
 
 app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout) {
