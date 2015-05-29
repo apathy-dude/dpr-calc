@@ -556,7 +556,7 @@ app.factory('emptyDamage', ['bonusService', function(BONUS_TYPE) {
 app.directive('inputField', ['editService', function(edit) {
     return {
         restrict: 'E',
-        templateUrl: '../views/input-field.html',
+        templateUrl: 'views/input-field.html',
         transclude: true,
         scope: {
             cssClass: '=css',
@@ -579,7 +579,7 @@ app.directive('inputField', ['editService', function(edit) {
 app.directive('inputAbility', ['editService', 'abilityModService', function(edit, abilityMod) {
     return {
         restrict: 'E',
-        templateUrl: '../views/input-ability.html',
+        templateUrl: 'views/input-ability.html',
         transclude: true,
         scope: {
             scores: '=scores',
@@ -598,7 +598,7 @@ app.directive('character', ['abilityScoreService', 'pointBuyService', 'emptyLeve
         scope: {
             character: '=character',
         },
-        templateUrl: '../views/character.html',
+        templateUrl: 'views/character.html',
         controller: function($scope) {
             $scope.edit = edit;
             $scope.abilityScores = abilityScores;
@@ -670,7 +670,7 @@ app.directive('level', [function() {
             character: '=character',
             sort: '=sort'
         },
-        templateUrl: '../views/level.html',
+        templateUrl: 'views/level.html',
         controller: function() {
         }
     };
@@ -684,7 +684,7 @@ app.directive('standardStats', ['editService', 'abilityModService', 'bonusServic
             character: '=character',
             level: '=level'
         },
-        templateUrl: '../views/standard-stats.html',
+        templateUrl: 'views/standard-stats.html',
         link: function(scope) {
             scope.edit = edit;
 
@@ -733,7 +733,7 @@ app.directive('standardStatInline', ['editService', 'abilityModService', 'bonusS
             level: '=level',
             stat: '=stat'
         },
-        templateUrl: '../views/standard-stats/inline.html',
+        templateUrl: 'views/standard-stats/inline.html',
         link: function(scope) {
             scope.edit = edit;
 
@@ -754,7 +754,7 @@ app.directive('standardStatHeader', ['editService', 'abilityModService', 'bonusS
             level: '=level',
             stat: '=stat'
         },
-        templateUrl: '../views/standard-stats/header.html',
+        templateUrl: 'views/standard-stats/header.html',
         link: function(scope) {
             scope.edit = edit;
 
@@ -775,7 +775,7 @@ app.directive('standardStatGroup', ['editService', 'abilityModService', 'bonusSe
             level: '=level',
             stat: '=stat'
         },
-        templateUrl: '../views/standard-stats/group.html',
+        templateUrl: 'views/standard-stats/group.html',
         link: function(scope) {
             scope.edit = edit;
 
@@ -795,7 +795,7 @@ app.directive('attackGroups', ['editService', 'emptyAttackGroup', function(edit,
             character: '=character',
             level: '=level'
         },
-        templateUrl: '../views/attack-group-list.html',
+        templateUrl: 'views/attack-group-list.html',
         controller: function($scope) {
             var id = 0;
             $scope.edit = edit;
@@ -883,7 +883,7 @@ app.directive('attackGroup', ['editService', 'dprService', 'emptyAttack', functi
             level: '=level',
             group: '=group'
         },
-        templateUrl: '../views/attack-group.html',
+        templateUrl: 'views/attack-group.html',
         controller: function($scope) {
             var id = 0;
             $scope.edit = edit;
@@ -950,7 +950,7 @@ app.directive('attack', ['editService', 'emptyHit', 'emptyDamage', 'bonusService
             group: '=group',
             attack: '=attack'
         },
-        templateUrl: '../views/attack.html',
+        templateUrl: 'views/attack.html',
         controller: function($scope) {
             $scope.edit = edit;
             $scope.dpr = dpr;
@@ -1042,7 +1042,7 @@ app.directive('attackInput', ['bonusService', 'statService', function(BONUS_TYPE
             options: '=options',
             title: '=title'
         },
-        templateUrl: '../views/attack-input.html',
+        templateUrl: 'views/attack-input.html',
         controller: function($scope) {
             $scope.BONUS_TYPE = BONUS_TYPE;
             $scope.bonusText = BONUS_TYPE.text;
@@ -1086,7 +1086,7 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
         scope: {
             characters: '=characters',
         },
-        templateUrl: '../views/graph.html',
+        templateUrl: 'views/graph.html',
         controller: function($scope) {
             $scope.levels = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
             $scope.data = [];
