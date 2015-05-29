@@ -822,10 +822,12 @@ app.directive('attackGroups', ['editService', 'emptyAttackGroup', function(edit,
                     data: empty()
                 });
             }
-            function addCopyAttackGroup(group) {
+            function addCopyAttackGroup(group, addCopy) {
                 id++;
                 group = angular.copy(group);
-                group.name = group.name + ' copy';
+                if(addCopy) {
+                    group.name = group.name + ' copy';
+                }
                 group.id = id;
                 group.active = true;
                 addAttackGroup(group);
@@ -845,7 +847,28 @@ app.directive('attackGroups', ['editService', 'emptyAttackGroup', function(edit,
                 $scope.edit.clear();
                 var active = getActive();
                 setAllInactive();
-                addCopyAttackGroup(active);
+                addCopyAttackGroup(active, true);
+            };
+            $scope.copyPreviousLevel = function() {
+                var levelName = parseInt($scope.level.name);
+                var level = _.reduce($scope.character.data.levels, function(max, lev) {
+                    var name = parseInt(lev.name);
+                    return name < levelName && (max === null || parseInt(max.name) < name) ? lev : max;
+                }, null);
+                if(level === null) {
+                    return;
+                }
+                $scope.edit.clear();
+                setAllInactive();
+                while($scope.level.data.attackGroups.length > 0) {
+                    $scope.level.data.attackGroups.splice(0, 1);
+                }
+                for(var g in level.data.attackGroups) {
+                    var group = level.data.attackGroups[g];
+                    addCopyAttackGroup(group);
+                    setAllInactive();
+                }
+                $scope.level.data.attackGroups[0].active = true;
             };
         }
     };
