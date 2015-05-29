@@ -1105,23 +1105,40 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
 }]);
 
 app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
+    var id = 0;
     $scope.edit = edit;
 
-    var id = 0;
+    $scope.characters = [];
+
+    function getActive() {
+        return _.find($scope.characters, function(character) {
+            return character.active;
+        });
+    }
     function setAllInactive() {
         angular.forEach($scope.characters, function(character) {
            character.active = false;
         });
     }
-
+    function addCharacter(character) {
+        $scope.characters.push(character);
+    }
     function addNewCharacter() {
         id++;
-        $scope.characters.push({
+        addCharacter({
             id: id,
             name: 'character ' + id,
             active: true,
             data: empty()
         });
+    }
+    function addCopyCharacter(character) {
+        id++;
+        character = angular.copy(character);
+        character.name = character.name + ' copy';
+        character.id = id;
+        character.active = true;
+        addCharacter(character);
     }
 
     $scope.remove = function remove(ind) {
@@ -1129,19 +1146,19 @@ app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editServ
             $scope.characters.splice(ind, 1);
         }
     };
-
-    $scope.characters = [];
-
     $scope.add = function() {
         $scope.edit.clear();
         setAllInactive();
         addNewCharacter();
     };
-
-    $scope.add();
+    $scope.copy = function() {
+        $scope.edit.clear();
+        var active = getActive();
+        setAllInactive();
+        addCopyCharacter(active);
+    };
 
     $scope.graph = true;
-
     $scope.toggleGraph = function() {
         edit.clear();
         $scope.graph = !$scope.graph;
@@ -1149,6 +1166,8 @@ app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editServ
             $scope.$broadcast('show-graph');
         }
     };
+
+    $scope.add();
 }]);
 
 app.controller('MainCtrl', ['$scope', '$filter', function ($scope, $filter) {
