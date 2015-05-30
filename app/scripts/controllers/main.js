@@ -673,9 +673,6 @@ app.directive('character', ['abilityScoreService', 'pointBuyService', 'emptyLeve
                 var data = btoa(angular.toJson($scope.character), false);
                 window.open('data:application/json;base64,' + data);
             };
-
-            $scope.uploadStart = function() {
-            };
         }
     };
 }]);
@@ -1135,7 +1132,7 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
     };
 }]);
 
-app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
+app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
     var id = 0;
     $scope.edit = edit;
 
@@ -1199,28 +1196,25 @@ app.controller('TabsCharacterController', ['$scope', 'emptyCharacter', 'editServ
     };
 
     $scope.add();
-}]);
 
-app.controller('MainCtrl', ['$scope', '$filter', function ($scope, $filter) {
-    $scope.edit = null;
+    $scope.uploadActive = false;
+    $scope.upload = function() {
+        $scope.edit.clear();
+        setAllInactive();
 
-    $scope.importExport = null;
-    $scope.export = function() {
-        $scope.importExport = $filter('json')($scope.selectedCharacter, 4);
-        $scope.edit.id = 'export';
-    };
-    $scope.importStart = function() {
-        $scope.importExport = '';
-        //$scope.addCharacter();
-        $scope.edit.id = 'import';
-    };
-    $scope.importPaste = function(e) {
-        $scope.importExport = e.target.value;
-    };
-    $scope.importEnd = function() {
-        $scope.selectedCharacter = angular.fromJson($scope.importExport);
-        $scope.characters[$scope.selectedCharacterIndex] = $scope.selectedCharacter;
-        $scope.edit.id = null;
+        var el = angular.element('#file')[0];
+        var f = el.files[0];
+        var r = new FileReader();
+
+        r.onload = function(e) {
+            var character = angular.fromJson(e.target.result);
+            character.active = true;
+            addCharacter(character);
+            $scope.uploadActive = false;
+            $scope.$apply();
+        };
+
+        r.readAsBinaryString(f);
     };
 }]);
 

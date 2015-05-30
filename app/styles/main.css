@@ -137,3 +137,19 @@ canvas {
 .graph-container {
     min-height: 400px;
 }
+
+.fileinput-button {
+    overflow: hidden;
+}
+
+.fileinput-button input {
+    width: calc(100% + 24px);
+    height: 100%;
+    display: block !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    margin: -6px -12px;
+    padding: 0;
+    padding-bottom: 6px;
+    margin-top: -27px;
+}

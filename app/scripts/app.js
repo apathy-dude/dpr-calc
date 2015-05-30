@@ -24,7 +24,7 @@ angular
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
+        controller: 'CharacterController'
       })
       .when('/license/', {
           templateUrl: 'views/openGameLicense.html'
