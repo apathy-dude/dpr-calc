@@ -1182,6 +1182,9 @@ app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService'
     $scope.copy = function() {
         $scope.edit.clear();
         var active = getActive();
+        if(!active) {
+            return;
+        }
         setAllInactive();
         addCopyCharacter(active);
     };
