@@ -1098,6 +1098,13 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
             $scope.series = [];
         },
         link: function(scope) {
+            function characterFilter(character) {
+                if(character.graph === undefined) {
+                    character.graph = true;
+                }
+                return character.graph;
+            }
+
             function data() {
                 function mapChar(character) {
                     return _.map(scope.levels, function(level) {
@@ -1114,20 +1121,26 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
                     });
                 }
 
-                return _.map(scope.characters, mapChar);
+                return _.chain(scope.characters)
+                            .filter(characterFilter)
+                            .map(mapChar)
+                            .value();
             }
             function series() {
-                return _.map(scope.characters, function(character) {
-                    return character.name;
-                });
+                return _.chain(scope.characters)
+                    .filter(characterFilter)
+                    .map('name')
+                    .value();
+            }
+            function update() {
+                scope.data = data();
+                scope.series = series();
             }
 
             scope.$on('show-graph', function() {
-                $timeout(function() {
-                    scope.data = data();
-                    scope.series = series();
-                }, 100);
+                $timeout(update, 100);
             });
+            scope.update = update;
         }
     };
 }]);
