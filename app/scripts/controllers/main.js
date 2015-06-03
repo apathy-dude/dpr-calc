@@ -1145,6 +1145,84 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
     };
 }]);
 
+app.directive('equipment', ['levelDataService', 'statService', function(levelData, stat) {
+    return {
+        restrict: 'E',
+        transclude: false,
+        scope: {
+            character: '=character',
+            level: '=level'
+        },
+        templateUrl: 'views/equipment.html',
+        controller: function($scope) {
+            function emptyItem() {
+                return {
+                    'name': 'item name',
+                    'weight': 0,
+                    'value': 0,
+                };
+            }
+            var caps = {
+                11: 115,
+                12: 130,
+                13: 150,
+                14: 175,
+                15: 200,
+                16: 230,
+                17: 260,
+                18: 300,
+                19: 350,
+            };
+            function capacity(strength) {
+                if(strength < 11) {
+                    return strength * 10;
+                }
+                else if(caps[strength]) {
+                    return caps[strength];
+                }
+                else {
+                    var val = capacity(strength - 10) * 4;
+                    caps[strength] = val;
+                    return val;
+                }
+            }
+
+            $scope.items = [];
+            $scope.add = function() {
+                $scope.items.push(emptyItem());
+            };
+            $scope.remove = function(ind) {
+                $scope.items.splice(ind, 1);
+            };
+            $scope.total = function(type) {
+                return _.reduce($scope.items, function(total, item) {
+                    return total += item[type];
+                }, 0);
+            };
+
+            $scope.wealthByLevel = function(level) {
+                return levelData[level].wealth;
+            };
+            $scope.carryCapacity = {
+                light: function(strength) {
+                    strength = parseInt(strength);
+                    return Math.floor(capacity(strength) / 3);
+                },
+                medium: function(strength) {
+                    strength = parseInt(strength);
+                    return Math.floor(capacity(strength) / 3) * 2;
+                },
+                heavy: function(strength) {
+                    strength = parseInt(strength);
+                    return capacity(strength);
+                }
+            };
+
+            $scope.getStat = stat.get;
+        }
+    };
+}]);
+
 app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
     var id = 0;
     $scope.edit = edit;
