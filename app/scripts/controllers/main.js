@@ -34,6 +34,31 @@ app.filter('orderObjectBy', function() {
     };
 });
 
+app.service('levelDataService', [function() {
+    return {
+            '1': { 'ac': 12, 'wealth': 0 },
+            '2': { 'ac': 14, 'wealth': 1000 },
+            '3': { 'ac': 15, 'wealth': 3000 },
+            '4': { 'ac': 17, 'wealth': 6000 },
+            '5': { 'ac': 18, 'wealth': 10500 },
+            '6': { 'ac': 19, 'wealth': 16000 },
+            '7': { 'ac': 20, 'wealth': 23500 },
+            '8': { 'ac': 21, 'wealth': 33000 },
+            '9': { 'ac': 23, 'wealth': 46000 },
+            '10': { 'ac': 24, 'wealth': 62000 },
+            '11': { 'ac': 25, 'wealth': 82000 },
+            '12': { 'ac': 27, 'wealth': 108000 },
+            '13': { 'ac': 28, 'wealth': 140000 },
+            '14': { 'ac': 29, 'wealth': 185000 },
+            '15': { 'ac': 30, 'wealth': 240000 },
+            '16': { 'ac': 31, 'wealth': 315000 },
+            '17': { 'ac': 32, 'wealth': 410000 },
+            '18': { 'ac': 33, 'wealth': 530000 },
+            '19': { 'ac': 34, 'wealth': 685000 },
+            '20': { 'ac': 36, 'wealth': 880000 }
+        };
+}]);
+
 app.service('pointBuyService', function() {
     var pointBuy = {
         3: -4,
@@ -291,7 +316,7 @@ app.service('renderService', function() {
     return RENDER_TYPE;
 });
 
-app.service('dprService', ['statService', 'targetAcService', function(stats, targetAc) {
+app.service('dprService', ['statService', 'levelDataService', function(stats, levelData) {
     var getValue = stats.getValue;
 
     function getHit(character, level, atk) {
@@ -329,7 +354,7 @@ app.service('dprService', ['statService', 'targetAcService', function(stats, tar
     }
     function calculateAttackDPR(character, level, attack) {
         var lev = parseInt(level.name);
-        var targetAC = targetAc[lev];
+        var targetAC = levelData[lev].ac;
         var hitChance;
         var minHitChance = 0.05;
         var maxHitChance = 0.95;
@@ -361,31 +386,6 @@ app.service('dprService', ['statService', 'targetAcService', function(stats, tar
         getDmg: getDmg
     };
 }]);
-
-app.service('targetAcService', function() {
-    return {
-        1: 12,
-        2: 14,
-        3: 15,
-        4: 17,
-        5: 18,
-        6: 19,
-        7: 20,
-        8: 21,
-        9: 23,
-        10: 24,
-        11: 25,
-        12: 27,
-        13: 28,
-        14: 29,
-        15: 30,
-        16: 31,
-        17: 32,
-        18: 33,
-        19: 34,
-        20: 36,
-    };
-});
 
 app.factory('emptyCharacter', [function() {
     return function() {
