@@ -1145,7 +1145,7 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
     };
 }]);
 
-app.directive('equipment', ['levelDataService', 'statService', function(levelData, stat) {
+app.directive('equipment', ['editService', 'levelDataService', 'statService', function(edit, levelData, stat) {
     return {
         restrict: 'E',
         transclude: false,
@@ -1155,6 +1155,8 @@ app.directive('equipment', ['levelDataService', 'statService', function(levelDat
         },
         templateUrl: 'views/equipment.html',
         controller: function($scope) {
+            $scope.edit = edit;
+
             function emptyItem() {
                 return {
                     'name': 'item name',
@@ -1192,6 +1194,18 @@ app.directive('equipment', ['levelDataService', 'statService', function(levelDat
             };
             $scope.remove = function(ind) {
                 $scope.level.data.equipment.splice(ind, 1);
+            };
+            $scope.copyPreviousLevel = function() {
+                var levelName = parseInt($scope.level.name);
+                var level = _.reduce($scope.character.data.levels, function(max, lev) {
+                    var name = parseInt(lev.name);
+                    return name < levelName && (max === null || parseInt(max.name) < name) ? lev : max;
+                }, null);
+                if(level === null) {
+                    return;
+                }
+                $scope.edit.clear();
+                $scope.level.data.equipment = angular.copy(level.data.equipment);
             };
             $scope.total = function(type) {
                 return _.reduce($scope.level.data.equipment, function(total, item) {
