@@ -36,7 +36,7 @@ app.filter('orderObjectBy', function() {
 
 app.service('levelDataService', [function() {
     return {
-            '1': { 'ac': 12, 'wealth': 0 },
+            '1': { 'ac': 12, 'wealth': 150 },
             '2': { 'ac': 14, 'wealth': 1000 },
             '3': { 'ac': 15, 'wealth': 3000 },
             '4': { 'ac': 17, 'wealth': 6000 },
