@@ -17,7 +17,7 @@
     <div class="col-md-3"><strong>Value</strong></div>
     <div class="col-md-2"><strong>Weight</strong></div>
 </div>
-<div ng-repeat="item in items" class="row">
+<div ng-repeat="item in level.data.equipment" class="row">
     <button type="button" class="btn btn-danger btn-xs col-md-1 glyphicon glyphicon-remove" ng-click="remove($index)"></button>
     <input-field class="col-md-6" id="'item-name-' + $index" type="'text'" source="item" target="'name'"></input-field>
     <input-field class="col-md-3" id="'item-value-' + $index" type="'number'" step="any" source="item" target="'value'"></input-field>

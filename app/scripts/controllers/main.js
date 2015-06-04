@@ -1187,15 +1187,14 @@ app.directive('equipment', ['levelDataService', 'statService', function(levelDat
                 }
             }
 
-            $scope.items = [];
             $scope.add = function() {
-                $scope.items.push(emptyItem());
+                $scope.level.data.equipment.push(emptyItem());
             };
             $scope.remove = function(ind) {
-                $scope.items.splice(ind, 1);
+                $scope.level.data.equipment.splice(ind, 1);
             };
             $scope.total = function(type) {
-                return _.reduce($scope.items, function(total, item) {
+                return _.reduce($scope.level.data.equipment, function(total, item) {
                     return total += item[type];
                 }, 0);
             };
