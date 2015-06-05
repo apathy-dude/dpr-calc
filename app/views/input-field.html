@@ -7,7 +7,7 @@
 </div>
 <div class="row" ng-if="edit.id === editId">
     <div class="col-md-11">
-        <input ng-if="type !== 'select'" type="{{type}}" ng-change="onChange()" ng-model="editSource[editTarget]" ng-class="cssClass" class="form-control input-sm" step="{{step}}"/>
+        <input auto-focus ng-if="type !== 'select'" type="{{type}}" ng-change="onChange()" ng-model="editSource[editTarget]" ng-class="cssClass" class="form-control input-sm" step="{{step}}"/>
         <select ng-if="type === 'select'" ng-chance="onChance()" ng-model="editSource[editTarget]" ng-class="cssClass" class="form-control input-sm">
             <option ng-repeat="option in options" class="text-capitalize" value="{{ option.value || option }}" ng-selected="editSource[editTarget] == option.value || editSource[editTarget] == option">{{ option.name || option }}</option>
         </select>

@@ -563,6 +563,15 @@ app.factory('emptyDamage', ['bonusService', function(BONUS_TYPE) {
     };
 }]);
 
+app.directive('autoFocus', [function() {
+    return {
+        restrict: 'A',
+        link: function(scope, element) {
+            element[0].focus();
+        }
+    };
+}]);
+
 app.directive('inputField', ['editService', function(edit) {
     return {
         restrict: 'E',

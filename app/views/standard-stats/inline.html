@@ -16,7 +16,7 @@
                 </div>
                 <div class="row" ng-if="edit.id === stat.name + '-' + mod._objectKey">
                     <div class="col-md-6">
-                        <input class="form-control input-sm" type="number" step="any" ng-model="level.data[stat.name][mod._objectKey].value" />
+                        <input auto-focus class="form-control input-sm" type="number" step="any" ng-model="level.data[stat.name][mod._objectKey].value" />
                     </div>
                     <div class="col-md-6">
                         <button type="button" ng-click="edit.clear()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
