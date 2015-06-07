@@ -1245,6 +1245,50 @@ app.directive('equipment', ['editService', 'levelDataService', 'statService', fu
     };
 }]);
 
+app.directive('feat', ['editService', function(edit) {
+    return {
+        restrict: 'E',
+        transclude: false,
+        scope: {
+            character: '=character',
+            level: '=level'
+        },
+        templateUrl: 'views/feat.html',
+        controller: function($scope) {
+            $scope.edit = edit;
+
+            function emptyFeat() {
+                return {
+                    'name': 'feat',
+                    'type': 'general',
+                    'description': 'description'
+                };
+            }
+
+            $scope.add = function() {
+                $scope.level.data.feats.push(emptyFeat());
+            };
+            $scope.remove = function(ind) {
+                $scope.level.data.equipment.splice(ind, 1);
+            };
+        },
+        link: function(scope) {
+            var lev = parseInt(scope.level.name);
+
+            //TODO: issue with not updating when level name gets changed
+            scope.feats = _.reduce(scope.character.data.levels, function(feats, level) {
+                if(parseInt(level.name) < lev) {
+                    return feats.concat(_.map(level.data.feats, function(feat) {
+                        feat.level = level.name;
+                        return feat;
+                    }));
+                }
+                return feats;
+            }, []);
+        }
+    };
+}]);
+
 app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
     var id = 0;
     $scope.edit = edit;
