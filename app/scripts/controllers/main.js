@@ -1279,9 +1279,9 @@ app.directive('feat', ['editService', function(edit) {
             $scope.feats = [];
         },
         link: function(scope) {
-            var lev = parseInt(scope.level.name);
 
             function setFeats() {
+                var lev = parseInt(scope.level.name);
                 scope.feats = _.reduce(scope.character.data.levels, function(feats, level) {
                     if(parseInt(level.name) < lev) {
                         return feats.concat(_.map(level.data.feats, function(feat) {
@@ -1293,7 +1293,6 @@ app.directive('feat', ['editService', function(edit) {
                 }, []);
             }
 
-            //TODO: issue with not updating when level name gets changed
             setFeats();
 
             scope.$watch('level.name', setFeats);
