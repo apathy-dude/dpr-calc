@@ -354,7 +354,8 @@ app.service('dprService', ['statService', 'levelDataService', function(stats, le
     }
     function calculateAttackDPR(character, level, attack) {
         var lev = parseInt(level.name);
-        var targetAC = levelData[lev].ac;
+        var dat = levelData[lev];
+        var targetAC = dat ? dat.ac : 0;
         var hitChance;
         var minHitChance = 0.05;
         var maxHitChance = 0.95;
@@ -1223,7 +1224,11 @@ app.directive('equipment', ['editService', 'levelDataService', 'statService', fu
             };
 
             $scope.wealthByLevel = function(level) {
-                return levelData[level].wealth;
+                var data = levelData[level];
+                if(!data) {
+                    return 0;
+                }
+                return data.wealth;
             };
             $scope.carryCapacity = {
                 light: function(strength) {
@@ -1271,20 +1276,27 @@ app.directive('feat', ['editService', function(edit) {
             $scope.remove = function(ind) {
                 $scope.level.data.equipment.splice(ind, 1);
             };
+            $scope.feats = [];
         },
         link: function(scope) {
             var lev = parseInt(scope.level.name);
 
+            function setFeats() {
+                scope.feats = _.reduce(scope.character.data.levels, function(feats, level) {
+                    if(parseInt(level.name) < lev) {
+                        return feats.concat(_.map(level.data.feats, function(feat) {
+                            feat.level = level.name;
+                            return feat;
+                        }));
+                    }
+                    return feats;
+                }, []);
+            }
+
             //TODO: issue with not updating when level name gets changed
-            scope.feats = _.reduce(scope.character.data.levels, function(feats, level) {
-                if(parseInt(level.name) < lev) {
-                    return feats.concat(_.map(level.data.feats, function(feat) {
-                        feat.level = level.name;
-                        return feat;
-                    }));
-                }
-                return feats;
-            }, []);
+            setFeats();
+
+            scope.$watch('level.name', setFeats);
         }
     };
 }]);
