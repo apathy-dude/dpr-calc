@@ -33,12 +33,12 @@
                          [&nbsp;{{ getValue(character, level, mod) }}&nbsp;]
                     </div>
                     <div class="row" ng-if="edit.id === stat.name + '-' + mod._objectKey">
-                        <div class="col-md-9">
-                            <input auto-focus class="form-control input-sm" type="number" step="any" ng-model="level.data[stat.name][mod._objectKey].value" />
+                        <div class="col-xs-12">
+                            <input class="form-control input-sm" type="number" step="any" ng-model="level.data[stat.name][mod._objectKey].value" />
                         </div>
-                        <div class="col-md-2">
-                            <button type="button" ng-click="edit.clear()" class="btn btn-success btn-xs glyphicon glyphicon-ok"></span>
-                            <button type="button" ng-click="edit.cancel()" class="btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
+                        <div class="col-xs-12">
+                            <button type="button" ng-click="edit.clear()" class="col-xs-6 btn btn-success btn-xs glyphicon glyphicon-ok"></span>
+                            <button type="button" ng-click="edit.cancel()" class="col-xs-6 btn btn-danger btn-xs glyphicon glyphicon-remove"></span>
                         </div>
                     </div>
                 </div>
