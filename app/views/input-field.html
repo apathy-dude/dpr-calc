@@ -1,6 +1,7 @@
 <div class="row">
     <div class="col-xs-12" ng-if="edit.id !== editId">
         <div ng-click="edit.set(editId, editSource, editTarget)" ng-class="cssClass" class="clickable">
+            <a ng-if="deleteFunc" ng-click="deleteFunc(deleteIndex)" class="text-danger glyphicon glyphicon-trash"></a>
             <strong ng-if="title">{{title}}</strong>
             <span ng-if="editName">[&nbsp;{{ editName(editSource[editTarget]) }}&nbsp;]</span>
             <span ng-if="!editName">[&nbsp;{{ editSource[editTarget] }}&nbsp;]</span>

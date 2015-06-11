@@ -1,12 +1,12 @@
 <div class="row">
     <div class="row">
-        <tabset class="col-md-12">
+        <tabset class="col-xs-12">
             <tab ng-repeat="group in level.data.attackGroups" active="group.active" select="edit.clear()">
                 <tab-heading>
                     {{ group.name }}
                     <a ng-click="remove($index)" href=""><i class="glyphicon glyphicon-remove close"></i></a>
                 </tab-heading>
-                <attack-group class="col-md-12" sort="sort" group="group" level="level" character="character"></attack-group>
+                <attack-group class="col-xs-12" sort="sort" group="group" level="level" character="character"></attack-group>
             </tab>
             <tab select="add()">
                 <tab-heading>

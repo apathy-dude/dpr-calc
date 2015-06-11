@@ -588,7 +588,9 @@ app.directive('inputField', ['editService', function(edit) {
             title: '=title',
             step: '=step',
             onChange: '=oncng',
-            options: '=options'
+            options: '=options',
+            deleteFunc: '=delete',
+            deleteIndex: '=delindex'
         },
         link: function(scope) {
             scope.edit = edit;
