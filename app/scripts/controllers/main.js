@@ -1276,7 +1276,7 @@ app.directive('feat', ['editService', function(edit) {
                 $scope.level.data.feats.push(emptyFeat());
             };
             $scope.remove = function(ind) {
-                $scope.level.data.equipment.splice(ind, 1);
+                $scope.level.data.feats.splice(ind, 1);
             };
             $scope.feats = [];
         },
