@@ -1108,6 +1108,21 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
             $scope.levels = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
             $scope.data = [];
             $scope.series = [];
+            $scope.type = 'dpr';
+            $scope.types = [
+                { value: 'dpr', name: 'DPR' },
+                { value: 'level', name: 'Level' }
+            ];
+
+            $scope.charts = {
+                dpr: {
+                    data: [],
+                    series: [],
+                    labels: $scope.levels
+                },
+                level: {
+                },
+            };
         },
         link: function(scope) {
             function characterFilter(character) {
@@ -1145,8 +1160,8 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
                     .value();
             }
             function update() {
-                scope.data = data();
-                scope.series = series();
+                scope.charts[scope.type].data = data();
+                scope.charts[scope.type].series = series();
             }
 
             scope.$on('show-graph', function() {
