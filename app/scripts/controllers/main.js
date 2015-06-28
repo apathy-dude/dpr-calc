@@ -1096,7 +1096,7 @@ app.directive('attackInput', ['bonusService', 'statService', function(BONUS_TYPE
     };
 }]);
 
-app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout) {
+app.directive('graph', ['dprService', '$timeout', 'statService', function(dprService, $timeout, statService) {
     return {
         restrict: 'E',
         transclude: false,
@@ -1108,7 +1108,7 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
             $scope.levels = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
             $scope.data = [];
             $scope.series = [];
-            $scope.type = 'dpr';
+            $scope.type = 'level';
             $scope.types = [
                 { value: 'dpr', name: 'DPR' },
                 { value: 'level', name: 'Level' }
@@ -1121,6 +1121,9 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
                     labels: $scope.levels
                 },
                 level: {
+                    data: [],
+                    series: [],
+                    labels: [ 'ac', 'dpr', 'fort', 'ref', 'will', 'hp', 'init', 'dr', 'sr' ]
                 },
             };
         },
@@ -1132,41 +1135,85 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
                 return character.graph;
             }
 
-            function data() {
+            function levelDpr(character, level) {
+                var lev = _.find(character.data.levels, function(l) { return parseInt(l.name) === parseInt(level); });
+                if(lev) {
+                    return _.reduce(lev.data.attackGroups, function(max, group) {
+                        var dpr = dprService.calculateDPR(character, lev, group);
+                        return max > dpr ? max : dpr;
+                      }, 0);
+                }
+                else {
+                    return 0;
+                }
+            }
+
+            function data(type) {
                 function mapChar(character) {
                     return _.map(scope.levels, function(level) {
-                        var lev = _.find(character.data.levels, function(l) { return parseInt(l.name) === parseInt(level); });
-                        if(lev) {
-                            return _.reduce(lev.data.attackGroups, function(max, group) {
-                                var dpr = dprService.calculateDPR(character, lev, group);
-                                return max > dpr ? max : dpr;
-                              }, 0);
-                        }
-                        else {
-                            return 0;
-                        }
+                        return levelDpr(character, level);
                     });
                 }
 
-                return _.chain(scope.characters)
+                function mapLevelChar(level) {
+                    var labels = [ 'ac', 'dpr', 'fort', 'ref', 'will', 'hp', 'init', 'dr', 'sr' ];
+                    labels[0] += '';
+                    return function(character) {
+                        var lev = _.find(character.data.levels, function(l) { return parseInt(l.name) === parseInt(level); });
+                        return [
+                            statService.get(character, lev, 'ac'),
+                            levelDpr(character, level),
+                            statService.get(character, lev, 'fortitude'),
+                            statService.get(character, lev, 'reflex'),
+                            statService.get(character, lev, 'will'),
+                            statService.get(character, lev, 'hp'),
+                            statService.get(character, lev, 'initiative'),
+                            statService.get(character, lev, 'dr'),
+                            statService.get(character, lev, 'sr'),
+                        ];
+                    };
+                }
+
+                switch(type) {
+                    case 'dpr':
+                        return _.chain(scope.characters)
                             .filter(characterFilter)
                             .map(mapChar)
                             .value();
+                    case 'level':
+                        return _.chain(scope.characters)
+                            .filter(characterFilter)
+                            .map(mapLevelChar(1))
+                            .value();
+                    default: return [];
+                }
+
             }
-            function series() {
-                return _.chain(scope.characters)
-                    .filter(characterFilter)
-                    .map('name')
-                    .value();
+            function series(type) {
+                switch(type) {
+                    case 'dpr':
+                    case 'level':
+                        return _.chain(scope.characters)
+                        .filter(characterFilter)
+                        .map('name')
+                        .value();
+                    default: return [];
+                }
+
+            }
+            function updateType(type) {
+                scope.charts[type].data = data(type);
+                scope.charts[type].series = series(type);
             }
             function update() {
-                scope.charts[scope.type].data = data();
-                scope.charts[scope.type].series = series();
+                updateType('dpr');
+                updateType('level');
             }
 
             scope.$on('show-graph', function() {
                 $timeout(update, 100);
             });
+
             scope.update = update;
         }
     };
