@@ -1123,7 +1123,8 @@ app.directive('graph', ['dprService', '$timeout', 'statService', function(dprSer
                 level: {
                     data: [],
                     series: [],
-                    labels: [ 'ac', 'dpr', 'fort', 'ref', 'will', 'hp', 'init', 'dr', 'sr' ]
+                    labels: [ 'ac', 'dpr', 'fortitude', 'reflex', 'will', 'hp', 'initiative', 'dr', 'sr' ],
+                    level: 1
                 },
             };
         },
@@ -1156,21 +1157,42 @@ app.directive('graph', ['dprService', '$timeout', 'statService', function(dprSer
                 }
 
                 function mapLevelChar(level) {
-                    var labels = [ 'ac', 'dpr', 'fort', 'ref', 'will', 'hp', 'init', 'dr', 'sr' ];
-                    labels[0] += '';
                     return function(character) {
                         var lev = _.find(character.data.levels, function(l) { return parseInt(l.name) === parseInt(level); });
-                        return [
-                            statService.get(character, lev, 'ac'),
-                            levelDpr(character, level),
-                            statService.get(character, lev, 'fortitude'),
-                            statService.get(character, lev, 'reflex'),
-                            statService.get(character, lev, 'will'),
-                            statService.get(character, lev, 'hp'),
-                            statService.get(character, lev, 'initiative'),
-                            statService.get(character, lev, 'dr'),
-                            statService.get(character, lev, 'sr'),
-                        ];
+
+                        return _.map(scope.charts.level.labels, function(item) {
+                                var characterMax = _.max(scope.characters, function(char) {
+                                    var lvl = _.find(character.data.levels, function(lvl) {
+                                        return parseInt(level) === parseInt(lvl.name);
+                                    });
+
+                                    if(!level) {
+                                        return 0;
+                                    }
+
+                                    if(item === 'dpr') {
+                                        return levelDpr(char, lvl.name);
+                                    }
+
+                                    return statService.get(char, lvl, item);
+                                });
+
+                                var maxLevel = _.find(characterMax.data.levels, function(lvl) {
+                                    return parseInt(level) === parseInt(lvl.name);
+                                });
+
+                                var max = item === 'dpr' ? levelDpr(characterMax, maxLevel.name) : statService.get(characterMax, maxLevel, item);
+
+                                if(max === 0) {
+                                    return 0;
+                                }
+
+                                if(item === 'dpr') {
+                                    return levelDpr(character, level) / max;
+                                }
+
+                                return statService.get(character, lev, item) / max;
+                            });
                     };
                 }
 
@@ -1183,11 +1205,10 @@ app.directive('graph', ['dprService', '$timeout', 'statService', function(dprSer
                     case 'level':
                         return _.chain(scope.characters)
                             .filter(characterFilter)
-                            .map(mapLevelChar(1))
+                            .map(mapLevelChar(scope.charts.level.level))
                             .value();
                     default: return [];
                 }
-
             }
             function series(type) {
                 switch(type) {
@@ -1199,7 +1220,6 @@ app.directive('graph', ['dprService', '$timeout', 'statService', function(dprSer
                         .value();
                     default: return [];
                 }
-
             }
             function updateType(type) {
                 scope.charts[type].data = data(type);
