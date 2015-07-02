@@ -1230,9 +1230,11 @@ app.directive('graph', ['dprService', '$timeout', 'statService', function(dprSer
                 updateType('level');
             }
 
-            scope.$on('show-graph', function() {
+            function updateTimeout() {
                 $timeout(update, 100);
-            });
+            };
+
+            scope.$on('show-graph', updateTimeout);
 
             scope.update = update;
         }
