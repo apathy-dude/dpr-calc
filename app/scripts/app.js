@@ -10,12 +10,7 @@
  */
 angular
   .module('dprCalcApp', [
-    'ngAnimate',
-    'ngCookies',
-    'ngResource',
     'ngRoute',
-    'ngSanitize',
-    'ngTouch',
     'ui.bootstrap',
     'chart.js'
   ])

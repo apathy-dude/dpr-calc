@@ -1096,7 +1096,7 @@ app.directive('attackInput', ['bonusService', 'statService', function(BONUS_TYPE
     };
 }]);
 
-app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout) {
+app.directive('graph', ['dprService', '$timeout', 'statService', function(dprService, $timeout, statService) {
     return {
         restrict: 'E',
         transclude: false,
@@ -1108,6 +1108,25 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
             $scope.levels = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
             $scope.data = [];
             $scope.series = [];
+            $scope.type = 'level';
+            $scope.types = [
+                { value: 'dpr', name: 'DPR' },
+                { value: 'level', name: 'Level' }
+            ];
+
+            $scope.charts = {
+                dpr: {
+                    data: [],
+                    series: [],
+                    labels: $scope.levels
+                },
+                level: {
+                    data: [],
+                    series: [],
+                    labels: [ 'ac', 'dpr', 'fortitude', 'reflex', 'will', 'hp', 'initiative', 'dr', 'sr' ],
+                    level: 1
+                },
+            };
         },
         link: function(scope) {
             function characterFilter(character) {
@@ -1117,41 +1136,104 @@ app.directive('graph', ['dprService', '$timeout', function(dprService, $timeout)
                 return character.graph;
             }
 
-            function data() {
+            function levelDpr(character, level) {
+                var lev = _.find(character.data.levels, function(l) { return parseInt(l.name) === parseInt(level); });
+                if(lev) {
+                    return _.reduce(lev.data.attackGroups, function(max, group) {
+                        var dpr = dprService.calculateDPR(character, lev, group);
+                        return max > dpr ? max : dpr;
+                      }, 0);
+                }
+                else {
+                    return 0;
+                }
+            }
+
+            function data(type) {
                 function mapChar(character) {
                     return _.map(scope.levels, function(level) {
-                        var lev = _.find(character.data.levels, function(l) { return parseInt(l.name) === parseInt(level); });
-                        if(lev) {
-                            return _.reduce(lev.data.attackGroups, function(max, group) {
-                                var dpr = dprService.calculateDPR(character, lev, group);
-                                return max > dpr ? max : dpr;
-                              }, 0);
-                        }
-                        else {
-                            return 0;
-                        }
+                        return levelDpr(character, level);
                     });
                 }
 
-                return _.chain(scope.characters)
+                function mapLevelChar(level) {
+                    return function(character) {
+                        var lev = _.find(character.data.levels, function(l) { return parseInt(l.name) === parseInt(level); });
+
+                        return _.map(scope.charts.level.labels, function(item) {
+                                var characterMax = _.max(scope.characters, function(char) {
+                                    var lvl = _.find(character.data.levels, function(lvl) {
+                                        return parseInt(level) === parseInt(lvl.name);
+                                    });
+
+                                    if(!level) {
+                                        return 0;
+                                    }
+
+                                    if(item === 'dpr') {
+                                        return levelDpr(char, lvl.name);
+                                    }
+
+                                    return statService.get(char, lvl, item);
+                                });
+
+                                var maxLevel = _.find(characterMax.data.levels, function(lvl) {
+                                    return parseInt(level) === parseInt(lvl.name);
+                                });
+
+                                var max = item === 'dpr' ? levelDpr(characterMax, maxLevel.name) : statService.get(characterMax, maxLevel, item);
+
+                                if(max === 0) {
+                                    return 0;
+                                }
+
+                                if(item === 'dpr') {
+                                    return levelDpr(character, level) / max;
+                                }
+
+                                return statService.get(character, lev, item) / max;
+                            });
+                    };
+                }
+
+                switch(type) {
+                    case 'dpr':
+                        return _.chain(scope.characters)
                             .filter(characterFilter)
                             .map(mapChar)
                             .value();
+                    case 'level':
+                        return _.chain(scope.characters)
+                            .filter(characterFilter)
+                            .map(mapLevelChar(scope.charts.level.level))
+                            .value();
+                    default: return [];
+                }
             }
-            function series() {
-                return _.chain(scope.characters)
-                    .filter(characterFilter)
-                    .map('name')
-                    .value();
+            function series(type) {
+                switch(type) {
+                    case 'dpr':
+                    case 'level':
+                        return _.chain(scope.characters)
+                        .filter(characterFilter)
+                        .map('name')
+                        .value();
+                    default: return [];
+                }
+            }
+            function updateType(type) {
+                scope.charts[type].data = data(type);
+                scope.charts[type].series = series(type);
             }
             function update() {
-                scope.data = data();
-                scope.series = series();
+                updateType('dpr');
+                updateType('level');
             }
 
             scope.$on('show-graph', function() {
                 $timeout(update, 100);
             });
+
             scope.update = update;
         }
     };
