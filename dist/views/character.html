@@ -1,1 +1,35 @@
-<div class="row"> <div class="col-xs-12 col-md-10"> <input-field id="'name'" css="'h1'" type="'text'" source="character" target="'name'"></input-field> <input-field id="'race'" title="'Race:'" type="'text'" source="character.data" target="'race'"></input-field> <input-field id="'class'" title="'Class:'" type="'text'" source="character.data" target="'class'"></input-field> </div> <div class="visible-md-block visible-lg-block col-md-2 text-center"> <br> <button type="button" class="btn btn-primary" ng-click="download()">Download </button></div> <div class="col-xs-12"><strong>Base Ability Scores</strong></div> <input-ability class="col-xs-12" scores="abilityScores" source="character.data"></input-ability> <div class="col-xs-12"> <strong>Point Buy:</strong> {{ pointBuy(character.data.abilityScores) }} </div> <div class="row"> <tabset class="col-xs-12"> <tab ng-repeat="level in character.data.levels" active="level.active" select="edit.clear()"> <tab-heading> {{ level.name }} <a ng-click="remove($index)" href=""><i class="glyphicon glyphicon-remove close"></i></a> </tab-heading> <level class="col-xs-12" sort="sort" level="level" character="character"></level> </tab> <tab select="add()"> <tab-heading> <span class="glyphicon glyphicon-plus"></span> </tab-heading> </tab> </tabset> </div> </div>
+    <div class="col-xs-12 col-md-10">
+        <input-field id="'name'" css="'h1'" type="'text'" source="character" target="'name'"></input-field>
+        <input-field id="'race'" title="'Race:'" type="'text'" source="character.data" target="'race'"></input-field>
+        <input-field id="'class'" title="'Class:'" type="'text'" source="character.data" target="'class'"></input-field>
+    </div>
+
+    <div class="visible-md-block visible-lg-block col-md-2 text-center">
+        <br>
+        <button type="button" class="btn btn-primary" ng-click="download()">Download</input>
+    </div>
+
+    <div class="col-xs-12"><strong>Base Ability Scores</strong></div>
+    <input-ability class="col-xs-12" scores="abilityScores" source="character.data"></input-ability>
+
+    <div class="col-xs-12">
+        <strong>Point Buy:</strong>
+        {{ pointBuy(character.data.abilityScores) }}
+    </div>
+
+    <div class="row">
+        <tabset class="col-xs-12">
+            <tab ng-repeat="level in character.data.levels" active="level.active" select="edit.clear()">
+                <tab-heading>
+                    {{ level.name }}
+                    <a ng-click="remove($index)" href=""><i class="glyphicon glyphicon-remove close"></i></a>
+                </tab-heading>
+                <level class="col-xs-12" sort="sort" level="level" character="character"></level>
+            </tab>
+            <tab select="add()">
+                <tab-heading>
+                    <span class="glyphicon glyphicon-plus"></span>
+                </tab-heading>
+            </tab>
+        </tabset>
+    </div>

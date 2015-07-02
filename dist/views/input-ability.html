@@ -1,1 +1,12 @@
-<div class="row" ng-repeat="score in scores"> <div class="col-xs-12 col-md-4"> <div class="row"> <div class="col-xs-4 text-capitalize">{{ score }}: </div> <input-field class="col-xs-6" id="score + '-base'" type="'number'" source="target.abilityScores" target="score"></input-field> <div class="col-xs-2"> {{ getAbilityMod(target.abilityScores[score]) }} </div> </div> </div> </div>
+<div class="row" ng-repeat="score in scores">
+    <div class="col-xs-12 col-md-4">
+        <div class="row">
+            <div class="col-xs-4 text-capitalize">{{ score }}: </div>
+            <input-field class="col-xs-6" id="score + '-base'" type="'number'" source="target.abilityScores" target="score"></input-field>
+            <div class="col-xs-2">
+                {{ getAbilityMod(target.abilityScores[score]) }}
+            </div>
+        </div>
+    </div>
+</div>
+

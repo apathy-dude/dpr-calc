@@ -1,1 +1,101 @@
-<div class="container-fluid"> <div class="row"> <div class="col-md-2"> <!-- Sidebar content --> <form class="form-horizontal" role=""> <div class="form-group"> <label for="search-name">Name:</label> <input id="search-name" ng-model="search.name"> </div> <div class="form-group"> <label for="search-bab">BAB:</label> <select id="search-bab" ng-model="search.bab"> <option> <option ng-repeat="value in options.bab" value="{{value}}">{{value}} </select> </div> <div class="form-group"> <label for="search-hd">HD:</label> <select id="search-hd" ng-model="search.hd"> <option> <option ng-repeat="value in options.hd" value="{{value}}">{{value}} </select> </div> <div class="form-group"> <label for="search-fort">Fortitude:</label> <select id="search-fort" ng-model="search.fort"> <option> <option ng-repeat="value in options.saves" value="{{value}}">{{value}} </select> </div> <div class="form-group"> <label for="search-ref">Reflex:</label> <select id="search-ref" ng-model="search.ref"> <option> <option ng-repeat="value in options.saves" value="{{value}}">{{value}} </select> </div> <div class="form-group"> <label for="search-will">Will:</label> <select id="search-will" ng-model="search.will"> <option> <option ng-repeat="value in options.saves" value="{{value}}">{{value}} </select>  </div> <div class="form-group"> <label for="search-skills">Skills:</label> <select id="search-skills" ng-model="search.skills"> <option> <option ng-repeat="value in options.skills" value="{{value}}">{{value}} </select> </div> <div class="form-group"> <label for="order">Sort by:</label> <select id="order" ng-model="orderProp"> <option value="name">Name <option value="-bab">BAB <option value="-hd">HD <option value="fort">Fortitude <option value="ref">Reflex <option value="will">Will <option value="-skills">Skills </select> </div> </form> </div> <div class="col-md-10"> <!-- Body content --> <table class="table"> <tr> <th>Name <th>BAB <th>HD <th>Fortitude <th>Reflex <th>Will <th>Skills  <tr ng-repeat="class in classes | filter:search:strict | orderBy:orderProp" ng-class-odd="'odd'"> <td>{{ class.name }} <td>{{ class.bab }} <td>{{ class.hd }} <td>{{ class.fort }} <td>{{ class.ref }} <td>{{ class.will }} <td>{{ class.skills }}  </table> </div> </div> </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            <!-- Sidebar content -->
+            <form class="form-horizontal" role="">
+                <div class="form-group">
+                    <label for="search-name">Name:</label> <input id="search-name" ng-model="search.name">
+                </div>
+
+                <div class="form-group">
+                    <label for="search-bab">BAB:</label>
+                    <select id="search-bab" ng-model="search.bab">
+                        <option></option>
+                        <option ng-repeat="value in options.bab" value="{{value}}">{{value}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="search-hd">HD:</label>
+                    <select id="search-hd" ng-model="search.hd">
+                        <option></option>
+                        <option ng-repeat="value in options.hd" value="{{value}}">{{value}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="search-fort">Fortitude:</label>
+                    <select id="search-fort" ng-model="search.fort">
+                        <option></option>
+                        <option ng-repeat="value in options.saves" value="{{value}}">{{value}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="search-ref">Reflex:</label>
+                    <select id="search-ref" ng-model="search.ref">
+                        <option></option>
+                        <option ng-repeat="value in options.saves" value="{{value}}">{{value}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="search-will">Will:</label>
+                    <select id="search-will" ng-model="search.will">
+                        <option></option>
+                        <option ng-repeat="value in options.saves" value="{{value}}">{{value}}</option>
+                    </select>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="search-skills">Skills:</label>
+                    <select id="search-skills" ng-model="search.skills">
+                        <option></option>
+                        <option ng-repeat="value in options.skills" value="{{value}}">{{value}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="order">Sort by:</label>
+                    <select id="order" ng-model="orderProp">
+                        <option value="name">Name</option>
+                        <option value="-bab">BAB</option>
+                        <option value="-hd">HD</option>
+                        <option value="fort">Fortitude</option>
+                        <option value="ref">Reflex</option>
+                        <option value="will">Will</option>
+                        <option value="-skills">Skills</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-10">
+            <!-- Body content -->
+
+            <table class="table">
+                <tr>
+                    <th>Name</th>
+                    <th>BAB</th>
+                    <th>HD</th>
+                    <th>Fortitude</th>
+                    <th>Reflex</th>
+                    <th>Will</th>
+                    <th>Skills</th>
+                </tr>
+
+                <tr ng-repeat="class in classes | filter:search:strict | orderBy:orderProp" ng-class-odd="'odd'">
+                    <td>{{ class.name }}</td>
+                    <td>{{ class.bab }}</td>
+                    <td>{{ class.hd }}</td>
+                    <td>{{ class.fort }}</td>
+                    <td>{{ class.ref }}</td>
+                    <td>{{ class.will }}</td>
+                    <td>{{ class.skills }}</td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</div>

@@ -1232,7 +1232,7 @@ app.directive('graph', ['dprService', '$timeout', 'statService', function(dprSer
 
             function updateTimeout() {
                 $timeout(update, 100);
-            };
+            }
 
             scope.$on('show-graph', updateTimeout);
 
