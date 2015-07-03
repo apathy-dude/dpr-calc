@@ -88,7 +88,7 @@ app.service('pointBuyService', function() {
     };
 });
 
-app.service('editService', function() {
+app.service('editService', ['$rootScope', function($rootScope) {
     var edit = {
         id: null,
         value: null,
@@ -129,6 +129,8 @@ app.service('editService', function() {
                 s[t] = edit.dependentValues[d];
             }
         }
+
+        $rootScope.$broadcast('save');
     };
     edit.cancel = function() {
         edit.source[edit.tartet] = edit.value;
@@ -136,7 +138,7 @@ app.service('editService', function() {
     };
 
     return edit;
-});
+}]);
 
 app.service('abilityModService', function() {
     return function(score) {
@@ -1386,11 +1388,11 @@ app.directive('feat', ['editService', function(edit) {
     };
 }]);
 
-app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService', function($scope, empty, edit) {
+app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService', '$cookies', function($scope, empty, edit, $cookies) {
     var id = 0;
     $scope.edit = edit;
 
-    $scope.characters = [];
+    $scope.characters = angular.fromJson($cookies.characters) || [];
 
     function getActive() {
         return _.find($scope.characters, function(character) {
@@ -1452,7 +1454,9 @@ app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService'
         }
     };
 
-    $scope.add();
+    if($scope.characters.length === 0) {
+        $scope.add();
+    }
 
     $scope.uploadActive = false;
     $scope.upload = function() {
@@ -1473,5 +1477,9 @@ app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService'
 
         r.readAsBinaryString(f);
     };
+
+    $scope.$on('save', function() {
+        $cookies.characters = angular.toJson($scope.characters);
+    });
 }]);
 

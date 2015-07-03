@@ -11,6 +11,7 @@
 angular
   .module('dprCalcApp', [
     'ngRoute',
+    'ngCookies',
     'ui.bootstrap',
     'chart.js'
   ])
