@@ -1389,10 +1389,39 @@ app.directive('feat', ['editService', function(edit) {
 }]);
 
 app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService', '$cookies', function($scope, empty, edit, $cookies) {
+    function makeCookies(characters) {
+        function writeCookie(name, value, target) {
+            if(target === undefined || target === null) {
+                target = $cookies;
+            }
+
+            if(_.isArray(value) || _.isObject(value)) {
+                var items = [];
+                for(var i in value) {
+                    items.push(i);
+                    writeCookie(name + '_' + i, value[i], target[i]);
+                }
+                target[name] = items;
+            }
+            else if(_.isNumber(value) || _.isString(value) || _.isBoolean(value) || _.isDate(value)) {
+                target[name] = value;
+            }
+            else if(_.isFunction(value)) {
+                throw 'Cannot save function as a cookie';
+            }
+            else {
+                throw 'Cookie data type not not handled';
+            }
+        }
+
+        var copy = angular.copy(characters);
+        writeCookie('characters', copy);
+    }
+
     var id = 0;
     $scope.edit = edit;
 
-    $scope.characters = angular.fromJson($cookies.characters) || [];
+    $scope.characters = [];
 
     function getActive() {
         return _.find($scope.characters, function(character) {
@@ -1479,7 +1508,7 @@ app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService'
     };
 
     $scope.$on('save', function() {
-        $cookies.characters = angular.toJson($scope.characters);
+        makeCookies($scope.characters);
     });
 }]);
 
