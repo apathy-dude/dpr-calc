@@ -1389,7 +1389,7 @@ app.directive('feat', ['editService', function(edit) {
 }]);
 
 app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService', '$cookies', function($scope, empty, edit, $cookies) {
-    function makeCookies(characters) {
+    function makeCookies(name, value) {
         function writeCookie(name, value, target) {
             if(target === undefined || target === null) {
                 target = $cookies;
@@ -1397,9 +1397,10 @@ app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService'
 
             if(_.isArray(value) || _.isObject(value)) {
                 var items = [];
+                items.push(_.isArray(value) ? 'array' : 'object');
                 for(var i in value) {
                     items.push(i);
-                    writeCookie(name + '_' + i, value[i], target[i]);
+                    writeCookie(name + '-' + i, value[i], target[i]);
                 }
                 target[name] = items;
             }
@@ -1414,14 +1415,43 @@ app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService'
             }
         }
 
-        var copy = angular.copy(characters);
-        writeCookie('characters', copy);
+        var copy = angular.copy(value);
+        writeCookie(name, copy);
+    }
+
+    function loadCookies(base) {
+        function readCookie(name) {
+            var cookie = $cookies[name];
+
+            if(_.isArray(cookie)) {
+                switch(cookie[0]) {
+                    case 'array':
+                        var array = [];
+                        for(var i = 1; i < cookie.length; i++) {
+                            array.push(readCookie(name + '-' + cookie[i]));
+                        }
+                        return array;
+                    case 'object':
+                        var obj = {};
+                        for(var c = 1; i < cookie.length; i++) {
+                            obj[cookie[c]] = readCookie(name + '-' + cookie[c]);
+                        }
+                        return obj;
+                    default:
+                        throw 'Cookie load type not found';
+                }
+            }
+
+            return cookie;
+        }
+
+        return readCookie(base);
     }
 
     var id = 0;
     $scope.edit = edit;
 
-    $scope.characters = [];
+    $scope.characters = loadCookies('characters') || [];
 
     function getActive() {
         return _.find($scope.characters, function(character) {
@@ -1508,7 +1538,7 @@ app.controller('CharacterController', ['$scope', 'emptyCharacter', 'editService'
     };
 
     $scope.$on('save', function() {
-        makeCookies($scope.characters);
+        makeCookies('characters', $scope.characters);
     });
 }]);
 
